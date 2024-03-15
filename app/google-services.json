@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "269390303152",
+    "project_id": "marketapp-105ff",
+    "storage_bucket": "marketapp-105ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269390303152:android:d0803ee1b0ef08f6881075",
+        "android_client_info": {
+          "package_name": "com.example.test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh-SJuUyCx40JukjqnonQkzKRTiW3Wz6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
