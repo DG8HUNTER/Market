@@ -8,8 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
 import com.example.test.Screens.WelcomeScreen
 
@@ -31,9 +34,20 @@ NavHost(navController =navController as NavHostController , startDestination = "
     }
 
     composable(route="SignUpScreen"){
-        Text(text = "SignUpScreen")
+        SignUpScreen(navController=navController)
 
 
+    }
+    composable(route="UserCredentials/{userUID}", arguments = listOf(
+        navArgument(name="userUID"){
+            type= NavType.StringType
+            nullable=false
+        }
+    )){
+
+        backStackEntry ->
+
+        Text(text= backStackEntry.arguments?.get("userUID").toString())
     }
 
 

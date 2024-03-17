@@ -125,7 +125,7 @@ fun WelcomeScreen(navController: NavController){
 
 
         Column(modifier= Modifier
-            .fillMaxWidth().fillMaxHeight(0.4f), verticalArrangement = Arrangement.SpaceAround
+            .fillMaxWidth().fillMaxHeight(0.5f), verticalArrangement = Arrangement.SpaceAround
             , ){
             Column() {
                 Text(
@@ -152,6 +152,7 @@ fun WelcomeScreen(navController: NavController){
                 Image(painter = painterResource(icons[position]), contentDescription ="orderIcon", modifier = Modifier.size(
                     if(product[position]=="Donut") 160.dp else
                     150.dp))
+
             }
 
 
