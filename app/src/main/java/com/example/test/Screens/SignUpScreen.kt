@@ -1,14 +1,19 @@
 package com.example.test.Screens
 
+import android.app.Activity
 import android.content.ContentValues.TAG
 import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,9 +53,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,7 +71,11 @@ import com.example.test.R
 import com.example.test.ui.theme.customGreen
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
-import com.google.firebase.auth.auth
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -150,6 +159,32 @@ fun SignUpScreen(navController: NavController) {
     var creatingAccount by remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
+
+    val signInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                firebaseAuthWithGoogle(account.idToken!!,navController)
+            } catch (e: ApiException) {
+                Toast.makeText(context, "Google sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    val googleSignInClient = remember {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, gso)
+    }
+    var googleButtonClicked by  remember{
+        mutableStateOf(false)
+    }
+
+
+
 
 
 
@@ -526,6 +561,10 @@ fun SignUpScreen(navController: NavController) {
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 focusManager.clearFocus()
+                                if(passwordVerification==null){
+                                    passwordRequirementError=true
+                                    passwordErrorMessage="RequiredField"
+                                }
                             }
                         ),
                         isError = passwordVRequirementError
@@ -659,6 +698,129 @@ fun SignUpScreen(navController: NavController) {
 
 
                 }
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.Transparent),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Already have an account ?",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = " Sign In ",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = customGreen,
+                        modifier = Modifier.clickable {
+                            navController.navigate(route = "SignInScreen") {
+                                popUpTo("SignUpScreen")
+                            }
+                        })
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth(0.47f)
+                            .height(1.dp)
+                            .background(color = mediumGray)
+                            .clip(shape = RoundedCornerShape(20.dp))
+                    )
+                    Text(
+                        text = " OR ",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = mediumGray
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .height(1.dp)
+                            .background(color = mediumGray)
+                            .clip(shape = RoundedCornerShape(20.dp))
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(20.dp))
+                Button(
+                    onClick = {
+                        googleButtonClicked=true
+                        signInLauncher.launch(googleSignInClient.signInIntent) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape = RoundedCornerShape(10.dp))
+                        .border(
+                            width = 1.dp,
+                    shape = RoundedCornerShape(10.dp),
+                    color = mediumGray
+                )
+                        ,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                            .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                            .clip(shape = RoundedCornerShape(10.dp))
+                           ,
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.google),
+                                contentDescription = "Google icon",
+                                tint = Color.Unspecified
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if(googleButtonClicked) "Signing Up" else "Sign Up With Google",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray,
+                                modifier = Modifier.height(24.dp)
+                            )
+                            if (googleButtonClicked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                CircularProgressIndicator(
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(16.dp),
+                                    color = customGreen
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
             }
 
 
@@ -668,6 +830,26 @@ fun SignUpScreen(navController: NavController) {
 
 
         }
+fun firebaseAuthWithGoogle(idToken: String, navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val credential = GoogleAuthProvider.getCredential(idToken, null)
+    auth.signInWithCredential(credential)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Sign in success, update UI with the signed-in user's information
+                val user = auth.currentUser?.uid.toString()
+                navController.navigate("UserCredentials/$user"){
+                    popUpTo(0)
+                }
+                // Handle successful authentication
+            } else {
+                // If sign in fails, display a message to the user.
+                // Handle failed authentication
+            }
+        }
+}
+
+
 
 
 

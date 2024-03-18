@@ -12,6 +12,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
 import com.example.test.Screens.WelcomeScreen
@@ -21,7 +22,7 @@ import com.example.test.Screens.WelcomeScreen
 
 fun Navigation(navController: NavController){
 
-NavHost(navController =navController as NavHostController , startDestination = "SplashScreen") {
+NavHost(navController =navController as NavHostController , startDestination ="SplashScreen") {
 
  composable(route = "SplashScreen"){
      SplashScreen(navController =navController )
@@ -35,6 +36,13 @@ NavHost(navController =navController as NavHostController , startDestination = "
 
     composable(route="SignUpScreen"){
         SignUpScreen(navController=navController)
+
+
+    }
+
+    composable(route="SignInScreen"){
+        SignInScreen(navController=navController)
+
 
 
     }

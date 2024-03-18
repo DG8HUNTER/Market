@@ -50,8 +50,20 @@ class MainActivity : ComponentActivity() {
 
 
             TestTheme {
+                val auth =Firebase.auth
+                val currentUser = auth.currentUser
                 val navController = rememberNavController()
                 Navigation(navController = navController)
+
+                if(currentUser!=null){
+                    navController.navigate("UserCredentials/${currentUser.uid}")
+                }
+
+
+
+
+
+
 
 
 

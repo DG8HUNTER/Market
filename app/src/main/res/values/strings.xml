@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Market</string>
+
+    <string name="default_web_client_id">269390303152-9q4batka9154pgrljgu4fc5cqgkta6fc.apps.googleusercontent.com</string>
 </resources>
