@@ -397,7 +397,7 @@ fun SignInScreen(navController: NavController){
                         fontWeight = FontWeight.Medium,
                         color = customGreen,
                         modifier = Modifier.clickable {
-                           // navController.navigate(route="ResetPassword?userUi=&oldPassword=/SignInScreen")
+                            navController.navigate(route="ResetPassword")
                         }
 
 //                            .clickable(interactionSource=interactionSource, indication = null){

@@ -571,11 +571,13 @@ fun SignUpScreen(navController: NavController) {
                     )
                     if(passwordVerification!=null && password!=passwordVerification){
                         compatibility=false
+                        passwordVRequirementError=true
                         passwordVErrorMessage="Passwords do not match"
                     }
 
                     if(passwordVerification!=null && password==passwordVerification){
                         compatibility=true
+                        passwordVRequirementError=false
 
                     }
 
@@ -639,7 +641,7 @@ fun SignUpScreen(navController: NavController) {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                                     emailRequirementError=true
-                                    emailErrorMessage=task.exception.toString()
+                                    emailErrorMessage="The email address is already in use by another account"
                                     creatingAccount=false
 
 

@@ -53,11 +53,19 @@ class MainActivity : ComponentActivity() {
                 val auth =Firebase.auth
                 val currentUser = auth.currentUser
                 val navController = rememberNavController()
-                Navigation(navController = navController)
 
                 if(currentUser!=null){
-                    navController.navigate("UserCredentials/${currentUser.uid}")
+                    Navigation(navController = navController, startDestination ="WhiteScreen")
+                    navController.navigate("UserCredentials/${currentUser.uid}"){
+                        popUpTo(0)
+                    }
                 }
+                else{
+                    Navigation(navController = navController, startDestination ="SplashScreen")
+                }
+
+
+
 
 
 
