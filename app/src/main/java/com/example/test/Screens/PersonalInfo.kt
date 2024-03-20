@@ -47,7 +47,7 @@ import com.google.firebase.ktx.Firebase
 
 val mainActivityViewModel= MainActivityViewModel()
 @Composable
-fun UserCredential (navController: NavController){
+fun PersonalInfo(navController: NavController){
 val userUid = Firebase.auth.currentUser?.uid.toString()
     val context= LocalContext.current
 

@@ -16,11 +16,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
-import com.example.test.Screens.UserCredential
 import com.example.test.Screens.WelcomeScreen
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -94,7 +94,7 @@ fun Navigation(navController: NavController,startDestination:String) {
         }
 
         composable(route = "PersonalInfo") {
-            UserCredential(navController)
+            PersonalInfo(navController)
 
         }
         composable(route="LocationScreen"){
