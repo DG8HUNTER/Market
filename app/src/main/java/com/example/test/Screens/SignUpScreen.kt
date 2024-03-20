@@ -166,7 +166,7 @@ fun SignUpScreen(navController: NavController) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!,navController)
+                firebaseAuthWithGoogle(account.idToken!!,navController,"SignUp")
             } catch (e: ApiException) {
                 Toast.makeText(context, "Google sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }
@@ -633,7 +633,8 @@ fun SignUpScreen(navController: NavController) {
                                     Log.d(TAG, "createUserWithEmail:success")
                                     val user = auth.currentUser?.uid.toString()
 
-                                    navController.navigate("userCredentials/$user")
+                                   // navController.navigate("userCredentials/$user")
+                                    navController.navigate(route="PersonalInfo")
 
                                     //navgate to userCrendentialScreen
                                    // updateUI(user)
@@ -832,7 +833,7 @@ fun SignUpScreen(navController: NavController) {
 
 
         }
-fun firebaseAuthWithGoogle(idToken: String, navController: NavController) {
+fun firebaseAuthWithGoogle(idToken: String, navController: NavController,Screen:String) {
     val auth = FirebaseAuth.getInstance()
     val credential = GoogleAuthProvider.getCredential(idToken, null)
     auth.signInWithCredential(credential)
@@ -840,8 +841,15 @@ fun firebaseAuthWithGoogle(idToken: String, navController: NavController) {
             if (task.isSuccessful) {
                 // Sign in success, update UI with the signed-in user's information
                 val user = auth.currentUser?.uid.toString()
-                navController.navigate("UserCredentials/$user"){
-                    popUpTo(0)
+                if(Screen=="SignIn") {
+                    navController.navigate("UserCredentials/$user") {
+                        popUpTo(0)
+                    }
+                }else {
+                    navController.navigate("PersonalInfo") {
+                        popUpTo(0)
+                        navController.navigate("SignUpScreen")
+                    }
                 }
                 // Handle successful authentication
             } else {

@@ -147,7 +147,7 @@ fun SignInScreen(navController: NavController){
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!,navController)
+                firebaseAuthWithGoogle(account.idToken!!,navController,"SignIn")
             } catch (e: ApiException) {
                 Toast.makeText(context, "Google sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }

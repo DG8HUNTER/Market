@@ -228,7 +228,7 @@ fun ResetPassword(navController: NavController){
                         emailRequirementError = true
                         emailErrorMessage = "Invalid Email"
                     } else {
-                         FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email!!)
+
                         FirebaseAuth.getInstance().sendPasswordResetEmail(email!!)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {

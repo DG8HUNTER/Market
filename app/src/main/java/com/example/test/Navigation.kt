@@ -20,6 +20,7 @@ import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
+import com.example.test.Screens.UserCredential
 import com.example.test.Screens.WelcomeScreen
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -27,70 +28,78 @@ import com.google.firebase.ktx.Firebase
 
 @Composable
 
-fun Navigation(navController: NavController,startDestination:String){
+fun Navigation(navController: NavController,startDestination:String) {
 
-NavHost(navController =navController as NavHostController , startDestination =startDestination) {
+    NavHost(
+        navController = navController as NavHostController,
+        startDestination = startDestination
+    ) {
 
- composable(route = "SplashScreen"){
-     SplashScreen(navController =navController )
- }
-    composable(route="WhiteScreen"){
-
-    }
-
-    composable(route="WelcomeScreen"){
-
-        WelcomeScreen(navController=navController)
-
-    }
-
-    composable(route="SignUpScreen"){
-        SignUpScreen(navController=navController)
-
-
-    }
-
-    composable(route="SignInScreen"){
-        SignInScreen(navController=navController)
-
-
-
-    }
-    composable(route="ResetPassword"){
-        ResetPassword(navController = navController)
-    }
-    composable(route="UserCredentials/{userUID}", arguments = listOf(
-        navArgument(name="userUID"){
-            type= NavType.StringType
-            nullable=false
+        composable(route = "SplashScreen") {
+            SplashScreen(navController = navController)
         }
-    )){
+        composable(route = "WhiteScreen") {
 
-        backStackEntry ->
+        }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.spacedBy(20.dp)){
-            Text(text= backStackEntry.arguments?.get("userUID").toString())
-            Button(onClick = {
-                Firebase.auth.signOut()
-                navController.navigate(route ="WelcomeScreen"){
-                    popUpTo(0)
+        composable(route = "WelcomeScreen") {
 
+            WelcomeScreen(navController = navController)
 
-                }}) {
-                Text(text = "Sign Out")
+        }
+
+        composable(route = "SignUpScreen") {
+            SignUpScreen(navController = navController)
 
 
+        }
+
+        composable(route = "SignInScreen") {
+            SignInScreen(navController = navController)
+
+
+        }
+        composable(route = "ResetPassword") {
+            ResetPassword(navController = navController)
+        }
+        composable(route = "UserCredentials/{userUID}", arguments = listOf(
+            navArgument(name = "userUID") {
+                type = NavType.StringType
+                nullable = false
             }
+        )) {
+
+                backStackEntry ->
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Text(text = backStackEntry.arguments?.get("userUID").toString())
+                Button(onClick = {
+                    Firebase.auth.signOut()
+                    navController.navigate(route = "WelcomeScreen") {
+                        popUpTo(0)
+
+
+                    }
+                }) {
+                    Text(text = "Sign Out")
+
+
+                }
+            }
+
+
         }
 
+        composable(route = "PersonalInfo") {
+            UserCredential(navController)
+
+        }
+        composable(route="LocationScreen"){
+            Text(text="Location Screen")
+        }
 
     }
-
-
-
-
-}
-
-
-
 }
