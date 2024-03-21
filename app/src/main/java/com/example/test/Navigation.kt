@@ -1,14 +1,11 @@
 package com.example.test
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -16,19 +13,26 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.test.Screens.Home
+import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
 import com.example.test.Screens.WelcomeScreen
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 
 @Composable
 
-fun Navigation(navController: NavController,startDestination:String) {
+fun Navigation(
+    navController: NavController,
+    startDestination: String,
+    fusedLocation: FusedLocationProviderClient
+) {
 
     NavHost(
         navController = navController as NavHostController,
@@ -98,7 +102,18 @@ fun Navigation(navController: NavController,startDestination:String) {
 
         }
         composable(route="LocationScreen"){
-            Text(text="Location Screen")
+           LocationScreen(navController = navController,fusedLocation=fusedLocation)
+
+        }
+
+        composable(route="Home/{currentUser}", arguments = listOf(
+            navArgument(name ="currentUser"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )){backStackEntry->
+            Home(navController=navController,currentUser=backStackEntry.arguments?.get("currentUser").toString())
+
         }
 
     }

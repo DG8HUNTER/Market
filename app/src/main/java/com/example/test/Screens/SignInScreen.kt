@@ -441,7 +441,7 @@ fun SignInScreen(navController: NavController){
                                         // Sign in success, update UI with the signed-in user's information
                                         Log.d("TAG", "signInWithEmail:success")
                                         val userUi = auth.currentUser?.uid.toString()
-                                        navController.navigate("UserCredentials/$userUi"){
+                                        navController.navigate("Home/$userUi"){
                                             popUpTo(0)
 
                                         }

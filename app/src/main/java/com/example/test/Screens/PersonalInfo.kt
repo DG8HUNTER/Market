@@ -229,22 +229,22 @@ db.collection("Users").document(userUid)
                 contentAlignment = Alignment.Center,
             ) {
                 Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
-
-                }
-                Text(
-                    text = if(!submitting)"Submit" else "Submitting",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
-                )
-                if(submitting){
-                    Spacer(modifier = Modifier.width(8.dp))
-                    CircularProgressIndicator(
-                        modifier=Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
+                    Text(
+                        text = if(!submitting)"Submit" else "Submitting",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White
                     )
+                    if(submitting){
+                        Spacer(modifier = Modifier.width(8.dp))
+                        CircularProgressIndicator(
+                            modifier=Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    }
                 }
+
             }
 
 
