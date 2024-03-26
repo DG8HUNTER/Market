@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
+import com.example.test.Screens.OrderScreen
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
@@ -116,5 +117,10 @@ fun Navigation(
 
         }
 
+        composable(route="Orders"){
+            OrderScreen(navController = navController)
+        }
+
     }
 }
+

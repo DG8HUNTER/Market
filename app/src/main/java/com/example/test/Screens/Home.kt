@@ -13,6 +13,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -36,7 +40,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -52,9 +59,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,9 +71,12 @@ import androidx.compose.ui.unit.sp
 
 import androidx.navigation.NavController
 import com.example.test.R
+import com.example.test.ui.theme.customGreen
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import org.checkerframework.checker.units.qual.A
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -93,14 +105,7 @@ fun Home(navController: NavController,currentUser:String){
         mutableStateOf(false)
     }
 
-    val transition = updateTransition(targetState = showMenu, label = null)
-
-
-
-
-
-
-
+    val auth=Firebase.auth
 
 
 
@@ -117,11 +122,97 @@ val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
 
-ModalNavigationDrawer(drawerContent = { ModalDrawerSheet {
-    IconButton(onClick = { scope.launch{drawerState.close()} }) {
-        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="" )
+ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = Color.White ){
+
+    Column(modifier= Modifier
+        .fillMaxSize()
+        .background(color = Color.White)
+        .padding(10.dp)
+        , verticalArrangement = Arrangement.spacedBy(15.dp)
+    ){
+        Column(modifier = Modifier.fillMaxWidth()){
+            Row(horizontalArrangement = Arrangement.Start , verticalAlignment = Alignment.CenterVertically){
+                IconButton(onClick = { scope.launch{drawerState.close()} }) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="" )
+                }
+                Spacer(modifier = Modifier.width(3.dp))
+
+                Text(text="Market", fontWeight = FontWeight.Bold , color = customGreen , fontFamily= FontFamily.Serif, fontSize = 25.sp)
+            }
+            Spacer(modifier = Modifier.width(15.dp))
+
+
+            Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
+                Row(){
+                    Icon(imageVector =Icons.Filled.AccountCircle, contentDescription = "" , tint = Color.Gray)
+                    Spacer(modifier=Modifier.width(5.dp))
+                    Text(text ="Profile" , fontSize =17.sp , fontWeight = FontWeight.Bold)
+                }
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Filled.Edit, contentDescription ="Edit", tint= Color.Gray)
+
+                }
+
+
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(1.dp)
+                    .background(color = Color.LightGray, shape = RoundedCornerShape(5.dp))
+                    .clip(shape = RoundedCornerShape(5.dp))
+            )
+
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)){
+                Spacer(modifier =Modifier.height(3.dp))
+                Text(text = "Name: ${userInfo["FirstName"]} ${userInfo["LastName"]}" , fontSize =15.sp , fontWeight = FontWeight.Bold )
+                Text(text = "Email: ${auth.currentUser?.email.toString()} " , fontSize =15.sp , fontWeight = FontWeight.Bold )
+                Text(text="Phone Number : +961-${userInfo["PhoneNumber"]}", fontSize = 15.sp  , fontWeight = FontWeight.Bold)
+            }
+        }
+
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .height(1.dp)
+                .background(color = Color.LightGray, shape = RoundedCornerShape(5.dp))
+                .clip(shape = RoundedCornerShape(5.dp))
+        )
+        Row(){
+            NavigationDrawerItem(label = {Text(text="Orders") }, selected = false, onClick = { navController.navigate(route="Orders"){
+
+            } }, modifier = Modifier.background(color = Color.Transparent).fillMaxWidth(), icon = { Icon(
+                painterResource(id = R.drawable.shoppingbasket),
+                contentDescription ="Shopping Bag",
+                modifier=Modifier.size(22.dp)
+            )} , colors= NavigationDrawerItemDefaults.colors(
+                unselectedContainerColor = Color.Transparent
+            ))
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      //  NavigationDrawerItem(label = { Text(text = "Hello") }, selected =false , onClick = { /*TODO*/ })
     }
-    NavigationDrawerItem(label = { Text(text = "Hello") }, selected =false , onClick = { /*TODO*/ })
+
+
+
 } },modifier= Modifier
     .fillMaxHeight()
     .background(color = Color.Gray)
