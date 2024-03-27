@@ -105,9 +105,8 @@ fun Home(navController: NavController,currentUser:String){
         mutableStateOf(false)
     }
 
+
     val auth=Firebase.auth
-
-
 
         db.collection("Users").document(currentUser)
             .get()
@@ -148,7 +147,9 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                     Spacer(modifier=Modifier.width(5.dp))
                     Text(text ="Profile" , fontSize =17.sp , fontWeight = FontWeight.Bold)
                 }
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { navController.navigate(route="PersonalInfo/Home"){
+
+                } }) {
                     Icon(imageVector = Icons.Filled.Edit, contentDescription ="Edit", tint= Color.Gray)
 
                 }
@@ -179,10 +180,12 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                 .background(color = Color.LightGray, shape = RoundedCornerShape(5.dp))
                 .clip(shape = RoundedCornerShape(5.dp))
         )
-        Row(){
+
             NavigationDrawerItem(label = {Text(text="Orders") }, selected = false, onClick = { navController.navigate(route="Orders"){
 
-            } }, modifier = Modifier.background(color = Color.Transparent).fillMaxWidth(), icon = { Icon(
+            } }, modifier = Modifier
+                .background(color = Color.Transparent)
+                .fillMaxWidth(), icon = { Icon(
                 painterResource(id = R.drawable.shoppingbasket),
                 contentDescription ="Shopping Bag",
                 modifier=Modifier.size(22.dp)
@@ -190,8 +193,25 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                 unselectedContainerColor = Color.Transparent
             ))
 
+        NavigationDrawerItem(label = { Text(text = "Log Out") }, selected = false,
+            onClick = {
+                auth.signOut()
+                navController.navigate("WelcomeScreen"){
+                    popUpTo(0)
+                }
+            },modifier = Modifier
+                .background(color = Color.Transparent)
+                .fillMaxWidth(),icon = { Icon(
+                painterResource(id = R.drawable.signoutfilled),
+                contentDescription ="Shopping Bag",
+                modifier=Modifier.size(22.dp)
+            )}, colors= NavigationDrawerItemDefaults.colors(
+                unselectedContainerColor = Color.Transparent
+            ))
 
-        }
+
+
+
 
 
 

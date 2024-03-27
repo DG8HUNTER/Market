@@ -172,7 +172,9 @@ Toast.makeText(context,"Failed to get Location",Toast.LENGTH_LONG).show()
                     .addOnCompleteListener {task->
                         if(task.isSuccessful){
 
-                            navController.navigate(route="Home/$currentUser")
+                            navController.navigate(route="Home/$currentUser"){
+                                popUpTo(0)
+                            }
 
 
 

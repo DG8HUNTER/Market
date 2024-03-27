@@ -18,11 +18,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,7 +53,7 @@ import com.google.firebase.ktx.Firebase
 
 val mainActivityViewModel= MainActivityViewModel()
 @Composable
-fun PersonalInfo(navController: NavController){
+fun PersonalInfo(navController: NavController ,screen:String){
 val userUid = Firebase.auth.currentUser?.uid.toString()
     val context= LocalContext.current
 
@@ -100,6 +106,26 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
     val db = Firebase.firestore
 
 
+    LaunchedEffect(key1 = true) {
+        if(screen!="SignUp"){
+            db.collection("Users").document(userUid)
+                .get()
+                .addOnSuccessListener { document->
+                    if(document !=null)
+                    mainActivityViewModel.setValue(document.data?.get("FirstName").toString() , "firstName")
+                    mainActivityViewModel.setValue(document.data?.get("LastName").toString() , "lastName")
+                    mainActivityViewModel.setValue(document.data?.get("PhoneNumber").toString() , "phoneNumber")
+
+                }
+        }
+
+        else {
+            mainActivityViewModel.setValue(null , "firstName")
+            mainActivityViewModel.setValue(null, "lastName")
+            mainActivityViewModel.setValue(null , "phoneNumber")
+        }
+
+    }
 
 
 
@@ -110,7 +136,16 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
         horizontalAlignment = Alignment.CenterHorizontally
 
     ){
-        Text(text="Personal Info" , fontSize = 25.sp , fontWeight = FontWeight.Bold)
+        Row(modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.spacedBy(5.dp) , verticalAlignment = Alignment.CenterVertically){
+           if(screen!="SignUp") {IconButton(onClick = { navController.popBackStack()
+
+           }) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="Arrow Back" )}
+
+                Text(text="Personal Info" , fontSize = 25.sp , fontWeight = FontWeight.Bold)
+            }
+        }
+
 
         Column(modifier=Modifier
             .fillMaxWidth(),
@@ -187,23 +222,42 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
             }
             if(!mainActivityViewModel.firstNameError.value && !mainActivityViewModel.lastNameError.value&& !mainActivityViewModel.phoneNumberError.value){
                 submitting=true
-                val user= hashMapOf(
-                    "UserID" to userUid,
-                    "FirstName" to mainActivityViewModel.firstName.value,
-                    "LastName" to mainActivityViewModel.lastName.value,
-                    "Location" to "",
-                    "PhoneNumber" to mainActivityViewModel.phoneNumber.value)
 
-db.collection("Users").document(userUid)
-    .set(user)
-    .addOnSuccessListener {
+                if(screen=="SignUp") {
+                    val user = hashMapOf(
+                        "UserID" to userUid,
+                        "FirstName" to mainActivityViewModel.firstName.value,
+                        "LastName" to mainActivityViewModel.lastName.value,
+                        "Location" to "",
+                        "PhoneNumber" to mainActivityViewModel.phoneNumber.value
+                    )
 
-        navController.navigate(route="LocationScreen")
+                    db.collection("Users").document(userUid)
+                        .set(user)
+                        .addOnSuccessListener {
 
-    }
-    .addOnFailureListener {
-        Toast.makeText(context , "Failed To insert user", Toast.LENGTH_LONG).show()
-    }
+                            navController.navigate(route = "LocationScreen")
+
+
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed To insert user", Toast.LENGTH_LONG)
+                                .show()
+                        }
+
+                }    else{
+                    db.collection("Users").document(userUid)
+                        .update("FirstName", mainActivityViewModel.firstName.value.toString())
+
+                    db.collection("Users").document(userUid)
+                        .update("LastName", mainActivityViewModel.lastName.value.toString())
+
+                    db.collection("Users").document(userUid)
+                        .update("PhoneNumber" , mainActivityViewModel.phoneNumber.value.toString())
+
+                    navController.popBackStack()
+
+                }
 
             }
 
@@ -230,7 +284,13 @@ db.collection("Users").document(userUid)
             ) {
                 Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
                     Text(
-                        text = if(!submitting)"Submit" else "Submitting",
+                        text = if(screen=="SignUp")
+                        {if(!submitting)"Submit" else "Submitting"}
+                        else{
+                            if(!submitting)"Update" else "Updating"
+                        }
+
+                        ,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White

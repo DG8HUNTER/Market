@@ -634,7 +634,7 @@ fun SignUpScreen(navController: NavController) {
                                     val user = auth.currentUser?.uid.toString()
 
                                    // navController.navigate("userCredentials/$user")
-                                    navController.navigate(route="PersonalInfo")
+                                    navController.navigate(route="PersonalInfo/SignUp")
 
                                     //navgate to userCrendentialScreen
                                    // updateUI(user)
@@ -842,13 +842,13 @@ fun firebaseAuthWithGoogle(idToken: String, navController: NavController,Screen:
                 // Sign in success, update UI with the signed-in user's information
                 val user = auth.currentUser?.uid.toString()
                 if(Screen=="SignIn") {
-                    navController.navigate("UserCredentials/$user") {
+                        navController.navigate("Home/$user") {
                         popUpTo(0)
                     }
                 }else {
-                    navController.navigate("PersonalInfo") {
-                        popUpTo(0)
-                        navController.navigate("SignUpScreen")
+                    navController.navigate("PersonalInfo/SignUp") {
+                     //   popUpTo(0)
+                      //  navController.navigate("SignUpScreen")
                     }
                 }
                 // Handle successful authentication

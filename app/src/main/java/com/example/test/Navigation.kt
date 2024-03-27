@@ -98,8 +98,15 @@ fun Navigation(
 
         }
 
-        composable(route = "PersonalInfo") {
-            PersonalInfo(navController)
+        composable(route = "PersonalInfo/{screen}" , arguments=listOf(
+            navArgument(name="screen"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )) {
+            backStackEntry->
+
+            PersonalInfo(navController, screen=backStackEntry.arguments?.get("screen").toString())
 
         }
         composable(route="LocationScreen"){
