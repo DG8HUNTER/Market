@@ -183,15 +183,29 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
 
             NavigationDrawerItem(label = {Text(text="Orders") }, selected = false, onClick = { navController.navigate(route="Orders"){
 
-            } }, modifier = Modifier
+            } }, modifier = Modifier.height(50.dp)
                 .background(color = Color.Transparent)
                 .fillMaxWidth(), icon = { Icon(
                 painterResource(id = R.drawable.shoppingbasket),
-                contentDescription ="Shopping Bag",
-                modifier=Modifier.size(22.dp)
+                contentDescription ="Shopping Bag",modifier=Modifier.size(22.dp)
+
             )} , colors= NavigationDrawerItemDefaults.colors(
                 unselectedContainerColor = Color.Transparent
             ))
+
+        NavigationDrawerItem(label = { Text(text = "Change Password")}
+            , selected = false,
+            onClick = { navController.navigate(route="ChangePasswordSecurityScreen") },
+            icon = {Icon(painter = painterResource(id = R.drawable.changepassword), contentDescription ="change Password" ,modifier=Modifier.size(24.dp))},
+            modifier = Modifier.height(50.dp)
+                .background(color = Color.Transparent)
+                .fillMaxWidth(),
+            colors= NavigationDrawerItemDefaults.colors(
+                unselectedContainerColor = Color.Transparent
+            )
+
+        )
+
 
         NavigationDrawerItem(label = { Text(text = "Log Out") }, selected = false,
             onClick = {
@@ -199,15 +213,16 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                 navController.navigate("WelcomeScreen"){
                     popUpTo(0)
                 }
-            },modifier = Modifier
+            },modifier = Modifier.height(50.dp)
                 .background(color = Color.Transparent)
                 .fillMaxWidth(),icon = { Icon(
                 painterResource(id = R.drawable.signoutfilled),
-                contentDescription ="Shopping Bag",
-                modifier=Modifier.size(22.dp)
+                contentDescription ="Shopping Bag",modifier=Modifier.size(22.dp),
             )}, colors= NavigationDrawerItemDefaults.colors(
                 unselectedContainerColor = Color.Transparent
             ))
+
+
 
 
 

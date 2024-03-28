@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -53,7 +54,7 @@ val currentUser = Firebase.auth.currentUser?.uid.toString()
 
             Row(modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.spacedBy(5.dp) , verticalAlignment = Alignment.CenterVertically){
                 IconButton(onClick = {navController.popBackStack()}) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="Arrow Back")
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="Arrow Back", modifier = Modifier.size(22.dp))
 
                 }
                 Text(text=" My Orders" , fontSize = 22.sp , fontWeight = FontWeight.Bold)

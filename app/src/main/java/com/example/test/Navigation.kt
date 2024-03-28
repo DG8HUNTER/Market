@@ -13,6 +13,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.test.Screens.ChangePasswordScreen
+import com.example.test.Screens.ChangePasswordSecurityScreen
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.OrderScreen
@@ -107,7 +109,6 @@ fun Navigation(
             backStackEntry->
 
             PersonalInfo(navController, screen=backStackEntry.arguments?.get("screen").toString())
-
         }
         composable(route="LocationScreen"){
            LocationScreen(navController = navController,fusedLocation=fusedLocation)
@@ -126,6 +127,16 @@ fun Navigation(
 
         composable(route="Orders"){
             OrderScreen(navController = navController)
+        }
+
+        composable(route="ChangePasswordSecurityScreen"){
+            ChangePasswordSecurityScreen(navController=navController)
+
+        }
+
+        composable(route="ChangePasswordScreen"){
+            ChangePasswordScreen(navController=navController)
+
         }
 
     }
