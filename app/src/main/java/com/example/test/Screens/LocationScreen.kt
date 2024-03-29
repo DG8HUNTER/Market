@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
@@ -70,7 +71,7 @@ fun LocationScreen(navController: NavController,fusedLocation:FusedLocationProvi
             Spacer(modifier=Modifier.height(5.dp))
             Text(text="Location access need to be enabled to view stores around you", fontSize=16.sp , fontWeight = FontWeight.Medium,color= mediumGray,modifier=Modifier.fillMaxWidth(0.8f), textAlign = TextAlign.Center)
             Spacer(modifier=Modifier.height(15.dp))
-            Button(onClick = { getLocation(fusedLocation ,context,navController
+            Button(onClick = { getLocation(fusedLocation ,context,navController,screen="LocationScreen"
             )} , modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .clip(shape=RoundedCornerShape(2.dp)),
@@ -109,10 +110,11 @@ fun LocationScreen(navController: NavController,fusedLocation:FusedLocationProvi
 
 
 
-private fun getLocation(
+fun getLocation(
     fusedLocationProviderClient: FusedLocationProviderClient,
     context: Context,
-    navController: NavController
+    navController: NavController,
+    screen:String
 
     ){
     //Check location permission
@@ -133,7 +135,8 @@ private fun getLocation(
                 latitude =latitude ,
                 longitude =longitude ,
                 context = context,
-                navController = navController
+                navController = navController,
+                screen=screen
 
             )
 
@@ -151,7 +154,8 @@ fun AddressFromCoordinates(
     latitude: Double,
     longitude: Double,
     context: Context,
-    navController: NavController
+    navController: NavController,
+    screen: String
 
 ) {
     val geocoder = Geocoder(context, Locale.getDefault())
@@ -171,9 +175,15 @@ Toast.makeText(context,"Failed to get Location",Toast.LENGTH_LONG).show()
                     .update("Location",userAddress)
                     .addOnCompleteListener {task->
                         if(task.isSuccessful){
+                            if(screen=="LocationScreen") {
 
-                            navController.navigate(route="Home/$currentUser"){
-                                popUpTo(0)
+                                navController.navigate(route = "Home/$currentUser") {
+                                    popUpTo(0)
+                                }
+                            }
+                            else {
+
+                                Toast.makeText(context , "Location Refreshed Successfully" , Toast.LENGTH_SHORT).show()
                             }
 
 

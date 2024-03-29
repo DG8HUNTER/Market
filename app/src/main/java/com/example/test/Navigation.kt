@@ -121,7 +121,7 @@ fun Navigation(
                 nullable=false
             }
         )){backStackEntry->
-            Home(navController=navController,currentUser=backStackEntry.arguments?.get("currentUser").toString())
+            Home(navController=navController,currentUser=backStackEntry.arguments?.get("currentUser").toString(), fusedLocation=fusedLocation)
 
         }
 

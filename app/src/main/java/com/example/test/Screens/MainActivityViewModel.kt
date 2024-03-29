@@ -26,6 +26,9 @@ class MainActivityViewModel {
     private val _phoneNumberError :MutableState<Boolean> = mutableStateOf(false)
     val phoneNumberError :State<Boolean> = _phoneNumberError
 
+    private val  _rotate :MutableState<Boolean> = mutableStateOf(false)
+    val rotate :State<Boolean> = _rotate
+
 
 
     fun setValue(newValue:Any?, name:String){
@@ -37,6 +40,7 @@ class MainActivityViewModel {
             "firstNameError"-> if(newValue!=null)_firstNameError.value= newValue as Boolean
             "lastNameError" -> if(newValue!=null)_lastNameError.value=newValue as Boolean
             "phoneNumberError"-> if(newValue!=null)_phoneNumberError.value=newValue as Boolean
+            "rotate" -> if (newValue!=null) _rotate.value=newValue as Boolean
         }
     }
 

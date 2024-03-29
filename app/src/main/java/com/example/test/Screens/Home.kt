@@ -2,20 +2,14 @@ package com.example.test.Screens
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.Menu
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,56 +25,58 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DrawerState
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import androidx.navigation.NavController
 import com.example.test.R
 import com.example.test.ui.theme.customGreen
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import org.checkerframework.checker.units.qual.A
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun Home(navController: NavController,currentUser:String){
+fun Home(
+    navController: NavController,
+    currentUser: String,
+    fusedLocation: FusedLocationProviderClient
+){
 
   var userInfo :MutableMap<String, Any> by remember {
       mutableStateOf(
@@ -104,6 +99,17 @@ fun Home(navController: NavController,currentUser:String){
 
         mutableStateOf(false)
     }
+    val context= LocalContext.current
+
+
+    var rotate  by remember{
+        mutableFloatStateOf(0f)
+    }
+
+    val rotation = animateFloatAsState(targetValue = rotate , animationSpec = tween(2000 , easing = FastOutSlowInEasing),
+        label = ""
+
+    )
 
 
     val auth=Firebase.auth
@@ -183,7 +189,8 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
 
             NavigationDrawerItem(label = {Text(text="Orders") }, selected = false, onClick = { navController.navigate(route="Orders"){
 
-            } }, modifier = Modifier.height(50.dp)
+            } }, modifier = Modifier
+                .height(50.dp)
                 .background(color = Color.Transparent)
                 .fillMaxWidth(), icon = { Icon(
                 painterResource(id = R.drawable.shoppingbasket),
@@ -193,11 +200,25 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                 unselectedContainerColor = Color.Transparent
             ))
 
+        NavigationDrawerItem(label = {Text(text="Refresh Location") }, selected = false, onClick = {getLocation(fusedLocation ,context,navController,screen="Home"
+        ) }, modifier = Modifier
+            .height(50.dp)
+            .background(color = Color.Transparent)
+            .fillMaxWidth(), icon = { Icon(
+            painterResource(id = R.drawable.refreshlocation),
+            contentDescription ="Shopping Bag",modifier=Modifier.size(22.dp)
+
+        )} , colors= NavigationDrawerItemDefaults.colors(
+            unselectedContainerColor = Color.Transparent
+        ))
+
+
         NavigationDrawerItem(label = { Text(text = "Change Password")}
             , selected = false,
             onClick = { navController.navigate(route="ChangePasswordSecurityScreen") },
             icon = {Icon(painter = painterResource(id = R.drawable.changepassword), contentDescription ="change Password" ,modifier=Modifier.size(24.dp))},
-            modifier = Modifier.height(50.dp)
+            modifier = Modifier
+                .height(50.dp)
                 .background(color = Color.Transparent)
                 .fillMaxWidth(),
             colors= NavigationDrawerItemDefaults.colors(
@@ -213,7 +234,8 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                 navController.navigate("WelcomeScreen"){
                     popUpTo(0)
                 }
-            },modifier = Modifier.height(50.dp)
+            },modifier = Modifier
+                .height(50.dp)
                 .background(color = Color.Transparent)
                 .fillMaxWidth(),icon = { Icon(
                 painterResource(id = R.drawable.signoutfilled),
@@ -251,19 +273,15 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
 } },modifier= Modifier
     .fillMaxHeight()
     .background(color = Color.Gray)
-    .fillMaxWidth(0.8f), drawerState =drawerState ) {
+    .fillMaxWidth(), drawerState =drawerState ) {
 
     Scaffold(topBar = {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
 
-
-        ) {
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
@@ -283,9 +301,10 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
 
                 Spacer(modifier = Modifier.width(15.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(0.9f),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.Start,
+
                 ) {
                     Text(
                         text = "Shops In",
@@ -300,13 +319,26 @@ ModalNavigationDrawer(drawerContent = { ModalDrawerSheet(drawerContainerColor = 
                     )
 
                 }
+                IconButton(onClick = {
+               rotate += 720f
+                    getLocation(fusedLocation ,context,navController,screen="Home")
+
+
+                }) {
+                    Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Refresh" , tint=Color.Gray , modifier = Modifier
+                        .size(22.dp)
+                        .rotate(
+                            rotation.value
+                        ))
+
+                }
 
 
             }
-        }
 
 
-    }){}
+
+    }, modifier=Modifier.fillMaxSize()){}
 
 
 
