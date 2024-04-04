@@ -74,10 +74,10 @@ fun Store(data: HashMap<String, Any>){
 
 
 
-    val operatingTime = data["OperatingField"] as HashMap <*, *>
-    val todayOperatingTime = operatingTime[dayName] as HashMap<*,*>
-    val todayOpeningTimeString = todayOperatingTime["OpeningTime"]
-    val todayClosingTimeString = todayOperatingTime["ClosingTime"]
+    val operatingTime = data["OperatingField"] as? HashMap <*, *>
+    val todayOperatingTime = operatingTime?.get(dayName)as? HashMap<*,*>
+    val todayOpeningTimeString = todayOperatingTime?.get("OpeningTime")
+    val todayClosingTimeString = todayOperatingTime?.get("ClosingTime")
 
     val todayOpeningDateTime = parseTime(todayOpeningTimeString.toString())
     val todayClosingDateTime = parseTime(todayClosingTimeString.toString())
@@ -90,6 +90,8 @@ fun Store(data: HashMap<String, Any>){
     }
 
     Log.d("current Timeeee",mainActivityViewModel.currentTime.value.toString())
+
+
 
 
 
@@ -140,7 +142,7 @@ fun Store(data: HashMap<String, Any>){
                     )
 
                     Row(verticalAlignment = Alignment.CenterVertically){
-                       Image(painter = painterResource(id = if(status=="Open") R.drawable.open else R.drawable.close), contentDescription ="Status Icon" ,modifier=Modifier.size(10.dp) )
+                     Image(painter = painterResource(id = if(status=="Open") R.drawable.open else R.drawable.close), contentDescription ="Status Icon" ,modifier=Modifier.size(10.dp) )
                         Spacer(modifier=Modifier.width(5.dp))
                         Text(text= status , fontSize = 14.sp , color=Color.Gray, fontWeight = FontWeight.Medium)
                     }

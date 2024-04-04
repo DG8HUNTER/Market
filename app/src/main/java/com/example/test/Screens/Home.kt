@@ -1,11 +1,16 @@
 package com.example.test.Screens
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,8 +32,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,7 +45,10 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 
 import androidx.compose.runtime.Composable
@@ -53,6 +63,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -72,6 +84,14 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalFocusManager
+
+import com.example.test.ui.theme.lightGray2
+import com.example.test.ui.theme.mediumGray
+import com.google.firebase.firestore.DocumentSnapshot
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -96,6 +116,22 @@ fun Home(
             )
         )
     }
+
+    val storeData by remember {
+        mutableStateOf(
+            mainActivityViewModel.stores.value
+        )
+    }
+
+
+    var store: HashMap<String, Any> by remember {
+        mutableStateOf(hashMapOf())
+    }
+
+    //  val storeListSize: State<Int> = derivedStateOf {
+    //    mainActivityViewModel.stores.value.size
+    //}
+
     var location by remember {
         mutableStateOf(userInfo["Location"])
     }
@@ -111,13 +147,32 @@ fun Home(
     var rotate by remember {
         mutableFloatStateOf(0f)
     }
+    val transition = rememberInfiniteTransition(label = "")
+    val translateAnim = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(animation = tween(4000, easing = FastOutSlowInEasing)),
+        label = ""
+    )
+    val brush =
+        Brush.linearGradient(
+            colors = listOf(
+                customGreen,
+                Color(
+                    0xFF93E2AE
+
+                ),
+            ), start = Offset.Zero, end = Offset(x = translateAnim.value, y = translateAnim.value)
+        )
+
+    val stores = remember { mainActivityViewModel.stores.value }
 
     val rotation = animateFloatAsState(
         targetValue = rotate, animationSpec = tween(2000, easing = FastOutSlowInEasing),
         label = ""
 
     )
-
+    var launchedEffectExecuted by remember { mutableStateOf(false) }
 
     val auth = Firebase.auth
 
@@ -128,6 +183,97 @@ fun Home(
             userInfo = document.data!! as MutableMap<String, Any>
             Log.d("user", document.data!!.toString())
         }
+
+    var lastVisible: DocumentSnapshot? = null
+    val dbRef = Firebase.firestore
+
+    val focus = LocalFocusManager.current
+
+    /* LaunchedEffect(key1=true) {
+   if(!mainActivityViewModel.homeLaunchedEffectExecuted.value) {
+
+        Log.d("store before", mainActivityViewModel.stores.value.toString())
+        val documents= dbRef.collection("Stores").get().await()
+                if (documents != null) {
+
+                    for (document in documents) {
+
+                        Log.d("document", document.data.toString())
+                        mainActivityViewModel.addToStores(newValue = document.data as HashMap<String, Any>)
+                        Log.d("stores after", mainActivityViewModel.stores.value.toString())
+                    }
+                }
+
+        mainActivityViewModel.setValue(true , "homeLaunchedEffectExecuted")
+   }
+
+}
+    */
+
+    LaunchedEffect(true){
+    val storesRef = dbRef.collection("Stores")
+
+    storesRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null && snapshot.documents.isNotEmpty()) {
+            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
+            Log.d("_stores", mainActivityViewModel.stores.value.toString())
+            for (document in snapshot.documents) {
+                mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
+            }
+            // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
+        } else {
+            Log.d(TAG, "Current data: null")
+        }
+    }
+}
+
+    var search :String? by remember{
+        mutableStateOf(null)
+    }
+
+    var clearIcon = animateColorAsState(targetValue =if(search!=null)Color.Black else Color.Transparent , label="" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
+  /*  val buffer = 1
+    val listState = rememberLazyListState()
+
+
+    val reachedBottom: Boolean by remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem?.index != 0 && lastVisibleItem?.index == listState.layoutInfo.totalItemsCount - buffer
+        }
+    }
+
+    Log.d("reached ?" , reachedBottom.toString())
+ LaunchedEffect(reachedBottom) {
+        if (reachedBottom) {
+            dbRef.collection("Stores").orderBy("name").startAfter(lastVisible).limit(7).get()
+                .addOnSuccessListener { documentSnapshots ->
+                    if (!documentSnapshots.isEmpty) {
+                        lastVisible = documentSnapshots.documents[documentSnapshots.size() - 1]
+                    }
+                }
+                .addOnSuccessListener { documents ->
+                    if(documents != null) {
+                        for (document in documents) {
+
+                            mainActivityViewModel.addToStores(newValue = document.data as HashMap<String, Any>)
+                        }
+                    }
+                    else {
+                    Toast.makeText(context, "No more stores", Toast.LENGTH_SHORT).show()
+
+                }
+                }
+        }
+    }
+
+
+*/
 
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -335,7 +481,7 @@ fun Home(
                     )
 
 
-                    //  NavigationDrawerItem(label = { Text(text = "Hello") }, selected =false , onClick = { /*TODO*/ })
+
                 }
 
 
@@ -416,48 +562,116 @@ fun Home(
 
             },
             modifier = Modifier.fillMaxSize(),
-        ) {innerPadding->
-            val size= mainActivityViewModel.stores.value.size
+        ) { innerPadding ->
+
+            Column(modifier= Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(start = 20.dp, end = 20.dp) ){
+
+                // Text(text= optionSelected , fontSize = 15.sp)
+                SearchBar(
+                    query = if(search!=null) search.toString() else "",
+                    onQueryChange = {
+                        search = if(it.isNotEmpty()){
+                            it
+                        } else {
+                            null
+                        }
+                    },
+                    onSearch ={
+
+                          scope.launch {
+                              focus.clearFocus()
+                              Log.d("Launcheddd","yessss")
+                              searchStore(search = search)
+                              // Process the result
+                          }
 
 
+                    } ,
+                    active = true,
+                    onActiveChange = {},
+                    modifier= Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp)
+                        .height(67.dp)
+                        .clip(shape = RoundedCornerShape(5.dp)),
+                    placeholder = { Text(text = "Search For any Store or Restaurant", fontSize = 14.sp , modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(), color = Color.Black)},
+                    colors=SearchBarDefaults.colors(
+                        containerColor = lightGray2,
+                        inputFieldColors = TextFieldDefaults.colors(
+                            cursorColor = customGreen,
+                            focusedTextColor = Color.Black,
 
-LaunchedEffect(true){
+                        )
 
-
-                val dbRef = Firebase.firestore
-                dbRef.collection("Stores").get()
-                    .addOnSuccessListener { documents ->
-                        if (documents != null) {
-                            for (document in documents) {
-
-                                Log.d("document", document.data.toString())
-                                mainActivityViewModel.addToStores(newValue = document.data as HashMap<String, Any>)
-                                Log.d("stores", mainActivityViewModel.stores.value.toString())
+                    ),
+                    leadingIcon = {
+                        Icon(imageVector =Icons.Filled.Search, contentDescription ="" , tint = Color.Gray)
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { search=null
+                            scope.launch {
+                                searchStore(search=search)
                             }
+                        }) {
+                            Icon(imageVector = Icons.Filled.Clear, contentDescription = "" , tint=clearIcon.value)
+
+                        }
+                    }
+
+
+                ) {
+
+                }
+                Spacer(modifier=Modifier.height(15.dp))
+
+                Box(modifier= Modifier
+                    .width(120.dp)
+                    .height(45.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(brush = brush),
+                    contentAlignment = Alignment.Center
+                    ){
+
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Icon(painter= painterResource(id = R.drawable.shoppingbasket), contentDescription ="" , tint = Color.White , modifier=Modifier.size(20.dp))
+                        Spacer(modifier=Modifier.width(8.dp))
+                        Text(text="Stores" , color = Color.White , fontSize = 16.sp , fontWeight = FontWeight.Medium)
+
+                    }
+
+                }
+                Spacer(modifier=Modifier.height(20.dp))
+
+
+
+
+
+                if(mainActivityViewModel.stores.value.size>0){
+
+                    LazyColumn(modifier = Modifier.fillMaxSize()){
+                        items(items= mainActivityViewModel.stores.value){
+                                item->
+                            Store(data=item)
                         }
 
-
                     }}
+                else{
+                    Column(modifier=Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+                        Image(painter = painterResource(id = R.drawable.nostorefound) , contentDescription ="no store found" , modifier = Modifier.size(220.dp) )
+                    }
+
+                }
 
 
-         Column(modifier= Modifier
-             .fillMaxSize()
-             .padding(innerPadding)){
-
-             if(mainActivityViewModel.stores.value.size!=0) {
-                 LazyColumn(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-                     items(items= mainActivityViewModel.stores.value){
-                         item->
-                         Store(data=item)
-                     }
-                 }
-             }
+            }
+        }
 
 
-
-
-
-         }
 
 
 
@@ -466,53 +680,7 @@ LaunchedEffect(true){
     }
 
 
-    /*        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
 
-
-        ){
-
-            Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
-                Column(verticalArrangement =Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-
-                    IconButton(onClick = {DrawerValue.Open }) {
-                        Icon(painter= painterResource(id = R.drawable.sidemenu), contentDescription = "Menu Icon" , modifier=Modifier.size(40.dp))
-                    }
-
-                }
-
-                Spacer(modifier=Modifier.width(15.dp))
-                Column(modifier=Modifier.fillMaxWidth() ,
-                    verticalArrangement = Arrangement.Center ,
-                    horizontalAlignment = Alignment.Start){
-                    Text(text="Shops In" , fontSize =14.sp , fontWeight = FontWeight.Medium, color = Color.Gray)
-                    Text(text=userInfo["Location"].toString() , fontWeight = FontWeight.Bold, fontSize = 20.sp)
-
-                }
-
-
-
-
-
-            }
-
-            if(showMenu)
-
-                Box(modifier=Modifier.fillMaxSize()){
-
-
-                }
-
-
-
-
-
-
-
-        }*/
-
-}
     @Composable
     fun CoilImage() {
         val storage = Firebase.storage
@@ -531,3 +699,40 @@ LaunchedEffect(true){
             Image(painter = painter, contentDescription = null, modifier = Modifier.fillMaxSize())
         }
     }
+
+
+
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+ suspend fun searchStore(search:String?){
+    val docRef = Firebase.firestore
+
+    if(search!=null) {
+        Log.d("inside1" , "1")
+      val   data = docRef.collection("Stores").whereEqualTo("name", search).get().await()
+        Log.d("data" , data.toString())
+        mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(), "stores")
+
+        if(!data.isEmpty){
+          //  val dataset :MutableList<HashMap<String,Any>> = mutableListOf(hashMapOf())
+            for(document in data){
+
+                //dataset.add(document.data as HashMap<String,Any>)
+                mainActivityViewModel.addToStores(newValue = document.data  as HashMap<String, Any>)
+            }
+            //mainActivityViewModel.setValue(dataset , "stores")
+        }
+    } else {
+        Log.d("inside2" , "2")
+        val data = docRef.collection("Stores").get().await()
+        Log.d("data", data.toString())
+        mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(), "stores")
+        for(document in data){
+            mainActivityViewModel.addToStores(newValue = document.data  as HashMap<String, Any>)
+        }
+    }
+
+
+
+}

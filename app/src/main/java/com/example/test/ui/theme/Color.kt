@@ -13,3 +13,7 @@ val customGreen = Color(0xFF3DD477)
 
 val mediumGray =Color(0xFF6F797B)
 val onSurface= Color(0xFF3F484A)
+
+val lightGray1 = Color(0xFFF0F0F0)
+val lightGray2 = Color(0xFFE3E3E3)
+val color1 = Color(0xFF292C31)

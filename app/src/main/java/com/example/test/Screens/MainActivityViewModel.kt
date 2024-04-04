@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import com.example.test.addTo
 import java.time.LocalTime
 
 class MainActivityViewModel {
@@ -33,6 +34,11 @@ class MainActivityViewModel {
     private val  _rotate :MutableState<Boolean> = mutableStateOf(false)
     val rotate :State<Boolean> = _rotate
 
+    private val _homeLaunchedEffectExecuted : MutableState<Boolean> = mutableStateOf(false)
+
+    val homeLaunchedEffectExecuted :State<Boolean> = _homeLaunchedEffectExecuted
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     private val _currentTime :MutableState<LocalTime> = mutableStateOf(LocalTime.now())
     @RequiresApi(Build.VERSION_CODES.O)
@@ -40,12 +46,16 @@ class MainActivityViewModel {
 
 
     @SuppressLint("MutableCollectionMutableState")
-    private var _stores :MutableState<MutableList<HashMap<String , Any>>> = mutableStateOf(mutableListOf())
+    private val _stores :MutableState<MutableList<HashMap<String , Any>>> = mutableStateOf(mutableListOf())
+
     val stores :State<MutableList<HashMap<String , Any>>> = _stores
 
     fun addToStores(newValue :HashMap<String , Any>){
-        _stores.value.add(newValue)
+        _stores.value= addTo(_stores, document =newValue)
+
     }
+
+
 
 
 
@@ -66,6 +76,8 @@ class MainActivityViewModel {
             "phoneNumberError"-> if(newValue!=null)_phoneNumberError.value=newValue as Boolean
             "rotate" -> if (newValue!=null) _rotate.value=newValue as Boolean
             "currentTime"-> if (newValue!=null) _currentTime.value= newValue as LocalTime
+            "homeLaunchedEffectExecuted"-> if(newValue!=null) _homeLaunchedEffectExecuted.value=newValue as Boolean
+            "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any>>
         }
     }
 
