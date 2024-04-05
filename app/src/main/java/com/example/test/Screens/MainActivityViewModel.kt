@@ -55,6 +55,10 @@ class MainActivityViewModel {
 
     }
 
+    private val _homeSnapshotEntry : MutableState<Boolean> = mutableStateOf(true)
+
+    val homeSnapshotEntry : State<Boolean> = _homeSnapshotEntry
+
 
 
 
@@ -78,6 +82,7 @@ class MainActivityViewModel {
             "currentTime"-> if (newValue!=null) _currentTime.value= newValue as LocalTime
             "homeLaunchedEffectExecuted"-> if(newValue!=null) _homeLaunchedEffectExecuted.value=newValue as Boolean
             "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any>>
+            "homeSnapshotEntry"-> if(newValue!=null) _homeSnapshotEntry.value=newValue as Boolean
         }
     }
 

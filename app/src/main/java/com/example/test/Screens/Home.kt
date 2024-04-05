@@ -53,6 +53,7 @@ import androidx.compose.material3.rememberDrawerState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -89,9 +90,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import com.example.test.ui.theme.lightGray2
 import com.example.test.ui.theme.mediumGray
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.MetadataChanges
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import org.checkerframework.checker.units.qual.A
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -117,21 +122,6 @@ fun Home(
         )
     }
 
-    val storeData by remember {
-        mutableStateOf(
-            mainActivityViewModel.stores.value
-        )
-    }
-
-
-    var store: HashMap<String, Any> by remember {
-        mutableStateOf(hashMapOf())
-    }
-
-    //  val storeListSize: State<Int> = derivedStateOf {
-    //    mainActivityViewModel.stores.value.size
-    //}
-
     var location by remember {
         mutableStateOf(userInfo["Location"])
     }
@@ -142,7 +132,6 @@ fun Home(
         mutableStateOf(false)
     }
     val context = LocalContext.current
-
 
     var rotate by remember {
         mutableFloatStateOf(0f)
@@ -165,14 +154,13 @@ fun Home(
             ), start = Offset.Zero, end = Offset(x = translateAnim.value, y = translateAnim.value)
         )
 
-    val stores = remember { mainActivityViewModel.stores.value }
 
     val rotation = animateFloatAsState(
         targetValue = rotate, animationSpec = tween(2000, easing = FastOutSlowInEasing),
         label = ""
 
     )
-    var launchedEffectExecuted by remember { mutableStateOf(false) }
+
 
     val auth = Firebase.auth
 
@@ -184,57 +172,114 @@ fun Home(
             Log.d("user", document.data!!.toString())
         }
 
-    var lastVisible: DocumentSnapshot? = null
+
     val dbRef = Firebase.firestore
 
     val focus = LocalFocusManager.current
 
-    /* LaunchedEffect(key1=true) {
-   if(!mainActivityViewModel.homeLaunchedEffectExecuted.value) {
-
-        Log.d("store before", mainActivityViewModel.stores.value.toString())
-        val documents= dbRef.collection("Stores").get().await()
-                if (documents != null) {
-
-                    for (document in documents) {
-
-                        Log.d("document", document.data.toString())
-                        mainActivityViewModel.addToStores(newValue = document.data as HashMap<String, Any>)
-                        Log.d("stores after", mainActivityViewModel.stores.value.toString())
-                    }
-                }
-
-        mainActivityViewModel.setValue(true , "homeLaunchedEffectExecuted")
-   }
-
-}
-    */
-
-    LaunchedEffect(true){
-    val storesRef = dbRef.collection("Stores")
-
-    storesRef.addSnapshotListener { snapshot, e ->
-        if (e != null) {
-            Log.w(TAG, "Listen failed.", e)
-            return@addSnapshotListener
-        }
-
-        if (snapshot != null && snapshot.documents.isNotEmpty()) {
-            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
-            Log.d("_stores", mainActivityViewModel.stores.value.toString())
-            for (document in snapshot.documents) {
-                mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
-            }
-            // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
-        } else {
-            Log.d(TAG, "Current data: null")
-        }
-    }
-}
+    val scope = rememberCoroutineScope()
 
     var search :String? by remember{
         mutableStateOf(null)
     }
+/*
+    var isCoroutineRunning by remember { mutableStateOf(false) }
+        val storesRef = dbRef.collection("Stores")
+
+        storesRef.addSnapshotListener(MetadataChanges.EXCLUDE){ snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                if (!isCoroutineRunning) { // Check if coroutine is already running
+                    isCoroutineRunning = true //
+                   // Set flag to indicate coroutine is running
+                    scope.launch(Dispatchers.Default) {
+                        try {
+                            // Perform heavy or blocking operation (e.g., searchStore) in the background
+                            focus.clearFocus()
+                            Log.d("Launcheddd", "yessss")
+                            val result = searchStore(search)
+
+                            // Switch to the main thread to update UI with the result
+                            withContext(Dispatchers.Default) {
+                                mainActivityViewModel.setValue(result, "stores")
+                            }
+                        } catch (e: Exception) {
+                            // Handle any exceptions that occur during the coroutine execution
+                            Log.e("CoroutineError", "An error occurred: ${e.message}", e)
+                        } finally {
+                            // Reset the flag to indicate that the coroutine has completed
+                            isCoroutineRunning = false
+                        }
+                    }
+                }} else {
+                Log.d(TAG, "Current data: null")
+            }
+      //  }
+
+    }*/
+    val stores: MutableList<HashMap<String, Any>> by remember {
+        mutableStateOf(mutableListOf(hashMapOf()))
+    }
+    LaunchedEffect(true,search) {
+if(search==null)
+        scope.launch(Dispatchers.Default) {
+            try {
+                // Perform heavy or blocking operation (e.g., searchStore) in the background
+                focus.clearFocus()
+                Log.d("Launcheddd", "yessss")
+                val result = searchStore(search)
+
+                // Switch to the main thread to update UI with the result
+                withContext(Dispatchers.Main) {
+                    mainActivityViewModel.setValue(result, "stores")
+                }
+            } catch (e: Exception) {
+                // Handle any exceptions that occur during the coroutine execution
+                Log.e("CoroutineError", "An error occurred: ${e.message}", e)
+            } finally {
+                // Reset the flag to indicate that the coroutine has completed
+
+            }
+        }
+
+
+    }
+
+
+
+            val storesRef = dbRef.collection("Stores")
+
+            storesRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    if(search==null){
+                    mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
+                    Log.d("_stores", mainActivityViewModel.stores.value.toString())
+                    for (document in snapshot.documents) {
+                        mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
+                    }
+                    // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
+                } }else {
+                    Log.d(TAG, "Current data: null")
+                }
+            }
+
+
+
+
+
+
+
+
+
 
     var clearIcon = animateColorAsState(targetValue =if(search!=null)Color.Black else Color.Transparent , label="" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
   /*  val buffer = 1
@@ -277,7 +322,7 @@ fun Home(
 
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+
 
 
     ModalNavigationDrawer(
@@ -581,12 +626,17 @@ fun Home(
                     },
                     onSearch ={
 
-                          scope.launch {
-                              focus.clearFocus()
-                              Log.d("Launcheddd","yessss")
-                              searchStore(search = search)
-                              // Process the result
-                          }
+                    scope.launch(Dispatchers.Default){
+                            focus.clearFocus()
+                            Log.d("Launcheddd","yessss")
+                            val result = searchStore(search)
+                            // Process the result
+                            // Note: You can handle UI updates here based on the result if needed
+                        withContext(Dispatchers.Main) {
+                            mainActivityViewModel.setValue(result, "stores")
+                        }
+
+                        }
 
 
                     } ,
@@ -595,8 +645,8 @@ fun Home(
                     modifier= Modifier
                         .fillMaxWidth()
                         .padding(0.dp)
-                        .height(67.dp)
-                        .clip(shape = RoundedCornerShape(5.dp)),
+                        .height(69.dp)
+                        .clip(shape = RoundedCornerShape(7.dp)),
                     placeholder = { Text(text = "Search For any Store or Restaurant", fontSize = 14.sp , modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(), color = Color.Black)},
@@ -681,7 +731,8 @@ fun Home(
 
 
 
-    @Composable
+
+@Composable
     fun CoilImage() {
         val storage = Firebase.storage
         val storageRef = storage.reference
@@ -705,34 +756,33 @@ fun Home(
 
 
 @RequiresApi(Build.VERSION_CODES.O)
- suspend fun searchStore(search:String?){
+suspend fun searchStore(search:String?): MutableList<HashMap<String, Any>> {
+
     val docRef = Firebase.firestore
+    val storesList = mutableListOf<HashMap<String, Any>>()
 
-    if(search!=null) {
+    if (search != null) {
         Log.d("inside1" , "1")
-      val   data = docRef.collection("Stores").whereEqualTo("name", search).get().await()
+        val data = docRef.collection("Stores").whereEqualTo("name", search).get().await()
         Log.d("data" , data.toString())
-        mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(), "stores")
 
-        if(!data.isEmpty){
-          //  val dataset :MutableList<HashMap<String,Any>> = mutableListOf(hashMapOf())
+        if (!data.isEmpty) {
             for(document in data){
-
-                //dataset.add(document.data as HashMap<String,Any>)
-                mainActivityViewModel.addToStores(newValue = document.data  as HashMap<String, Any>)
+                storesList.add(document.data as HashMap<String, Any>)
             }
-            //mainActivityViewModel.setValue(dataset , "stores")
         }
     } else {
         Log.d("inside2" , "2")
         val data = docRef.collection("Stores").get().await()
         Log.d("data", data.toString())
-        mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(), "stores")
+
         for(document in data){
-            mainActivityViewModel.addToStores(newValue = document.data  as HashMap<String, Any>)
+            storesList.add(document.data as HashMap<String, Any>)
         }
     }
 
+ //   mainActivityViewModel.setValue(storesList, "stores")
 
 
+    return storesList
 }
