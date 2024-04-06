@@ -534,7 +534,8 @@ if(search==null)
         }, modifier = Modifier
             .fillMaxHeight()
             .background(color = Color.Gray)
-            .fillMaxWidth(), drawerState = drawerState
+            .fillMaxWidth(),
+        drawerState = drawerState
     ) {
 
         Scaffold(
@@ -706,7 +707,7 @@ if(search==null)
                     LazyColumn(modifier = Modifier.fillMaxSize()){
                         items(items= mainActivityViewModel.stores.value){
                                 item->
-                            Store(data=item)
+                            Store(data=item, navController = navController)
                         }
 
                     }}

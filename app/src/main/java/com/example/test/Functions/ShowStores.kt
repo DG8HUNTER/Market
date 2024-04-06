@@ -21,23 +21,3 @@ import androidx.compose.ui.unit.dp
 import com.example.test.Component.Store
 import com.example.test.Screens.mainActivityViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-
-fun ShowStores(){
-
-
-
-    if(mainActivityViewModel.stores.value.size!=0) {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-            items(items= mainActivityViewModel.stores.value){
-                    item->
-                Store(data=item)
-            }
-
-            item{Text(text= mainActivityViewModel.stores.value.size.toString())}
-        }
-    }
-
-
-}

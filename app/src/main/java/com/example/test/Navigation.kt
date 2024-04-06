@@ -1,5 +1,7 @@
 package com.example.test
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
@@ -23,12 +25,14 @@ import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
+import com.example.test.Screens.StoreInfo
 import com.example.test.Screens.WelcomeScreen
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
 fun Navigation(
@@ -66,7 +70,7 @@ fun Navigation(
 
 
         }
-        composable(route = "ResetPassword") {
+     /*   composable(route = "ResetPassword") {
             ResetPassword(navController = navController)
         }
         composable(route = "UserCredentials/{userUID}", arguments = listOf(
@@ -98,7 +102,7 @@ fun Navigation(
             }
 
 
-        }
+        }*/
 
         composable(route = "PersonalInfo/{screen}" , arguments=listOf(
             navArgument(name="screen"){
@@ -136,6 +140,22 @@ fun Navigation(
 
         composable(route="ChangePasswordScreen"){
             ChangePasswordScreen(navController=navController)
+
+        }
+
+        composable(route="StoreInfoScreen/{storeId}/{storeName}", arguments = listOf(
+            navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            },
+            navArgument(name="storeName"){
+                type= NavType.StringType
+                nullable=false
+            }
+
+        )){
+            backStackEntry->
+            StoreInfo(navController=navController,storeId=backStackEntry.arguments?.get("storeId").toString() , storeName = backStackEntry.arguments?.getString("storeName").toString())
 
         }
 

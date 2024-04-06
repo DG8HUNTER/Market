@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,10 +37,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.R
 import com.example.test.Screens.mainActivityViewModel
@@ -53,7 +57,7 @@ import java.time.format.TextStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Store(data: HashMap<String, Any>){
+fun Store(data: HashMap<String, Any >, navController: NavController){
 
     Log.d("Storessssssssssssssssssss", data.toString())
     val painter = rememberImagePainter(
@@ -99,8 +103,14 @@ fun Store(data: HashMap<String, Any>){
 
     Box(modifier= Modifier
         .fillMaxWidth()
-        .height(100.dp)){
-        Column(modifier=Modifier.fillMaxWidth()) {
+        .height(100.dp)
+
+
+
+    ){
+        Column(modifier=Modifier.fillMaxWidth().clickable {
+            navController.navigate(route="StoreInfoScreen/${data["storeId"]}/${data["name"]}")
+        }) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -132,7 +142,8 @@ fun Store(data: HashMap<String, Any>){
                     Text(
                         text = data["name"] as String,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.SansSerif
                     )
                     Text(
                         text = data["location"] as String,
@@ -151,7 +162,7 @@ fun Store(data: HashMap<String, Any>){
 
                 }
 
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {  navController.navigate(route="StoreInfoScreen/${data["storeId"]}/${data["name"]}") }) {
                     Icon(imageVector =Icons.Filled.KeyboardArrowRight, contentDescription ="next", tint = Color.Gray , modifier=Modifier.size(30.dp) )
 
                 }
