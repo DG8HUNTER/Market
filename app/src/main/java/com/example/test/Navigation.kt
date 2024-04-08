@@ -30,6 +30,7 @@ import com.example.test.Screens.WelcomeScreen
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import org.checkerframework.checker.units.qual.N
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -143,19 +144,15 @@ fun Navigation(
 
         }
 
-        composable(route="StoreInfoScreen/{storeId}/{storeName}", arguments = listOf(
+        composable(route="StoreInfoScreen/{storeId}", arguments = listOf(
             navArgument(name="storeId"){
                 type= NavType.StringType
                 nullable=false
             },
-            navArgument(name="storeName"){
-                type= NavType.StringType
-                nullable=false
-            }
 
         )){
             backStackEntry->
-            StoreInfo(navController=navController,storeId=backStackEntry.arguments?.get("storeId").toString() , storeName = backStackEntry.arguments?.getString("storeName").toString())
+            StoreInfo(navController=navController, storeId = backStackEntry.arguments?.get("storeId") as String)
 
         }
 

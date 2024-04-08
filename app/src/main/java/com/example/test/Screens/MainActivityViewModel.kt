@@ -46,11 +46,11 @@ class MainActivityViewModel {
 
 
     @SuppressLint("MutableCollectionMutableState")
-    private val _stores :MutableState<MutableList<HashMap<String , Any>>> = mutableStateOf(mutableListOf())
+    private val _stores :MutableState<MutableList<HashMap<String , Any?>>> = mutableStateOf(mutableListOf())
 
-    val stores :State<MutableList<HashMap<String , Any>>> = _stores
+    val stores : MutableState<MutableList<HashMap<String, Any?>>> = _stores
 
-    fun addToStores(newValue :HashMap<String , Any>){
+    fun addToStores(newValue :HashMap<String , Any?>){
         _stores.value= addTo(_stores, document =newValue)
 
     }
@@ -81,7 +81,7 @@ class MainActivityViewModel {
             "rotate" -> if (newValue!=null) _rotate.value=newValue as Boolean
             "currentTime"-> if (newValue!=null) _currentTime.value= newValue as LocalTime
             "homeLaunchedEffectExecuted"-> if(newValue!=null) _homeLaunchedEffectExecuted.value=newValue as Boolean
-            "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any>>
+            "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any?>>
             "homeSnapshotEntry"-> if(newValue!=null) _homeSnapshotEntry.value=newValue as Boolean
         }
     }

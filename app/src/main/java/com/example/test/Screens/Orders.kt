@@ -83,7 +83,7 @@ fun OrderScreen(navController: NavController){
             mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(), "stores")
             Log.d("_stores", mainActivityViewModel.stores.value.toString())
             for(document in snapshot.documents){
-                mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
+                mainActivityViewModel.addToStores(document.data as HashMap<String, Any?>)
             }
             Log.d(" stores from snap"  , mainActivityViewModel.stores.value.toString())
             Log.d("var stores from snap", stores.toString())

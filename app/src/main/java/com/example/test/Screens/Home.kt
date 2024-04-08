@@ -264,7 +264,7 @@ if(search==null)
                     mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
                     Log.d("_stores", mainActivityViewModel.stores.value.toString())
                     for (document in snapshot.documents) {
-                        mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
+                        mainActivityViewModel.addToStores(document.data as HashMap<String, Any?>)
                     }
                     // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
                 } }else {
