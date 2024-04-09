@@ -228,10 +228,10 @@ var status :String by remember {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun parseTime(timeString: String): LocalTime {
-    val date = SimpleDateFormat("h:mm:ss a", Locale.ENGLISH).parse(timeString)
+    val date = SimpleDateFormat("h:mm a", Locale.ENGLISH).parse(timeString)
 
     if (date != null) {
-        return LocalTime.of(date.hours, date.minutes, date.seconds)
+        return LocalTime.of(date.hours, date.minutes)
     }
     else {
         return LocalTime.now()

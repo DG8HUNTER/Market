@@ -220,7 +220,9 @@ var storeData:HashMap<String , Any?>?  by remember{
                                     color = Color.White
                                 )
 
-                                Button(onClick = {}, modifier= Modifier
+                                Button(onClick = {
+                                                 navController.navigate(route="StoreProfile/${storeId}")
+                                }, modifier= Modifier
                                     .clip(shape = RoundedCornerShape(20.dp))
                                     .width(90.dp),
 
@@ -319,7 +321,6 @@ Column(modifier= Modifier
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = {
             navController.popBackStack()
-
         }) {
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowLeft,

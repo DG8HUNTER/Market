@@ -26,6 +26,7 @@ import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
 import com.example.test.Screens.SplashScreen
 import com.example.test.Screens.StoreInfo
+import com.example.test.Screens.StoreProfile
 import com.example.test.Screens.WelcomeScreen
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
@@ -153,6 +154,16 @@ fun Navigation(
         )){
             backStackEntry->
             StoreInfo(navController=navController, storeId = backStackEntry.arguments?.get("storeId") as String)
+
+        }
+
+        composable(route="StoreProfile/{storeId}", arguments=listOf(
+            navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )){ backstackEntry->
+            StoreProfile(navController=navController , storeId=backstackEntry.arguments?.get("storeId").toString())
 
         }
 
