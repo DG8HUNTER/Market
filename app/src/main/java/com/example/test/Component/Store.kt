@@ -96,24 +96,31 @@ var status :String by remember {
         val todayOpeningDateTime = parseTime(todayOpeningTimeString.toString())
         val todayClosingDateTime = parseTime(todayClosingTimeString.toString())
 
+
         if ((mainActivityViewModel.currentTime.value.isAfter(todayOpeningDateTime) && mainActivityViewModel.currentTime.value.isBefore(
                 todayClosingDateTime
             )) || mainActivityViewModel.currentTime.value == todayOpeningDateTime || mainActivityViewModel.currentTime.value == todayClosingDateTime
         ) {
-            db.collection("Stores").document(data["storeId"].toString())
-                .update("status", "Open").addOnSuccessListener {
-                    Log.d("Status ", "Status Updated to Open")
-                    status="Open"
-                }
+
+            // if
+            if (status == "Close"){
+                db.collection("Stores").document(data["storeId"].toString())
+                    .update("status", "Open").addOnSuccessListener {
+                        Log.d("Status ", "Status Updated to Open")
+                        status = "Open"
+                    }
+       }
         } else {
-            db.collection("Stores").document(data["storeId"].toString())
-                .update("status", "Close").addOnSuccessListener {
-                    Log.d("Status ", "Status Updated to Close")
-                    status="Close"
-                }
+            //if
+           if(status=="Open") {
+                db.collection("Stores").document(data["storeId"].toString())
+                    .update("status", "Close").addOnSuccessListener {
+                        Log.d("Status ", "Status Updated to Close")
+                        status = "Close"
+                    }
 
-            Log.d("current Timeeee", mainActivityViewModel.currentTime.value.toString())
-
+                Log.d("current Timeeee", mainActivityViewModel.currentTime.value.toString())
+            }
         }
 
     }else {
@@ -134,9 +141,11 @@ var status :String by remember {
 
 
         ) {
-            Column(modifier = Modifier.fillMaxWidth().clickable {
-                navController.navigate(route = "StoreInfoScreen/${data["storeId"]}")
-            }) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate(route = "StoreInfoScreen/${data["storeId"]}")
+                }) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically

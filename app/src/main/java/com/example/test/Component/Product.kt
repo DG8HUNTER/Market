@@ -57,46 +57,46 @@ fun Product(){
 
     //val painter = rememberImagePainter(data = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmtAtrYACF1-lq-_of6g_lRj9cRqzlMAOcaHJa-yStaA&s")
 
-    val discount = 90
+    val discount = 10
     val price = 6.00
 
     Column(modifier= Modifier
-        .height(240.dp)
-        .width(180.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        .height(210.dp)
+        .width(108.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
 
 
 
         Surface(
             modifier = Modifier
-              //  .height(160.dp)
-                .width(130.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             shadowElevation = 10.dp,
             color = Color.White
 
 
         ) {
+Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.End,modifier=Modifier.fillMaxWidth()){
+
+    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(25.dp)) {
+
+        Icon(
+            painter = painterResource(id = R.drawable.favoriteitem),
+            contentDescription = "favorite",
+            modifier = Modifier.size(16.dp)
+        )
+    }
+
+}
+
+
+
+
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(25.dp)) {
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.favoriteitem),
-                            contentDescription = "favorite",
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-
-
-                }
 
                 Image(
                     painter = painterResource(id = R.drawable.pizza),
@@ -139,7 +139,7 @@ fun Product(){
                     val discountPrice = price*(discount/100.0)
                     val newPrice =price- discountPrice
                     val formattedNumber = String.format("%.2f", newPrice)
-                    Text(formattedNumber, fontSize = 14.sp,
+                    Text(text="${formattedNumber}$", fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Red,
                         fontFamily = FontFamily.SansSerif,)
@@ -152,7 +152,7 @@ fun Product(){
 
         IconButton(onClick = { /*TODO*/ },
             modifier = Modifier.size(30.dp)
-                .offset(x = 60.dp, y = (-23).dp)
+                .offset(x = 48.dp, y = (-23).dp)
                 .clip(shape = CircleShape)
                 .background(color=Color.Transparent, shape = CircleShape)
                 , colors = IconButtonDefaults.iconButtonColors(containerColor = customGreen)) {
@@ -163,7 +163,7 @@ fun Product(){
             IconButton(
                 onClick = { /*TODO*/ },
                 modifier = Modifier.size(35.dp)
-                    .offset(x = (-60).dp, y = (-195).dp)
+                    .offset(x = (-45).dp, y = (-177).dp)
 
                     .clip(shape = CircleShape)
                     .background(color = Color.Transparent, shape = CircleShape),
@@ -173,7 +173,7 @@ fun Product(){
                     " - ${discount}%",
                     fontSize = 10.sp,
                     color = Color.White,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Bold
                 )
 
             }
@@ -189,7 +189,11 @@ fun Product(){
 @Preview
 @Composable
 fun PreviewProduct(){
-
+    Column(modifier=Modifier.fillMaxSize().background(color=Color.White).padding(20.dp) ){
         Product()
+
+    }
+
+
 
 }
