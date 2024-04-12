@@ -60,6 +60,21 @@ class MainActivityViewModel {
     val homeSnapshotEntry : State<Boolean> = _homeSnapshotEntry
 
 
+    private val _products :MutableState<MutableList<HashMap<String,Any?>>>  = mutableStateOf(mutableListOf())
+
+    val products :State<MutableList<HashMap<String ,Any?>>> = _products
+
+    fun addToProducts (newValue :HashMap<String , Any?>){
+        _products.value= addTo(_products, document =newValue)
+
+    }
+
+
+
+
+
+
+
 
 
 
@@ -85,6 +100,8 @@ class MainActivityViewModel {
             "homeLaunchedEffectExecuted"-> if(newValue!=null) _homeLaunchedEffectExecuted.value=newValue as Boolean
             "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any?>>
             "homeSnapshotEntry"-> if(newValue!=null) _homeSnapshotEntry.value=newValue as Boolean
+            "products"-> if(newValue!=null) _products.value= newValue as MutableList<HashMap<String, Any?>>
+
         }
     }
 

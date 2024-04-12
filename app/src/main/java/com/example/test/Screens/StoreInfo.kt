@@ -1,8 +1,11 @@
 package com.example.test.Screens
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +28,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -78,6 +85,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,6 +105,28 @@ fun StoreInfo(navController: NavController, storeId:String) {
 
 
     }
+ val productRef= db.collection("Products")
+
+    productRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(ContentValues.TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null && snapshot.documents.isNotEmpty()) {
+
+                mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
+                Log.d("_products", mainActivityViewModel.products.value.toString())
+                for (document in snapshot.documents) {
+                    if(document.data?.get("storeId").toString()==storeId){
+                    mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)}
+                }
+                // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
+             }else {
+            Log.d(ContentValues.TAG, "Current data: null")
+        }
+    }
+
 
     // State to track whether the bottom sheet is expanded or not
     val bottomSheetState = rememberModalBottomSheetState()
@@ -338,7 +368,8 @@ fun StoreInfo(navController: NavController, storeId:String) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(15.dp)
+
         ) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -378,7 +409,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
                 }
             }
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            /*     Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -389,7 +420,31 @@ fun StoreInfo(navController: NavController, storeId:String) {
                     Product()
                 }
 
+            }*/
+
+
+            if (mainActivityViewModel.products.value.size != 0){
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 15.dp)
+                ) {
+                   mainActivityViewModel.products.value.forEach { product ->
+                       item{Product(product as HashMap<String, Any>)}
+                   }
+                }
+
+        }
+            else {
+                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text ="No product Available" , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Black)
+
+
+                }
+
             }
+
+            
         }
 
 

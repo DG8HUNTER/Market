@@ -89,7 +89,7 @@ var status :String by remember {
     val operatingTime = data["OperatingField"] as? HashMap<*, *>
     val todayOperatingTime = operatingTime?.get(dayName) as? HashMap<*, *>
 
-    if (todayOperatingTime != null) {
+   /* if (todayOperatingTime != null) {
         val todayOpeningTimeString = todayOperatingTime["OpeningTime"]
         val todayClosingTimeString = todayOperatingTime["ClosingTime"]
 
@@ -130,7 +130,7 @@ var status :String by remember {
                 status = "Close"
 
             }
-    }
+    }*/
 
 
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,47 +36,60 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.test.R
 import com.example.test.ui.theme.customGreen
+import com.google.android.play.integrity.internal.f
 
 @Composable
 
-fun Product(){
+fun Product(data :HashMap<String,Any>){
 
-    //val painter = rememberImagePainter(data = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmtAtrYACF1-lq-_of6g_lRj9cRqzlMAOcaHJa-yStaA&s")
+    val painter = rememberImagePainter(data = data["image"].toString())
 
-    val discount = 10
-    val price = 6.00
 
-    Column(modifier= Modifier
-        .height(210.dp)
-        .width(108.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
 
+    Box(modifier= Modifier
+
+        .padding(horizontal = 7.dp, vertical = 7.dp )
+        ) {
 
 
         Surface(
-            modifier = Modifier
-                .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             shadowElevation = 10.dp,
-            color = Color.White
+            color = Color.White,
 
 
         ) {
-Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.End,modifier=Modifier.fillMaxWidth()){
+Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(data["discount"].toString().toFloat()!=0f) Arrangement.SpaceBetween else Arrangement.End,modifier=Modifier.fillMaxWidth().padding(horizontal = 2.dp)){
+
+
+          if(data["discount"].toString().toFloat()!=0f) {
+              Text(
+                  " - ${data["discount"].toString()}%",
+                  fontSize = 12.sp,
+                  color = Color.Red,
+                  fontWeight = FontWeight.Bold,
+
+              )
+
+          }
+
 
     IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(25.dp)) {
 
@@ -99,30 +113,33 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arr
             ) {
 
                 Image(
-                    painter = painterResource(id = R.drawable.pizza),
+                    painter = painter,
                     contentDescription = "product image",
-                    modifier = Modifier
+                    modifier = Modifier.padding(top=20.dp)
 
                         .size(60.dp)
                         .clip(shape = CircleShape)
                 )
 
                 Text(
-                    text = "Pizza",
-                    fontSize = 16.sp,
+                    text = data["name"].toString(),
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Serif
+                    fontFamily = FontFamily.Serif,
+                    //textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${price}$",
-                    fontSize = 14.sp,
+                    text = "${String.format("%.2f", data["price"].toString().toFloat())}$",
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Gray,
                     fontFamily = FontFamily.SansSerif,
                     modifier=Modifier.drawWithContent {
                         drawContent()
-                        if(discount!=0){
+                        if(data["discount"].toString().toFloat() !=0f){
                         val strokeWidth = 1.dp.toPx()
                         val verticalCenter = size.height / 2 + 2 * strokeWidth
                         drawLine(
@@ -135,9 +152,9 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arr
                     //textDecoration = if(discount!=0)TextDecoration.LineThrough else TextDecoration.None
 
                 )
-                if(discount!=0){
-                    val discountPrice = price*(discount/100.0)
-                    val newPrice =price- discountPrice
+                if(data["discount"].toString().toFloat() !=0f){
+                    val discountPrice = data["price"].toString().toFloat() *(data["discount"].toString().toFloat()/100f)
+                    val newPrice =data["price"].toString().toFloat() - discountPrice.toFloat()
                     val formattedNumber = String.format("%.2f", newPrice)
                     Text(text="${formattedNumber}$", fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -148,18 +165,12 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arr
 
             }
 
-        }
 
-        IconButton(onClick = { /*TODO*/ },
-            modifier = Modifier.size(30.dp)
-                .offset(x = 48.dp, y = (-23).dp)
-                .clip(shape = CircleShape)
-                .background(color=Color.Transparent, shape = CircleShape)
-                , colors = IconButtonDefaults.iconButtonColors(containerColor = customGreen)) {
-                Icon(imageVector =Icons.Filled.Add, contentDescription ="", tint=Color.White)
 
         }
-        if(discount!=0) {
+
+
+     /*   if(discount!=0) {
             IconButton(
                 onClick = { /*TODO*/ },
                 modifier = Modifier.size(35.dp)
@@ -177,15 +188,33 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arr
                 )
 
             }
+        }*/
+
+        Column(modifier=Modifier.align(Alignment.BottomEnd).offset(x=8.dp,y=(8).dp)){
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.size(30.dp).clip(CircleShape)
+                    .background(color = Color.Transparent, shape = CircleShape),
+                colors = IconButtonDefaults.iconButtonColors(containerColor = customGreen)
+            ) {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "", tint = Color.White)
+            }
+
         }
+
+
     }
+
+
+
+
     }
 
 
 
 
 
-
+/*
 @Preview
 @Composable
 fun PreviewProduct(){
@@ -196,4 +225,4 @@ fun PreviewProduct(){
 
 
 
-}
+}*/
