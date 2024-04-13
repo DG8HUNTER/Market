@@ -69,6 +69,16 @@ class MainActivityViewModel {
 
     }
 
+    private val _favorites :MutableState<MutableList<HashMap<String,Any?>>>  = mutableStateOf(mutableListOf())
+
+    val favorites : State<MutableList<HashMap<String ,Any?>>> = _favorites
+    fun addToFavorites (newValue :HashMap<String , Any?>){
+        _favorites.value= addTo(_favorites, document =newValue)
+
+    }
+
+
+
 
 
 
@@ -101,6 +111,7 @@ class MainActivityViewModel {
             "stores"-> if(newValue!=null) _stores.value= newValue as MutableList<HashMap<String, Any?>>
             "homeSnapshotEntry"-> if(newValue!=null) _homeSnapshotEntry.value=newValue as Boolean
             "products"-> if(newValue!=null) _products.value= newValue as MutableList<HashMap<String, Any?>>
+            "favorites"-> if(newValue!=null) _favorites.value= newValue as MutableList<HashMap<String, Any?>>
 
         }
     }

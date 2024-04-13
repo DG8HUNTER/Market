@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -13,7 +12,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.Column
@@ -29,17 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -49,7 +40,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -71,16 +61,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberImagePainter
 import com.example.test.Component.Product
 import com.example.test.R
 import com.example.test.ui.theme.customGreen
 import com.example.test.ui.theme.navyBlue
-import com.example.test.ui.theme.superLightGray
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -94,6 +82,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
     var storeData: HashMap<String, Any?>? by remember {
         mutableStateOf(null)
     }
+    val currentUser = Firebase.auth.currentUser?.uid.toString()
     val context = LocalContext.current
     val db = Firebase.firestore
     LaunchedEffect(key1 = true) {
@@ -106,7 +95,6 @@ fun StoreInfo(navController: NavController, storeId:String) {
 
     }
  val productRef= db.collection("Products")
-
     productRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
             Log.w(ContentValues.TAG, "Listen failed.", e)
@@ -116,16 +104,19 @@ fun StoreInfo(navController: NavController, storeId:String) {
         if (snapshot != null && snapshot.documents.isNotEmpty()) {
 
                 mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
-                Log.d("_products", mainActivityViewModel.products.value.toString())
+
                 for (document in snapshot.documents) {
                     if(document.data?.get("storeId").toString()==storeId){
                     mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)}
+
                 }
+
                 // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
              }else {
             Log.d(ContentValues.TAG, "Current data: null")
         }
     }
+
 
 
     // State to track whether the bottom sheet is expanded or not
@@ -430,7 +421,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
                     contentPadding = PaddingValues(vertical = 15.dp)
                 ) {
                    mainActivityViewModel.products.value.forEach { product ->
-                       item{Product(product as HashMap<String, Any>)}
+                       item{Product(product as HashMap<String, Any> , context=context)}
                    }
                 }
 

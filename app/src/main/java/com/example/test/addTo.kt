@@ -11,5 +11,6 @@ fun addTo(array: MutableState<MutableList<HashMap<String, Any?>>>, document: Has
     newArray.add(index = newArray.size , element = document)
     Log.d("newArray" , newArray.toString())
     return  newArray
+    
 }
 
