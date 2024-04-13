@@ -40,11 +40,16 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.mutableStateOf
@@ -65,13 +70,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.test.Component.Product
+import com.example.test.Functions.searchCategory
 import com.example.test.R
 import com.example.test.ui.theme.customGreen
 import com.example.test.ui.theme.navyBlue
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlin.reflect.KProperty
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -85,6 +97,15 @@ fun StoreInfo(navController: NavController, storeId:String) {
     val currentUser = Firebase.auth.currentUser?.uid.toString()
     val context = LocalContext.current
     val db = Firebase.firestore
+    val scope = rememberCoroutineScope()
+
+    var categoryIndex  by remember {
+        mutableStateOf(0)
+    }
+
+    var categorySelected by remember {
+        mutableStateOf("All")
+    }
     LaunchedEffect(key1 = true) {
         db.collection("Stores").document(storeId).get()
             .addOnSuccessListener { document ->
@@ -92,6 +113,69 @@ fun StoreInfo(navController: NavController, storeId:String) {
             }
 
 
+
+    }
+
+    LaunchedEffect(key1 =categorySelected) {
+
+        if(categorySelected=="All"){
+            scope.launch(Dispatchers.Default) {
+                try {
+                    // Perform heavy or blocking operation (e.g., searchStore) in the background
+                    val result = mutableListOf<HashMap<String, Any>>() // Initialize an empty list of hash maps
+                    val data = db.collection("Products").get().await() // Fetch all documents from the "Products" collection
+
+                    for (document in data) { // Iterate over each document in the query snapshot
+                         // Get the data of the current document as a map
+                        if (document != null) { // Check if the data is not null
+                            result.add(HashMap(document.data)) // Add a copy of the data to the result list
+                        }
+                    }
+
+                    // Switch to the main thread to update UI with the result
+                    withContext(Dispatchers.Main) {
+                        mainActivityViewModel.setValue(result, "products")
+                    }
+                } catch (e: Exception) {
+                    // Handle any exceptions that occur during the coroutine execution
+                    Log.e("CoroutineError", "An error occurred: ${e.message}", e)
+                } finally {
+                    // Reset the flag to indicate that the coroutine has completed
+
+                }
+            }
+        }else {
+
+            scope.launch(Dispatchers.Default) {
+                try {
+                    // Perform heavy or blocking operation (e.g., searchStore) in the background
+                    val result = mutableListOf<HashMap<String, Any>>() // Initialize an empty list of hash maps
+                    val data = db.collection("Products").get().await() // Fetch all documents from the "Products" collection
+
+                    for (document in data) { // Iterate over each document in the query snapshot
+                        // Get the data of the current document as a map
+                        if (document != null) {
+                            // Check if the data is not null
+                            if(document.data["category"].toString()==categorySelected) {
+                                result.add(HashMap(document.data))
+                            }// Add a copy of the data to the result list
+                        }
+                    }
+
+                    // Switch to the main thread to update UI with the result
+                    withContext(Dispatchers.Main) {
+                        mainActivityViewModel.setValue(result, "products")
+                    }
+                } catch (e: Exception) {
+                    // Handle any exceptions that occur during the coroutine execution
+                    Log.e("CoroutineError", "An error occurred: ${e.message}", e)
+                } finally {
+                    // Reset the flag to indicate that the coroutine has completed
+
+                }
+            }
+
+        }
 
     }
  val productRef= db.collection("Products")
@@ -103,25 +187,39 @@ fun StoreInfo(navController: NavController, storeId:String) {
 
         if (snapshot != null && snapshot.documents.isNotEmpty()) {
 
-                mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
+            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
+            mainActivityViewModel.setValue(mutableListOf<String>("All"), "categories")
 
-                for (document in snapshot.documents) {
-                    if(document.data?.get("storeId").toString()==storeId){
-                    mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)}
+            for (document in snapshot.documents) {
+                searchCategory(document.data?.get("category").toString())
+                if (categorySelected == "All") {
+                    if (document.data?.get("storeId").toString() == storeId) {
+
+                        mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)
+                    }
+                } else {
+
+                    if (document.data?.get("storeId").toString() == storeId && document.data?.get("category") == categorySelected
+                    ) {
+
+                        mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)
+                    }
+
 
                 }
-
+            }
                 // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
-             }else {
-            Log.d(ContentValues.TAG, "Current data: null")
+            }else {
+                Log.d(ContentValues.TAG, "Current data: null")
+            }
         }
-    }
+
 
 
 
     // State to track whether the bottom sheet is expanded or not
     val bottomSheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
+
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             skipHiddenState = false,
@@ -398,6 +496,33 @@ fun StoreInfo(navController: NavController, storeId:String) {
                     )
 
                 }
+            }
+            ScrollableTabRow(selectedTabIndex = categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customGreen,   indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    modifier = Modifier
+                        .tabIndicatorOffset(tabPositions[categoryIndex])
+                        .clip(shape = RoundedCornerShape(10.dp)),
+                    color = customGreen,
+                    height=4.dp
+                )}, edgePadding = 0.dp) {
+
+                mainActivityViewModel.categories.value.forEachIndexed { index, value ->
+
+                    Tab(selected = categoryIndex==index, onClick = {
+                        categoryIndex=index
+                        categorySelected=value
+
+                    }) {
+
+                        Text(text =value.toString() , fontSize = 15.sp , fontWeight = FontWeight.Medium , color=if(categoryIndex==index)Color.Black else Color.Gray, modifier = Modifier.padding(10.dp))
+                    }
+                }
+
+
+
+
+
+
             }
 
             /*     Column(modifier = Modifier.fillMaxSize()) {

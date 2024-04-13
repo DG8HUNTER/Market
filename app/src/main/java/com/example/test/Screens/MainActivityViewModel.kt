@@ -77,20 +77,15 @@ class MainActivityViewModel {
 
     }
 
+    private val _categories :MutableState<MutableList<String>> = mutableStateOf(mutableListOf("All"))
 
+    val categories :State<MutableList<String>> = _categories
 
-
-
-
-
-
-
-
-
-
-
-
-
+    fun addToCategory (newValue:String){
+        val newCategories = _categories.value
+        newCategories.add(newValue)
+        _categories.value=newCategories
+    }
 
 
 
@@ -112,6 +107,7 @@ class MainActivityViewModel {
             "homeSnapshotEntry"-> if(newValue!=null) _homeSnapshotEntry.value=newValue as Boolean
             "products"-> if(newValue!=null) _products.value= newValue as MutableList<HashMap<String, Any?>>
             "favorites"-> if(newValue!=null) _favorites.value= newValue as MutableList<HashMap<String, Any?>>
+            "categories"-> if(newValue!=null) _categories.value = newValue as MutableList<String>
 
         }
     }
