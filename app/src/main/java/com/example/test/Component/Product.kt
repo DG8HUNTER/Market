@@ -58,7 +58,7 @@ import com.google.firebase.ktx.Firebase
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun Product(data: HashMap<String, Any>, context: Context){
+fun Product(data: HashMap<String, Any?>, context: Context){
    val currentUser=Firebase.auth.currentUser?.uid.toString()
     val db = Firebase.firestore
     val currentUserId = Firebase.auth.currentUser?.uid.toString()
@@ -74,10 +74,18 @@ fun Product(data: HashMap<String, Any>, context: Context){
         mutableStateOf(false )
     }
 
+    if(mainActivityViewModel.favorites.value.size!=0){
+        isFavorites = searchElement(mainActivityViewModel.favorites.value , key ="productId" , value =data["productId"].toString())
+    }
+    else {
+        isFavorites=false
+    }
+
+
     Log.d("favorites ${data["name"]}", isFavorites.toString())
 
 
-    val favoritesRef = db.collection("Favorites")
+  /*  val favoritesRef = db.collection("Favorites")
 
     favoritesRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
@@ -105,7 +113,7 @@ fun Product(data: HashMap<String, Any>, context: Context){
         }else {
             Log.d(ContentValues.TAG, "Current data: null")
         }
-    }
+    }*/
 
 
 
@@ -227,7 +235,7 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(
                 )
 
                 Text(
-                    text = data["name"].toString(),
+                    text =data["name"].toString()  ,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif,

@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.test.Screens.ChangePasswordScreen
 import com.example.test.Screens.ChangePasswordSecurityScreen
+import com.example.test.Screens.FavoriteItemsScreen
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.OrderScreen
@@ -165,6 +166,19 @@ fun Navigation(
         )){ backstackEntry->
             StoreProfile(navController=navController , storeId=backstackEntry.arguments?.get("storeId").toString())
 
+        }
+
+        composable(route="FavoriteItemsScreen/{storeId}/{storeName}" , arguments = listOf(
+            navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            }, navArgument(name="storeName"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )){
+            backStackEntry ->
+            FavoriteItemsScreen(navController=navController,storeId = backStackEntry.arguments?.get("storeId").toString() , storeName = backStackEntry.arguments?.get("storeName").toString())
         }
 
     }

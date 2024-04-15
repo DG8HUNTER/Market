@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.test.Component.Product
 import com.example.test.Functions.searchCategory
+import com.example.test.Functions.searchElement
 import com.example.test.R
 import com.example.test.ui.theme.customGreen
 import com.example.test.ui.theme.navyBlue
@@ -178,6 +179,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
         }
 
     }
+
  val productRef= db.collection("Products")
     productRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
@@ -213,6 +215,35 @@ fun StoreInfo(navController: NavController, storeId:String) {
                 Log.d(ContentValues.TAG, "Current data: null")
             }
         }
+
+    val favoritesRef = db.collection("Favorites")
+
+    favoritesRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(ContentValues.TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null) {
+            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "favorites")
+            if (snapshot.documents.size >= 1){
+
+                for (document in snapshot.documents) {
+                    if (document.data?.get("storeId")
+                            .toString() ==storeId && document.data?.get("userId") == currentUser
+                    ) {
+                        mainActivityViewModel.addToFavorites(document.data as HashMap<String, Any?>)
+                    }
+                }
+            }
+            Log.d("favorites", mainActivityViewModel.favorites.value.toString())
+
+
+            // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
+        }else {
+            Log.d(ContentValues.TAG, "Current data: null")
+        }
+    }
 
 
 
@@ -417,22 +448,27 @@ fun StoreInfo(navController: NavController, storeId:String) {
                     )
 
                     storeOption.forEachIndexed { index, item ->
-                        Row(modifier = Modifier
-                            .clickable { item["onClickEvent"] }
+                        Box(modifier = Modifier
+                            .clickable {
+                               if(item["name"]=="Favorites"){
+                                   navController.navigate(route="FavoriteItemsScreen/$storeId/${storeData?.get("name")?.toString()}")
+                               }
+                            }
                             .fillMaxWidth()
                             .padding(
                                 top = 10.dp,
                                 bottom = 10.dp,
 
-                                )) {
-                            Icon(
-                                painter = item["icon"] as Painter,
-                                contentDescription = "",
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = item["name"].toString(), fontSize = 14.sp)
-
+                                ),) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                                Icon(
+                                    painter = item["icon"] as Painter,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(20.dp))
+                                Text(text = item["name"].toString(), fontSize = 14.sp)
+                            }
 
                         }
 
@@ -546,7 +582,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
                     contentPadding = PaddingValues(vertical = 15.dp)
                 ) {
                    mainActivityViewModel.products.value.forEach { product ->
-                       item{Product(product as HashMap<String, Any> , context=context)}
+                       item{Product(product  , context=context)}
                    }
                 }
 
