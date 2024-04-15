@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,12 +82,17 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
     var favoritesProductsPerCategory: MutableList<HashMap<String, Any?>> by remember {
         mutableStateOf(mutableListOf())
     }
+    var favoritesProducts : MutableList<HashMap<String, Any?>> by remember {
+        mutableStateOf(mutableListOf())
+    }
+
+
 
     val scope = rememberCoroutineScope()
 
 
     categorySelected = if (mainActivityViewModel.favoriteCategories.value.size != 0) {
-        mainActivityViewModel.favoriteCategories.value[categoryIndex]
+        mainActivityViewModel.favoriteCategories.value.toList()[categoryIndex]
     } else {
         null
     }
@@ -202,7 +208,7 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
 
 
 */
-    db.collection("Favorites")
+  /*  db.collection("Favorites")
         .addSnapshotListener { snapshots, e ->
             if (e != null) {
                 Log.w(TAG, "listen:error", e)
@@ -230,20 +236,64 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
         }
 
 
-    LaunchedEffect(key1 = mainActivityViewModel.favorites.value , key2=categorySelected ) {
+*/
+
+    LaunchedEffect(key1 = mainActivityViewModel.favorites.value) {
+        if(mainActivityViewModel.favorites.value.size!=0){
+            val categories :MutableSet<String> = mutableSetOf()
+            val favProducts :MutableList<HashMap<String,Any?>> =  mutableListOf()
+          scope.launch(Dispatchers.Default){
+            for(doc in mainActivityViewModel.favorites.value){
+                Log.d("doc in fav" , doc.toString())
+
+                val productRef = db.collection("Products").document(doc["productId"].toString()).get().await()
+
+                    categories.add(productRef.data!!["category"].toString())
+
+
+
+                    favProducts.add(productRef.data as HashMap<String,Any?>)
+
+
+
+            }
+              val sortedList = categories.sorted()
+              val sortedSet = sortedList.toMutableSet()
+
+
+              withContext(Dispatchers.Main){
+                  mainActivityViewModel.setValue(sortedSet,"favorite categories")
+                  favoritesProducts=favProducts
+              }
+
+
+          }
+
+        }
+        else {
+            mainActivityViewModel.setValue(mutableSetOf<String>() , "favorite categories")
+            favoritesProducts= mutableListOf()
+        }
+
+    }
+
+    LaunchedEffect(key1 = favoritesProducts , key2=categorySelected ) {
         Log.d("favorites g " , mainActivityViewModel.favorites.value.toString())
         val categories :MutableList<String> = mutableListOf()
         val favoriteProducts :MutableList<HashMap<String,Any?>> =  mutableListOf()
         scope.launch(Dispatchers.Default){
-            for(doc in mainActivityViewModel.favorites.value){
-                Log.d("doc in fav" , doc.toString())
-            val productRef = db.collection("Products").document(doc["productId"].toString()).get().await()
-                if(!searchForString(categories, productRef.data!!["category"].toString())){
-                    categories.add(productRef.data!!["category"].toString())
-                }
+            for(doc in favoritesProducts){
 
-                if(productRef.data!!["category"]==categorySelected){
-                    favoriteProducts.add(productRef.data as HashMap<String,Any?>)
+
+                Log.d("doc in fav" , doc.toString())
+
+            //
+                //if(!searchForString(categories, productRef.data!!["category"].toString())){
+               //     categories.add(productRef.data!!["category"].toString())
+               // }
+
+                if(doc["category"]==categorySelected){
+                    favoriteProducts.add(doc)
                 }
 
 
@@ -251,7 +301,7 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
             Log.d("catt" ,categories.toString())
             Log.d("fav" , favoriteProducts.toString())
             withContext(Dispatchers.Main){
-                mainActivityViewModel.setValue(categories , "favorite categories" )
+               // mainActivityViewModel.setValue(categories , "favorite categories" )
                 favoritesProductsPerCategory=favoriteProducts
 
             }
@@ -359,7 +409,7 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
 
                     }
                     if (favoritesProductsPerCategory.size > 0){
-                        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+                        LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(vertical = 15.dp)) {
                             favoritesProductsPerCategory.forEach { product ->
                                 item {
                                     Product(
@@ -391,3 +441,7 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
 
 
         }
+
+fun getFavoriteProduct(){
+
+}
