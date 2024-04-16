@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ScrollableTabRow
@@ -54,6 +55,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -69,7 +71,11 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
         mutableIntStateOf(0)
     }
 
-    LaunchedEffect(key1 = mainActivityViewModel.favoriteCategories.value.size) {
+    var loading by remember {
+        mutableStateOf(true)
+    }
+
+   LaunchedEffect(key1 = mainActivityViewModel.favoriteCategories.value.size) {
         val categoriesSize = mainActivityViewModel.favoriteCategories.value.size
         if (categoriesSize != 0) {
             categoryIndex = categoryIndex.coerceIn(0, categoriesSize - 1)
@@ -280,6 +286,7 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
               withContext(Dispatchers.Main){
                   mainActivityViewModel.setValue(sortedSet,"favorite categories")
                   favoritesProducts=favProducts
+
               }
 
 
@@ -299,6 +306,7 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
         val categories :MutableList<String> = mutableListOf()
         val favoriteProducts :MutableList<HashMap<String,Any?>> =  mutableListOf()
         scope.launch(Dispatchers.Default){
+
             for(doc in favoritesProducts){
 
 
@@ -320,10 +328,14 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
             withContext(Dispatchers.Main){
                // mainActivityViewModel.setValue(categories , "favorite categories" )
                 favoritesProductsPerCategory=favoriteProducts
+                delay(2000)
+                loading=false
 
             }
 
         }
+
+
 
 
     }
@@ -390,69 +402,113 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
                 }
 
 
-                if (mainActivityViewModel.favoriteCategories.value.size != 0) {
-                    Log.d("errorCat" , categoryIndex.toString())
-                    ScrollableTabRow(
-                        selectedTabIndex =  categoryIndex, modifier = Modifier.fillMaxWidth(),
-                       indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                modifier = Modifier
-                                    .tabIndicatorOffset(tabPositions[categoryIndex.coerceIn(0, tabPositions.size - 1)])
-                                    .clip(shape = RoundedCornerShape(10.dp)),
-                                color = customGreen,
-                                height = 4.dp
-                            )
-                        }, edgePadding = 0.dp
+                if (!loading){
+                    Log.d("Loading" , loading.toString())
 
-
-                    ) {
-
-                        mainActivityViewModel.favoriteCategories.value.forEachIndexed { index, item ->
-                            Tab(selected = categoryIndex == index, onClick = {
-                                categorySelected = item
-                                categoryIndex = index
-
-                            }) {
-                                Text(
-                                    text = item.toString(),
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = if (categoryIndex == index) Color.Black else Color.Gray,
-                                    modifier = Modifier.padding(10.dp)
+                    if (mainActivityViewModel.favoriteCategories.value.size != 0) {
+                        Log.d("errorCat", categoryIndex.toString())
+                        ScrollableTabRow(
+                            selectedTabIndex = categoryIndex, modifier = Modifier.fillMaxWidth(),
+                            indicator = { tabPositions ->
+                                TabRowDefaults.Indicator(
+                                    modifier = Modifier
+                                        .tabIndicatorOffset(
+                                            tabPositions[categoryIndex.coerceIn(
+                                                0,
+                                                tabPositions.size - 1
+                                            )]
+                                        )
+                                        .clip(shape = RoundedCornerShape(10.dp)),
+                                    color = customGreen,
+                                    height = 4.dp
                                 )
-                            }
-
-                        }
+                            }, edgePadding = 0.dp
 
 
-                    }
-                    if (favoritesProductsPerCategory.size > 0){
-                        LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(vertical = 15.dp)) {
-                            favoritesProductsPerCategory.forEach { product ->
-                                item {
-                                    Product(
-                                        data = product ,
-                                        context = context
+                        ) {
+
+                            mainActivityViewModel.favoriteCategories.value.forEachIndexed { index, item ->
+                                Tab(selected = categoryIndex == index, onClick = {
+                                    categorySelected = item
+                                    categoryIndex = index
+
+                                }) {
+                                    Text(
+                                        text = item.toString(),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = if (categoryIndex == index) Color.Black else Color.Gray,
+                                        modifier = Modifier.padding(10.dp)
                                     )
                                 }
+
                             }
 
-                        }
-                }
 
-                } else {
+                        }
+                        if (favoritesProductsPerCategory.size > 0) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                contentPadding = PaddingValues(vertical = 15.dp)
+                            ) {
+                                favoritesProductsPerCategory.forEach { product ->
+                                    item {
+                                        Product(
+                                            data = product,
+                                            context = context
+                                        )
+                                    }
+                                }
+
+                            }
+                        }
+
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "No Favorites Item For $storeName ",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
+
+            }
+                else {
+
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            "No Favorites Item For $storeName ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically){
+                            CircularProgressIndicator(
+                                modifier=Modifier.size(16.dp),
+                                color= customGreen,
+                                strokeWidth = 2.dp
+
+                            )
+                            Spacer(modifier = Modifier.width(7.dp))
+
+                            Text(
+                                 text="Loading your favorite Items",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+
+
+                        }
                     }
+
                 }
+
+
+
 
 
             }
