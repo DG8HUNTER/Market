@@ -144,7 +144,7 @@ var status :String by remember {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    navController.navigate(route = "StoreInfoScreen/${data["storeId"]}")
+                    navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}")
                 }) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -204,7 +204,7 @@ var status :String by remember {
 
                     }
 
-                    IconButton(onClick = { navController.navigate(route = "StoreInfoScreen/${data["storeId"]}") }) {
+                    IconButton(onClick = {  navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}") }) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
                             contentDescription = "next",

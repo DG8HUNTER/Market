@@ -90,7 +90,7 @@ import kotlin.reflect.KProperty
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreInfo(navController: NavController, storeId:String) {
+fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
     // Snapshot on the store for status change to be done
     var storeData: HashMap<String, Any?>? by remember {
         mutableStateOf(null)
@@ -509,7 +509,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
                 }
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    text = if (storeData != null) storeData!!["name"].toString() else "",
+                    text = storeName,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.SansSerif
@@ -533,7 +533,7 @@ fun StoreInfo(navController: NavController, storeId:String) {
 
                 }
             }
-            ScrollableTabRow(selectedTabIndex = categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customGreen,   indicator = { tabPositions ->
+            ScrollableTabRow(selectedTabIndex =if(categoryIndex>= mainActivityViewModel.categories.value.size) categoryIndex-1 else categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customGreen,   indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     modifier = Modifier
                         .tabIndicatorOffset(tabPositions[categoryIndex])
@@ -553,11 +553,6 @@ fun StoreInfo(navController: NavController, storeId:String) {
                         Text(text =value.toString() , fontSize = 15.sp , fontWeight = FontWeight.Medium , color=if(categoryIndex==index)Color.Black else Color.Gray, modifier = Modifier.padding(10.dp))
                     }
                 }
-
-
-
-
-
 
             }
 

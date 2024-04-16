@@ -69,10 +69,24 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
         mutableIntStateOf(0)
     }
 
+    LaunchedEffect(key1 = mainActivityViewModel.favoriteCategories.value.size) {
+        val categoriesSize = mainActivityViewModel.favoriteCategories.value.size
+        if (categoriesSize != 0) {
+            categoryIndex = categoryIndex.coerceIn(0, categoriesSize - 1)
+        }
+    }
+
+
+
     Log.d("storeId", storeId)
     var categorySelected: String? by remember {
         mutableStateOf("")
     }
+
+    Log.d("Category Index"  , categoryIndex.toString())
+
+
+
 
     var snapshotDocuments: MutableList<DocumentSnapshot> by remember {
         mutableStateOf(mutableListOf())
@@ -91,11 +105,13 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
     val scope = rememberCoroutineScope()
 
 
-    categorySelected = if (mainActivityViewModel.favoriteCategories.value.size != 0) {
-        mainActivityViewModel.favoriteCategories.value.toList()[categoryIndex]
-    } else {
-        null
-    }
+    categorySelected =   mainActivityViewModel.favoriteCategories.value.toList().getOrNull(categoryIndex)
+
+
+
+
+
+
 
     /*val favoritesRef = db.collection("Favorites")
 
@@ -277,6 +293,7 @@ fun FavoriteItemsScreen(navController: NavController , storeId :String ,storeNam
 
     }
 
+
     LaunchedEffect(key1 = favoritesProducts , key2=categorySelected ) {
         Log.d("favorites g " , mainActivityViewModel.favorites.value.toString())
         val categories :MutableList<String> = mutableListOf()
@@ -374,12 +391,13 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
 
 
                 if (mainActivityViewModel.favoriteCategories.value.size != 0) {
+                    Log.d("errorCat" , categoryIndex.toString())
                     ScrollableTabRow(
-                        selectedTabIndex = categoryIndex, modifier = Modifier.fillMaxWidth(),
-                        indicator = { tabPositions ->
+                        selectedTabIndex =  categoryIndex, modifier = Modifier.fillMaxWidth(),
+                       indicator = { tabPositions ->
                             TabRowDefaults.Indicator(
                                 modifier = Modifier
-                                    .tabIndicatorOffset(tabPositions[categoryIndex])
+                                    .tabIndicatorOffset(tabPositions[categoryIndex.coerceIn(0, tabPositions.size - 1)])
                                     .clip(shape = RoundedCornerShape(10.dp)),
                                 color = customGreen,
                                 height = 4.dp

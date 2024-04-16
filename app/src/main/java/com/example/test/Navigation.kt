@@ -146,15 +146,19 @@ fun Navigation(
 
         }
 
-        composable(route="StoreInfoScreen/{storeId}", arguments = listOf(
+        composable(route="StoreInfoScreen/{storeId}/{storeName}", arguments = listOf(
             navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            },
+            navArgument(name="storeName"){
                 type= NavType.StringType
                 nullable=false
             },
 
         )){
             backStackEntry->
-            StoreInfo(navController=navController, storeId = backStackEntry.arguments?.get("storeId") as String)
+            StoreInfo(navController=navController, storeId = backStackEntry.arguments?.get("storeId") as String , storeName=backStackEntry.arguments?.get("storeName") as String )
 
         }
 
