@@ -449,13 +449,16 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
                         if (favoritesProductsPerCategory.size > 0) {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(3),
-                                contentPadding = PaddingValues(vertical = 15.dp)
+                                contentPadding = PaddingValues(vertical = 15.dp),
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
+                                horizontalArrangement = Arrangement.spacedBy(15.dp),
                             ) {
                                 favoritesProductsPerCategory.forEach { product ->
                                     item {
                                         Product(
                                             data = product,
-                                            context = context
+                                            context = context,
+                                            navController = navController
                                         )
                                     }
                                 }

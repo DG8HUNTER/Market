@@ -22,6 +22,7 @@ import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.OrderScreen
 import com.example.test.Screens.PersonalInfo
+import com.example.test.Screens.ProductInfoScreen
 import com.example.test.Screens.ResetPassword
 import com.example.test.Screens.SignInScreen
 import com.example.test.Screens.SignUpScreen
@@ -183,6 +184,29 @@ fun Navigation(
         )){
             backStackEntry ->
             FavoriteItemsScreen(navController=navController,storeId = backStackEntry.arguments?.get("storeId").toString() , storeName = backStackEntry.arguments?.get("storeName").toString())
+        }
+
+        composable(route="ProductInfoScreen/{productId}/{storeId}/{category}", arguments = listOf(
+            navArgument(name="productId"){
+                type= NavType.StringType
+                nullable=false
+            },
+            navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            },
+            navArgument(name="category"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )){ backStackEntry->
+
+            ProductInfoScreen(navController=navController , productId=backStackEntry.arguments?.get("productId").toString(),
+                storeId=backStackEntry.arguments?.get("storeId").toString(),
+                category=backStackEntry.arguments?.get("category").toString(),
+            )
+
+
         }
 
     }

@@ -574,10 +574,13 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 15.dp)
+                    contentPadding = PaddingValues(vertical = 15.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    horizontalArrangement = Arrangement.spacedBy(15.dp),
+
                 ) {
                    mainActivityViewModel.products.value.forEach { product ->
-                       item{Product(product  , context=context)}
+                       item{Product(product  , context=context , navController = navController)}
                    }
                 }
 

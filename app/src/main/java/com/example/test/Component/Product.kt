@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.Functions.searchElement
 import com.example.test.R
@@ -58,7 +61,7 @@ import com.google.firebase.ktx.Firebase
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun Product(data: HashMap<String, Any?>, context: Context){
+fun Product(data: HashMap<String, Any?>, context: Context , navController: NavController){
    val currentUser=Firebase.auth.currentUser?.uid.toString()
     val db = Firebase.firestore
     val currentUserId = Firebase.auth.currentUser?.uid.toString()
@@ -119,90 +122,98 @@ fun Product(data: HashMap<String, Any?>, context: Context){
 
     Box(modifier= Modifier
 
-        .padding(horizontal = 7.dp, vertical = 7.dp )
+
         ) {
 
 
         Surface(
-            modifier=Modifier.padding(start=2.dp),
+            modifier= Modifier
+                .padding(start = 2.dp)
+                .height(165.dp)
+                .width(130.dp),
             shape = RoundedCornerShape(8.dp),
             shadowElevation = 10.dp,
             color = Color.White,
 
 
         ) {
-Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(data["discount"].toString().toFloat()!=0f) Arrangement.SpaceBetween else Arrangement.End,modifier=Modifier.fillMaxWidth().padding(horizontal = 2.dp)){
+            
 
+Row(verticalAlignment = Alignment.Top , modifier=Modifier.fillMaxWidth()){
 
-          if(data["discount"].toString().toFloat()!=0f) {
-              Text(
-                  " - ${data["discount"].toString()}%",
-                  fontSize = 12.sp,
-                  color = Color.Red,
-                  fontWeight = FontWeight.Bold,
+Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = if(data["discount"].toString().toFloat()!=0f) Arrangement.SpaceBetween else Arrangement.End,modifier= Modifier
+    .padding(2.dp)
+    .fillMaxWidth() ){
 
-              )
+    if(data["discount"].toString().toFloat()!=0f) {
+        Text(
+            " - ${data["discount"].toString()}%",
+            fontSize = 12.sp,
+            color = Color.Red,
+            fontWeight = FontWeight.Bold,
 
-          }
+            )
+
+    }
 
 
     IconButton(onClick = {
-   if (!isFavorites) {
-       val info = hashMapOf(
-           "favoriteId" to "",
-           "userId" to currentUserId,
-           "storeId" to data["storeId"].toString(),
-           "productId" to data["productId"].toString()
+        if (!isFavorites) {
+            val info = hashMapOf(
+                "favoriteId" to "",
+                "userId" to currentUserId,
+                "storeId" to data["storeId"].toString(),
+                "productId" to data["productId"].toString()
 
-       )
-       db.collection("Favorites").add(info)
-           .addOnSuccessListener { documentReference ->
-               if (documentReference != null){
-                   db.collection("Favorites").document(documentReference.id).update("favoriteId" ,documentReference.id.toString())
+            )
+            db.collection("Favorites").add(info)
+                .addOnSuccessListener { documentReference ->
+                    if (documentReference != null){
+                        db.collection("Favorites").document(documentReference.id).update("favoriteId" ,documentReference.id.toString())
 
-                   Toast.makeText(
-                       context,
-                       "${data["name"].toString()} added to your favorites",
-                       Toast.LENGTH_SHORT
-                   ).show()
-           }
+                        Toast.makeText(
+                            context,
+                            "${data["name"].toString()} added to your favorites",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
 
-           }
-           .addOnFailureListener {
-               Toast.makeText(
-                   context,
-                   " Failed to add ${data["name"].toString()}  to your favorites",
-                   Toast.LENGTH_SHORT
-               ).show()
-           }
-   } else {
-       db.collection("Favorites")
-           .whereEqualTo("userId", currentUserId)
-           .whereEqualTo("storeId", data["storeId"])
-           .whereEqualTo("productId", data["productId"])
-           .get()
-           .addOnSuccessListener { documents ->
-               for (document in documents) {
-                   db.collection("Favorites").document(document.id)
-                       .delete()
-                       .addOnSuccessListener {
-                           Toast.makeText(context, "${data["name"].toString()} removed from favorites", Toast.LENGTH_SHORT).show()
-                       }
-                       .addOnFailureListener { e ->
-                           Log.w(TAG, "Error deleting document", e)
-                       }
-               }
-           }
-           .addOnFailureListener { exception ->
-               Log.w(TAG, "Error getting documents: ", exception)
-           }
-
-
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        context,
+                        " Failed to add ${data["name"].toString()}  to your favorites",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        } else {
+            db.collection("Favorites")
+                .whereEqualTo("userId", currentUserId)
+                .whereEqualTo("storeId", data["storeId"])
+                .whereEqualTo("productId", data["productId"])
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        db.collection("Favorites").document(document.id)
+                            .delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "${data["name"].toString()} removed from favorites", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Error deleting document", e)
+                            }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents: ", exception)
+                }
 
 
 
 
-   }
+
+
+        }
 
     }, modifier = Modifier.size(25.dp)) {
 
@@ -212,6 +223,9 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(
             modifier = Modifier.size(18.dp),
             tint=Color.Unspecified)
     }
+
+}
+
 
 }
 
@@ -228,11 +242,13 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(
                 Image(
                     painter = painter,
                     contentDescription = "product image",
-                    modifier = Modifier.padding(top=20.dp)
+                    modifier = Modifier
+                        .padding(top = 20.dp)
 
                         .size(60.dp)
                         .clip(shape = CircleShape)
                 )
+                Spacer(modifier=Modifier.height(7.dp))
 
                 Text(
                     text =data["name"].toString()  ,
@@ -273,6 +289,8 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(
                         fontWeight = FontWeight.Medium,
                         color = Color.Red,
                         fontFamily = FontFamily.SansSerif,)
+                    Spacer(modifier = Modifier.height(10.dp))
+
                 }
 
 
@@ -303,10 +321,14 @@ Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = if(
             }
         }*/
 
-        Column(modifier=Modifier.align(Alignment.BottomEnd).offset(x=8.dp,y=(8).dp)){
+        Column(modifier= Modifier
+            .align(Alignment.BottomEnd)
+            .offset(x = 8.dp, y = (8).dp)){
             IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.size(30.dp).clip(CircleShape)
+                onClick = { navController.navigate(route="ProductInfoScreen/${data["productId"]}/${data["storeId"]}/${data["category"]}") },
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(CircleShape)
                     .background(color = Color.Transparent, shape = CircleShape),
                 colors = IconButtonDefaults.iconButtonColors(containerColor = customGreen)
             ) {
