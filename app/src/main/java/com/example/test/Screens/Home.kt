@@ -53,7 +53,6 @@ import androidx.compose.material3.rememberDrawerState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -78,7 +77,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.Component.Store
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -88,15 +87,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalFocusManager
 
 import com.example.test.ui.theme.lightGray2
-import com.example.test.ui.theme.mediumGray
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.MetadataChanges
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.checkerframework.checker.units.qual.A
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -146,9 +139,9 @@ fun Home(
     val brush =
         Brush.linearGradient(
             colors = listOf(
-                customGreen,
+                customColor,
                 Color(
-                    0xFF93E2AE
+                    0xFFFFCCBC
 
                 ),
             ), start = Offset.Zero, end = Offset(x = translateAnim.value, y = translateAnim.value)
@@ -348,7 +341,7 @@ if(search==null)
                             Text(
                                 text = "Market",
                                 fontWeight = FontWeight.Bold,
-                                color = customGreen,
+                                color = customColor,
                                 fontFamily = FontFamily.Serif,
                                 fontSize = 25.sp
                             )
@@ -654,7 +647,7 @@ if(search==null)
                     colors=SearchBarDefaults.colors(
                         containerColor = lightGray2,
                         inputFieldColors = TextFieldDefaults.colors(
-                            cursorColor = customGreen,
+                            cursorColor = customColor,
                             focusedTextColor = Color.Black,
 
                         )

@@ -23,14 +23,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.test.Screens.mainActivityViewModel
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
 
@@ -167,9 +166,9 @@ fun TextFieldComponent(
          ,    colors = TextFieldDefaults.textFieldColors(
             focusedTextColor = onSurface,
             unfocusedIndicatorColor = mediumGray,
-            focusedIndicatorColor = customGreen,
+            focusedIndicatorColor = customColor,
             cursorColor = onSurface,
-            focusedLabelColor = customGreen,
+            focusedLabelColor = customColor,
             unfocusedLabelColor = mediumGray,
             containerColor = Color.Transparent,
             errorContainerColor = Color.Transparent

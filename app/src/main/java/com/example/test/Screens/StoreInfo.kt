@@ -49,7 +49,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.mutableStateOf
@@ -71,19 +70,16 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.test.Component.Product
 import com.example.test.Functions.searchCategory
-import com.example.test.Functions.searchElement
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.navyBlue
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlin.reflect.KProperty
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -405,7 +401,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                                         .height(35.dp)
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(20.dp))
-                                        .background(color = customGreen)
+                                        .background(color = customColor)
                                         .padding(7.dp), contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -533,12 +529,12 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
                 }
             }
-            ScrollableTabRow(selectedTabIndex =if(categoryIndex>= mainActivityViewModel.categories.value.size) categoryIndex-1 else categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customGreen,   indicator = { tabPositions ->
+            ScrollableTabRow(selectedTabIndex =if(categoryIndex>= mainActivityViewModel.categories.value.size) categoryIndex-1 else categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customColor,   indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     modifier = Modifier
                         .tabIndicatorOffset(tabPositions[categoryIndex])
                         .clip(shape = RoundedCornerShape(10.dp)),
-                    color = customGreen,
+                    color = customColor,
                     height=4.dp
                 )}, edgePadding = 0.dp) {
 

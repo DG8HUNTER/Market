@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
 import com.google.firebase.auth.EmailAuthProvider
@@ -208,9 +208,9 @@ fun ChangePasswordSecurityScreen(navController: NavController) {
                     focusedTextColor = onSurface,
                     containerColor = Color.Transparent,
                     unfocusedIndicatorColor = mediumGray,
-                    focusedIndicatorColor = customGreen,
+                    focusedIndicatorColor = customColor,
                     cursorColor = onSurface,
-                    focusedLabelColor = customGreen,
+                    focusedLabelColor = customColor,
                     unfocusedLabelColor = mediumGray,
                     errorContainerColor = Color.Transparent
 
@@ -274,7 +274,7 @@ fun ChangePasswordSecurityScreen(navController: NavController) {
                         .height(55.dp)
                         .clip(shape = RoundedCornerShape(10.dp))
                         .background(
-                            color = customGreen,
+                            color = customColor,
                             shape = RoundedCornerShape(10.dp)
                         ),
                     contentAlignment = Alignment.Center,

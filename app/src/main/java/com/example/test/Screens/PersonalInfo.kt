@@ -40,12 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.Component.TextFieldComponent
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -279,7 +278,7 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
                     .fillMaxWidth()
                     .height(55.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(color = customGreen, shape = RoundedCornerShape(10.dp)),
+                    .background(color = customColor, shape = RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){

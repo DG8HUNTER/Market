@@ -1,6 +1,5 @@
 package com.example.test.Component
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Build
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -53,7 +51,7 @@ import coil.compose.rememberImagePainter
 import com.example.test.Functions.searchElement
 import com.example.test.R
 import com.example.test.Screens.mainActivityViewModel
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -330,7 +328,7 @@ Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = if(da
                     .size(30.dp)
                     .clip(CircleShape)
                     .background(color = Color.Transparent, shape = CircleShape),
-                colors = IconButtonDefaults.iconButtonColors(containerColor = customGreen)
+                colors = IconButtonDefaults.iconButtonColors(containerColor = customColor)
             ) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "", tint = Color.White)
             }

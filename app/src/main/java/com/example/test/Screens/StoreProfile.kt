@@ -3,9 +3,6 @@ package com.example.test.Screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,12 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 
@@ -47,8 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,17 +50,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberImagePainter
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.lightGray1
-import com.example.test.ui.theme.lightGray2
-import com.example.test.ui.theme.lightGray3
-import com.example.test.ui.theme.ultraLightGray
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 
 @Composable
 fun StoreProfile(navController: NavController , storeId:String) {
@@ -382,7 +370,7 @@ val weekDay = listOf("Monday" , "Tuesday" , "Wednesday" ,"Thursday" , "Friday" ,
                 contentPadding = PaddingValues(0.dp)
 
             ) {
-                Box(modifier=Modifier.fillMaxWidth().background(color = customGreen , shape = RoundedCornerShape(0.dp)).height(50.dp), contentAlignment = Alignment.Center){
+                Box(modifier=Modifier.fillMaxWidth().background(color = customColor , shape = RoundedCornerShape(0.dp)).height(50.dp), contentAlignment = Alignment.Center){
                     Text(text = "Call Store" , fontSize = 18.sp , fontWeight = FontWeight.Bold)
                 }
 

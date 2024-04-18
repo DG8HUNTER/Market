@@ -23,8 +23,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,11 +59,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -246,9 +242,9 @@ fun ChangePasswordScreen(navController: NavController){
                             focusedTextColor= onSurface,
                             containerColor = Color.Transparent,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             errorContainerColor = Color.Transparent
                         ) , isError = newPasswordError
@@ -365,9 +361,9 @@ fun ChangePasswordScreen(navController: NavController){
                             focusedTextColor= onSurface,
                             containerColor = Color.Transparent,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             errorContainerColor = Color.Transparent
 
@@ -469,7 +465,7 @@ fun ChangePasswordScreen(navController: NavController){
                         .height(55.dp)
                         .clip(shape = RoundedCornerShape(10.dp))
                         .background(
-                            color = customGreen,
+                            color = customColor,
                             shape = RoundedCornerShape(10.dp)
                         ),
                     contentAlignment = Alignment.Center,

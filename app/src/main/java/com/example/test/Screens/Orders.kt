@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.Component.Store
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -122,12 +122,12 @@ fun OrderScreen(navController: NavController){
 
             }
 
-            TabRow(selectedTabIndex = index , modifier = Modifier.fillMaxWidth(), contentColor = customGreen,   indicator = { tabPositions ->
+            TabRow(selectedTabIndex = index , modifier = Modifier.fillMaxWidth(), contentColor = customColor,   indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     modifier = Modifier
                         .tabIndicatorOffset(tabPositions[index])
                         .clip(shape = RoundedCornerShape(10.dp)),
-                    color = customGreen,
+                    color = customColor,
                     height=4.dp
                 )
             } ) {
@@ -136,7 +136,7 @@ fun OrderScreen(navController: NavController){
                         index=0
                         optionSelected="Current Orders"
                     },
-                    selectedContentColor = customGreen
+                    selectedContentColor = customColor
                 ) {
                     Text(text ="Current Orders" , fontSize = 15.sp , fontWeight = FontWeight.Medium , color=if(index==0)Color.Black else Color.Gray, modifier = Modifier.padding(10.dp))
 
@@ -146,7 +146,7 @@ fun OrderScreen(navController: NavController){
                         index=1
                         optionSelected="Past Orders"
                     } ,
-                    selectedContentColor = customGreen
+                    selectedContentColor = customColor
                 ) {
                     Text(text ="Past Orders" , fontSize = 15.sp , fontWeight = FontWeight.Medium , color = if(index==1) Color.Black else Color.Gray,modifier = Modifier.padding(10.dp))
 

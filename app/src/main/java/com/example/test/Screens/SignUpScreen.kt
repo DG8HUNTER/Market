@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -303,9 +303,9 @@ fun SignUpScreen(navController: NavController) {
                         colors = TextFieldDefaults.textFieldColors(
                             focusedTextColor = onSurface,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             containerColor = Color.Transparent,
                             errorContainerColor = Color.Transparent
@@ -418,9 +418,9 @@ fun SignUpScreen(navController: NavController) {
                         colors = TextFieldDefaults.textFieldColors(
                             focusedTextColor = onSurface,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             containerColor = Color.Transparent,
                             errorContainerColor = Color.Transparent
@@ -547,9 +547,9 @@ fun SignUpScreen(navController: NavController) {
                         colors = TextFieldDefaults.textFieldColors(
                             focusedTextColor = onSurface,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             containerColor = Color.Transparent,
                             errorContainerColor = Color.Transparent
@@ -665,7 +665,7 @@ fun SignUpScreen(navController: NavController) {
                         .fillMaxWidth()
                         .height(55.dp)
                         .clip(shape = RoundedCornerShape(10.dp))
-                        .background(color = customGreen, shape = RoundedCornerShape(10.dp)),
+                        .background(color = customColor, shape = RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center,){
 
                         Row( modifier = Modifier.fillMaxWidth(),
@@ -720,7 +720,7 @@ fun SignUpScreen(navController: NavController) {
                         text = " Sign In ",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = customGreen,
+                        color = customColor,
                         modifier = Modifier.clickable {
                             navController.navigate(route = "SignInScreen") {
                                 popUpTo("SignUpScreen")
@@ -813,7 +813,7 @@ fun SignUpScreen(navController: NavController) {
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
                                     modifier = Modifier.size(16.dp),
-                                    color = customGreen
+                                    color = customColor
                                 )
                             }
                         }

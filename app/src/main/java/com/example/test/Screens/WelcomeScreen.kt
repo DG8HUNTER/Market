@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,9 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import kotlinx.coroutines.delay
-import java.util.Collections.list
 
 @Composable
 
@@ -106,11 +102,11 @@ fun WelcomeScreen(navController: NavController){
         Column(modifier=Modifier.fillMaxWidth()){
             Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically){
                 Text(text = "Welcome to " , fontSize = 30.sp , fontWeight = FontWeight.Bold)
-                Text(text = "Market " , fontSize = 30.sp , fontWeight = FontWeight.Bold, color = customGreen,fontFamily = FontFamily.Serif)
+                Text(text = "Market " , fontSize = 30.sp , fontWeight = FontWeight.Bold, color = customColor,fontFamily = FontFamily.Serif)
                 Icon(
                     painter = painterResource(id = R.drawable.store),
                     contentDescription = "marketplace",
-                    tint = customGreen,
+                    tint = customColor,
                     modifier = Modifier
                         .size(30.dp)
                         .rotate(rotation)
@@ -140,7 +136,7 @@ fun WelcomeScreen(navController: NavController){
                     Text(text = "we have: ", fontSize = 18.sp, fontWeight = FontWeight.Medium)
                     Text(
                         text = product[position],
-                        color = customGreen,
+                        color = customColor,
                         fontWeight = FontWeight.Medium,
                         fontSize = 20.sp
                     )
@@ -173,7 +169,7 @@ fun WelcomeScreen(navController: NavController){
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .clip(shape = RoundedCornerShape(2.dp)),contentPadding = PaddingValues(), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)){
-                    Box(modifier = Modifier.fillMaxWidth().clip(shape= RoundedCornerShape(2.dp)).background(color= customGreen, shape = RoundedCornerShape(2.dp)).padding(15.dp), contentAlignment = Alignment.Center){
+                    Box(modifier = Modifier.fillMaxWidth().clip(shape= RoundedCornerShape(2.dp)).background(color= customColor, shape = RoundedCornerShape(2.dp)).padding(15.dp), contentAlignment = Alignment.Center){
                         Text(text ="Get Started", fontWeight = FontWeight.Bold , fontSize = 18.sp, color=Color.White )
 
                     }

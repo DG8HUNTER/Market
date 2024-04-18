@@ -1,7 +1,5 @@
 package com.example.test.Screens
 
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -30,7 +28,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,10 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.Component.Product
-import com.example.test.Functions.searchForString
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -59,7 +54,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.checkerframework.checker.units.qual.A
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -419,7 +413,7 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
                                             )]
                                         )
                                         .clip(shape = RoundedCornerShape(10.dp)),
-                                    color = customGreen,
+                                    color = customColor,
                                     height = 4.dp
                                 )
                             }, edgePadding = 0.dp
@@ -492,7 +486,7 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
                         Row(verticalAlignment = Alignment.CenterVertically){
                             CircularProgressIndicator(
                                 modifier=Modifier.size(16.dp),
-                                color= customGreen,
+                                color= customColor,
                                 strokeWidth = 2.dp
 
                             )

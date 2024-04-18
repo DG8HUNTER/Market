@@ -39,8 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -52,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
 import com.google.firebase.auth.FirebaseAuth
@@ -188,9 +186,9 @@ fun ResetPassword(navController: NavController){
                     focusedTextColor= onSurface,
                     containerColor = Color.Transparent,
                     unfocusedIndicatorColor = mediumGray,
-                    focusedIndicatorColor = customGreen,
+                    focusedIndicatorColor = customColor,
                     cursorColor = mediumGray,
-                    focusedLabelColor = customGreen,
+                    focusedLabelColor = customColor,
                     unfocusedLabelColor = mediumGray,
                     errorContainerColor = Color.Transparent
                 ),
@@ -265,7 +263,7 @@ fun ResetPassword(navController: NavController){
                     .height(55.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
                     .background(
-                        color = customGreen,
+                        color = customColor,
                         shape = RoundedCornerShape(10.dp)
                     ),
                 contentAlignment = Alignment.Center,

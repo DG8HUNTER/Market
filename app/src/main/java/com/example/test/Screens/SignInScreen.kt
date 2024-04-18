@@ -50,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
@@ -68,15 +67,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.R
-import com.example.test.ui.theme.customGreen
+import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.mediumGray
 import com.example.test.ui.theme.onSurface
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -245,9 +242,9 @@ fun SignInScreen(navController: NavController){
                             focusedTextColor =onSurface,
                             containerColor = Color.Transparent,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             errorContainerColor = Color.Transparent
                         ),
@@ -354,9 +351,9 @@ fun SignInScreen(navController: NavController){
                             focusedTextColor =onSurface,
                             containerColor = Color.Transparent,
                             unfocusedIndicatorColor = mediumGray,
-                            focusedIndicatorColor = customGreen,
+                            focusedIndicatorColor = customColor,
                             cursorColor = onSurface,
-                            focusedLabelColor = customGreen,
+                            focusedLabelColor = customColor,
                             unfocusedLabelColor = mediumGray,
                             errorContainerColor = Color.Transparent
                         ),
@@ -395,7 +392,7 @@ fun SignInScreen(navController: NavController){
                         text = "Forgot Password ?",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = customGreen,
+                        color = customColor,
                         modifier = Modifier.clickable {
                             navController.navigate(route="ResetPassword")
                         }
@@ -481,7 +478,7 @@ fun SignInScreen(navController: NavController){
                             .fillMaxWidth()
                             .height(55.dp)
                             .clip(shape = RoundedCornerShape(10.dp))
-                            .background(color = customGreen, shape = RoundedCornerShape(10.dp)),
+                            .background(color = customColor, shape = RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (isSigningIn) {
@@ -531,7 +528,7 @@ fun SignInScreen(navController: NavController){
                         text = " Sign Up ",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = customGreen,
+                        color = customColor,
                         modifier = Modifier.clickable {
                             navController.navigate(route = "SignUpScreen"){
 
