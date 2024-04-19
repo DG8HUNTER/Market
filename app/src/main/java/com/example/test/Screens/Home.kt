@@ -426,6 +426,31 @@ if(search==null)
                     )
 
                     NavigationDrawerItem(
+                        label = { Text(text = "My Shopping Card") },
+                        selected = false,
+                        onClick = {
+                            navController.navigate(route = "MyCardScreen") {
+
+                            }
+                        },
+                        modifier = Modifier
+                            .height(50.dp)
+                            .background(color = Color.Transparent)
+                            .fillMaxWidth(),
+                        icon = {
+                            Icon(
+                                painterResource(id = R.drawable.shoppingcard),
+                                contentDescription = "Shopping Bag", modifier = Modifier.size(22.dp)
+
+                            )
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            unselectedContainerColor = Color.Transparent
+                        )
+                    )
+
+
+                    NavigationDrawerItem(
                         label = { Text(text = "Orders") },
                         selected = false,
                         onClick = {

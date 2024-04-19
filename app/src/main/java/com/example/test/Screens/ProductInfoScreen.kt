@@ -1,8 +1,11 @@
 package com.example.test.Screens
 
+import android.content.ContentValues
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -73,6 +77,9 @@ import androidx.compose.ui.text.style.TextAlign
 
 import com.example.test.Component.Product
 import com.example.test.ui.theme.customColor
+import com.example.test.ui.theme.lightCustomColor
+import com.google.firebase.auth.ktx.auth
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -89,6 +96,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
         mutableIntStateOf(0)
     }
 
+
     if(mainActivityViewModel.favorites.value.size!=0){
         isFavorites = searchElement(mainActivityViewModel.favorites.value , key ="productId" , value =productId)
     }
@@ -103,6 +111,13 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
     var data :HashMap<String,Any?>by remember {
         mutableStateOf(hashMapOf())
     }
+    var isAdding by remember {
+        mutableStateOf(false)
+    }
+
+
+
+    val buttonColor = animateColorAsState(targetValue =if(quantity!=0) customColor else Color(0xFFff916f))
 
     val focus = LocalFocusManager.current
 
@@ -189,6 +204,64 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
 
                     IconButton(onClick = {
+                          val db = Firebase.firestore
+                        val currentUserId = Firebase.auth.currentUser?.uid.toString()
+                        if (!isFavorites) {
+                            val info = hashMapOf(
+                                "favoriteId" to "",
+                                "userId" to currentUserId,
+                                "storeId" to data["storeId"].toString(),
+                                "productId" to data["productId"].toString()
+
+                            )
+                            db.collection("Favorites").add(info)
+                                .addOnSuccessListener { documentReference ->
+                                    if (documentReference != null){
+                                        db.collection("Favorites").document(documentReference.id).update("favoriteId" ,documentReference.id.toString())
+
+                                        Toast.makeText(
+                                            context,
+                                            "${data["name"].toString()} added to your favorites",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(
+                                        context,
+                                        " Failed to add ${data["name"].toString()}  to your favorites",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } else {
+                            db.collection("Favorites")
+                                .whereEqualTo("userId", currentUserId)
+                                .whereEqualTo("storeId", data["storeId"])
+                                .whereEqualTo("productId", data["productId"])
+                                .get()
+                                .addOnSuccessListener { documents ->
+                                    for (document in documents) {
+                                        db.collection("Favorites").document(document.id)
+                                            .delete()
+                                            .addOnSuccessListener {
+                                                Toast.makeText(context, "${data["name"].toString()} removed from favorites", Toast.LENGTH_SHORT).show()
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.w(ContentValues.TAG, "Error deleting document", e)
+                                            }
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.w(ContentValues.TAG, "Error getting documents: ", exception)
+                                }
+
+
+
+
+
+
+                        }
 
 
 
@@ -318,7 +391,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
                                 Row(
                                     modifier = Modifier
-                                        .width(100.dp)
+                                        .width(90.dp)
                                         .height(50.dp)
                                         .background(
                                             color = customColor,
@@ -336,7 +409,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                                 0
                                             }
                                         },
-                                        maxLines = 2,
+                                        maxLines = 1,
                                         colors = TextFieldDefaults.colors(
                                             unfocusedContainerColor = Color.Transparent,
                                             focusedContainerColor = Color.Transparent,
@@ -356,7 +429,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                                 focus.clearFocus()
                                             }
                                         ),
-                                        trailingIcon = {
+                                     /*   trailingIcon = {
 
                                             Text(
                                                 text = "/ ${data["inventory"]}",
@@ -364,7 +437,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                                 fontWeight = FontWeight.Medium,
                                                 color = Color.White
                                             )
-                                        },
+                                        },*/
                                         placeholder = {
 
                                                       if(quantity==0){
@@ -425,12 +498,32 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
 
                             }
-                            Button(onClick = {} , colors = ButtonDefaults.buttonColors(
-                                containerColor = customColor
+                            Button(onClick = {
+                                scope.launch(Dispatchers.Default){
+                                    isAdding=true
+                                    val newData = HashMap(data)
+                                    newData["quantity"] = quantity
+
+                                    withContext(Dispatchers.Main){
+                                        mainActivityViewModel.addToCardProduct(newData)
+                                        delay(1000)
+                                        isAdding=false
+                                        Toast.makeText(context , "$quantity ${data["name"]} added successfully !",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                              //  mainActivityViewModel.addToCardProduct(hashMapOf(data as HashMap<String,Any?> , "quantity" to 1))
+
+                            } , enabled = quantity!=0 ,colors = ButtonDefaults.buttonColors(
+                                containerColor = customColor ,
+                                disabledContainerColor = lightCustomColor,
+                                disabledContentColor = Color.White
                             ) , modifier= Modifier
                                 .fillMaxWidth(0.85f)
                                 .clip(RoundedCornerShape(7.dp))
                                 .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(vertical=12.dp), shape = RectangleShape) {
+
+                                if(!isAdding){
                                 Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
                                     Icon(
                                         painterResource(id = R.drawable.addtoshoppingcard),
@@ -438,6 +531,39 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                         modifier = Modifier.size(22.dp))
 
                                     Text(text = "Add to cart",Modifier.padding(start = 10.dp) , fontWeight = FontWeight.Bold , fontSize = 18.sp)
+                                }}
+                                else {
+
+                                    Row(verticalAlignment = Alignment.CenterVertically){
+                                        CircularProgressIndicator(
+                                            modifier=Modifier.size(16.dp),
+                                            color= customColor,
+                                            strokeWidth = 2.dp
+
+                                        )
+
+                                        Text(
+                                            text="Adding",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.width(7.dp))
+                                        CircularProgressIndicator(
+                                            modifier=Modifier.size(16.dp),
+                                            color= Color.White,
+                                            strokeWidth = 2.dp
+
+                                        )
+
+
+
+
+                                    }
+
+
+
+
+
                                 }
 
                             }

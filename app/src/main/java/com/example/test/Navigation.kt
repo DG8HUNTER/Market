@@ -20,6 +20,7 @@ import com.example.test.Screens.ChangePasswordSecurityScreen
 import com.example.test.Screens.FavoriteItemsScreen
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
+import com.example.test.Screens.MyCardScreen
 import com.example.test.Screens.OrderScreen
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ProductInfoScreen
@@ -206,6 +207,12 @@ fun Navigation(
                 category=backStackEntry.arguments?.get("category").toString(),
             )
 
+
+        }
+
+        composable(route="MyCardScreen"){
+
+            MyCardScreen(navController=navController)
 
         }
 

@@ -157,10 +157,10 @@ var status :String by remember {
                         modifier = Modifier
                             .size(60.dp)
                             .clip(CircleShape)
-                           /* .border(
+                            .border(
                                 BorderStroke(1.dp, Color.Gray),
                                 shape = CircleShape
-                            ),*/,
+                            ),
                         contentScale = ContentScale.FillBounds,
 
                         )
