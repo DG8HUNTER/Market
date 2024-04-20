@@ -34,7 +34,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -505,7 +504,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                     newData["quantity"] = quantity
 
                                     withContext(Dispatchers.Main){
-                                        mainActivityViewModel.addToCardProduct(newData)
+                                        mainActivityViewModel.addToCardProductFun(newData)
                                         delay(1000)
                                         isAdding=false
                                         Toast.makeText(context , "$quantity ${data["name"]} added successfully !",Toast.LENGTH_SHORT).show()

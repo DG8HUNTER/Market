@@ -140,7 +140,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}")
+                navController.navigate(route = "OrderedProductPerStoreScreen/${data["storeId"]}/${data["name"]}")
             }) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

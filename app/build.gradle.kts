@@ -80,6 +80,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.5")
+    implementation("me.saket.swipe:swipe:1.0.0")
 
 
 

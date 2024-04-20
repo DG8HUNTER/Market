@@ -429,7 +429,7 @@ if(search==null)
                         label = { Text(text = "My Shopping Card") },
                         selected = false,
                         onClick = {
-                            navController.navigate(route = "MyCardScreen") {
+                            navController.navigate(route = "MyShoppingCardScreen") {
 
                             }
                         },

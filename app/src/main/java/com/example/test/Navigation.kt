@@ -20,8 +20,9 @@ import com.example.test.Screens.ChangePasswordSecurityScreen
 import com.example.test.Screens.FavoriteItemsScreen
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
-import com.example.test.Screens.MyCardScreen
+import com.example.test.Screens.MyShoppingCardScreen
 import com.example.test.Screens.OrderScreen
+import com.example.test.Screens.OrderedProductPerStore
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ProductInfoScreen
 import com.example.test.Screens.ResetPassword
@@ -210,9 +211,25 @@ fun Navigation(
 
         }
 
-        composable(route="MyCardScreen"){
+        composable(route="MyShoppingCardScreen"){
 
-            MyCardScreen(navController=navController)
+            MyShoppingCardScreen(navController=navController)
+
+        }
+
+        composable(route="OrderedProductPerStoreScreen/{storeId}/{storeName}" , arguments = listOf(
+            navArgument(name="storeId"){
+                type= NavType.StringType
+                nullable=false
+            },
+            navArgument(name="storeName"){
+                type= NavType.StringType
+                nullable=false
+            },
+
+            )){
+
+            OrderedProductPerStore(navController=navController , storeId = it.arguments?.get("storeId").toString() , storeName=it.arguments?.get("storeName").toString() )
 
         }
 
