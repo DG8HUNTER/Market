@@ -427,6 +427,7 @@ if(search==null)
 
                     NavigationDrawerItem(
                         label = { Text(text = "My Shopping Card") },
+                        badge = {Text(text = mainActivityViewModel.addToCardProduct.value.size.toString(), color = customColor , fontWeight = FontWeight.Medium)},
                         selected = false,
                         onClick = {
                             navController.navigate(route = "MyShoppingCardScreen") {

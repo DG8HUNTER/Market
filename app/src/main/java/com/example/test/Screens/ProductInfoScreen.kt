@@ -75,6 +75,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 
 import com.example.test.Component.Product
+import com.example.test.Functions.SearchForOrderedProduct
 import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.lightCustomColor
 import com.google.firebase.auth.ktx.auth
@@ -82,7 +83,7 @@ import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ProductInfoScreen(navController: NavController , productId:String ,storeId:String , category:String){
+fun ProductInfoScreen(navController: NavController , productId:String ,storeId:String , category:String, storeName:String){
   val context = LocalContext.current
     var isFavorites  by remember {
         mutableStateOf(false )
@@ -334,7 +335,8 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                         Product(
                                             product,
                                             context = context,
-                                            navController = navController
+                                            navController = navController,
+                                            storeName = storeName
                                         )
                                     }
                                 }
@@ -349,86 +351,87 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
             if (data["inventory"].toString().toInt() > 0){
 
+                if(!SearchForOrderedProduct(data["productId"].toString())) {
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                ,
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable(
-                                            enabled = quantity != 0,
-                                            onClick = { quantity -= 1 })
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                                        .background(
-                                            color = customColor,
-                                            shape = RoundedCornerShape(7.dp)
-                                        )
-                                        .width(35.dp)
-                                        .height(35.dp)
-                                        .background(
-                                            color = Color.Transparent,
-                                            shape = RoundedCornerShape(7.dp)
-                                        ),
-                                    contentAlignment = Alignment.Center
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .clickable(
+                                        enabled = quantity != 0,
+                                        onClick = { quantity -= 1 })
 
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.minus),
-                                        contentDescription = "minus",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(14.dp)
+                                    .background(
+                                        color = customColor,
+                                        shape = RoundedCornerShape(7.dp)
                                     )
-                                }
-                                Spacer(modifier = Modifier.width(10.dp))
+                                    .width(35.dp)
+                                    .height(35.dp)
+                                    .background(
+                                        color = Color.Transparent,
+                                        shape = RoundedCornerShape(7.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.minus),
+                                    contentDescription = "minus",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
 
 
-                                Row(
-                                    modifier = Modifier
-                                        .width(90.dp)
-                                        .height(50.dp)
-                                        .background(
-                                            color = customColor,
-                                            shape = RoundedCornerShape(7.dp)
-                                        )
-                                        .clip(shape = RoundedCornerShape(7.dp))
-                                ) {
+                            Row(
+                                modifier = Modifier
+                                    .width(90.dp)
+                                    .height(50.dp)
+                                    .background(
+                                        color = customColor,
+                                        shape = RoundedCornerShape(7.dp)
+                                    )
+                                    .clip(shape = RoundedCornerShape(7.dp))
+                            ) {
 
-                                   TextField(value = if (quantity == 0) "" else quantity.toString(),
-                                        onValueChange = {
+                                TextField(value = if (quantity == 0) "" else quantity.toString(),
+                                    onValueChange = {
 
-                                            quantity = if (it.isNotEmpty()) {
-                                                it.toInt()
-                                            } else {
-                                                0
-                                            }
-                                        },
-                                        maxLines = 1,
-                                        colors = TextFieldDefaults.colors(
-                                            unfocusedContainerColor = Color.Transparent,
-                                            focusedContainerColor = Color.Transparent,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            unfocusedIndicatorColor = Color.Transparent,
-                                            cursorColor = customColor,
-                                            focusedTextColor = Color.White,
-                                            unfocusedTextColor = Color.White
+                                        quantity = if (it.isNotEmpty()) {
+                                            it.toInt()
+                                        } else {
+                                            0
+                                        }
+                                    },
+                                    maxLines = 1,
+                                    colors = TextFieldDefaults.colors(
+                                        unfocusedContainerColor = Color.Transparent,
+                                        focusedContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        cursorColor = customColor,
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White
 
-                                        ),
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Number,
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        keyboardActions = KeyboardActions(
-                                            onDone = {
-                                                focus.clearFocus()
-                                            }
-                                        ),
-                                     /*   trailingIcon = {
+                                    ),
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focus.clearFocus()
+                                        }
+                                    ),
+                                    /*   trailingIcon = {
 
                                             Text(
                                                 text = "/ ${data["inventory"]}",
@@ -437,136 +440,215 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                                 color = Color.White
                                             )
                                         },*/
-                                        placeholder = {
+                                    placeholder = {
 
-                                                      if(quantity==0){
-                                                          Text(text = "0" , fontSize = 16.sp,
-                                                              fontWeight = FontWeight.Medium,
-                                                              color = Color.White,modifier=Modifier.fillMaxWidth() , textAlign = TextAlign.Center)
-                                                      }
+                                        if (quantity == 0) {
+                                            Text(
+                                                text = "0",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = Color.White,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                textAlign = TextAlign.Center
+                                            )
                                         }
+                                    },
 
-                                        ,
-
-                                        textStyle = TextStyle(
-                                            textAlign = TextAlign.Center,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-
+                                    textStyle = TextStyle(
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium
                                     )
 
-
-                                }
-
-
-                                Log.d("Quantity", quantity.toString())
-
-
-
-
-
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clickable(
-                                            enabled = quantity <= data["inventory"]
-                                                .toString()
-                                                .toInt(),
-                                            onClick = { quantity += 1 })
-                                        .background(
-                                            color = customColor,
-                                            shape = RoundedCornerShape(7.dp)
-                                        )
-                                        .width(35.dp)
-                                        .height(35.dp)
-                                        .background(
-                                            color = Color.Transparent,
-                                            shape = RoundedCornerShape(7.dp)
-                                        ),
-                                    contentAlignment = Alignment.Center
-
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.plus),
-                                        contentDescription = "plus",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                }
+                                )
 
 
                             }
-                            Button(onClick = {
-                                scope.launch(Dispatchers.Default){
-                                    isAdding=true
-                                    val newData = HashMap(data)
-                                    newData["quantity"] = quantity
 
-                                    withContext(Dispatchers.Main){
-                                        mainActivityViewModel.addToCardProductFun(newData)
-                                        delay(1000)
-                                        isAdding=false
-                                        Toast.makeText(context , "$quantity ${data["name"]} added successfully !",Toast.LENGTH_SHORT).show()
-                                    }
+
+                            Log.d("Quantity", quantity.toString())
+
+
+
+
+
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clickable(
+                                        enabled = quantity <= data["inventory"]
+                                            .toString()
+                                            .toInt(),
+                                        onClick = { quantity += 1 })
+                                    .background(
+                                        color = customColor,
+                                        shape = RoundedCornerShape(7.dp)
+                                    )
+                                    .width(35.dp)
+                                    .height(35.dp)
+                                    .background(
+                                        color = Color.Transparent,
+                                        shape = RoundedCornerShape(7.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.plus),
+                                    contentDescription = "plus",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+
+
+                        }
+                        Button(onClick = {
+                            scope.launch(Dispatchers.Default) {
+                                isAdding = true
+                                val newData = HashMap(data)
+                                newData["quantity"] = quantity
+
+                                withContext(Dispatchers.Main) {
+                                    mainActivityViewModel.addToCardProductFun(newData)
+                                    delay(1500)
+                                    isAdding = false
+                                    Toast.makeText(
+                                        context,
+                                        "$quantity ${data["name"]} added successfully !",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
+                            }
 
-                              //  mainActivityViewModel.addToCardProduct(hashMapOf(data as HashMap<String,Any?> , "quantity" to 1))
+                            //  mainActivityViewModel.addToCardProduct(hashMapOf(data as HashMap<String,Any?> , "quantity" to 1))
 
-                            } , enabled = quantity!=0 ,colors = ButtonDefaults.buttonColors(
-                                containerColor = customColor ,
+                        },
+                            enabled = quantity != 0,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = customColor,
                                 disabledContainerColor = lightCustomColor,
                                 disabledContentColor = Color.White
-                            ) , modifier= Modifier
+                            ),
+                            modifier = Modifier
                                 .fillMaxWidth(0.85f)
                                 .clip(RoundedCornerShape(7.dp))
-                                .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(vertical=12.dp), shape = RectangleShape) {
+                                .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp)),
+                            contentPadding = PaddingValues(vertical = 12.dp),
+                            shape = RectangleShape) {
 
-                                if(!isAdding){
-                                Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
+                            if (!isAdding) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
                                     Icon(
                                         painterResource(id = R.drawable.addtoshoppingcard),
-                                        contentDescription ="Cart button icon",
-                                        modifier = Modifier.size(22.dp))
+                                        contentDescription = "Cart button icon",
+                                        modifier = Modifier.size(22.dp)
+                                    )
 
-                                    Text(text = "Add to cart",Modifier.padding(start = 10.dp) , fontWeight = FontWeight.Bold , fontSize = 18.sp)
-                                }}
-                                else {
+                                    Text(
+                                        text = "Add to cart",
+                                        Modifier.padding(start = 10.dp),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
+                                }
+                            } else {
 
-                                    Row(verticalAlignment = Alignment.CenterVertically){
-                                        CircularProgressIndicator(
-                                            modifier=Modifier.size(16.dp),
-                                            color= customColor,
-                                            strokeWidth = 2.dp
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = customColor,
+                                        strokeWidth = 2.dp
 
-                                        )
+                                    )
 
-                                        Text(
-                                            text="Adding",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 18.sp
-                                        )
-                                        Spacer(modifier = Modifier.width(7.dp))
-                                        CircularProgressIndicator(
-                                            modifier=Modifier.size(16.dp),
-                                            color= Color.White,
-                                            strokeWidth = 2.dp
+                                    Text(
+                                        text = "Adding",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(7.dp))
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
 
-                                        )
-
-
-
-
-                                    }
-
-
-
+                                    )
 
 
                                 }
 
+
                             }
+
                         }
+                    }
+
+
+                }else {
+
+                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()){
+
+
+
+                     Button(onClick = {
+
+                                      navController.navigate(route="OrderedProductPerStoreScreen/${data["storeId"]}/${storeName}")
+
+
+                     },
+
+                         colors = ButtonDefaults.buttonColors(
+                             containerColor = customColor,
+                             disabledContainerColor = lightCustomColor,
+                             disabledContentColor = Color.White
+                         ),
+                         modifier = Modifier
+                             .fillMaxWidth(0.85f)
+                             .clip(RoundedCornerShape(7.dp))
+                             .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp)),
+                         contentPadding = PaddingValues(vertical = 12.dp),
+                         shape = RectangleShape) {
+
+
+                             Row(
+                                 verticalAlignment = Alignment.CenterVertically,
+                                 horizontalArrangement = Arrangement.Center
+                             ) {
+                                 Icon(
+                                     painterResource(id = R.drawable.shoppingcardfilled),
+                                     contentDescription = "Cart button icon",
+                                     modifier = Modifier.size(22.dp),
+                                     tint = Color.White
+                                 )
+
+                                 Text(
+                                     text = "Go to cart",
+                                     Modifier.padding(start = 10.dp),
+                                     fontWeight = FontWeight.Bold,
+                                     fontSize = 18.sp
+                                 )
+                             }
+
+
+
+
+
+
+
+
+
+
+                     }
+
+
+
+                 }
+
+                }
 
                         }
 

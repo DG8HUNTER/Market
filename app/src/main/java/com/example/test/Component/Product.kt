@@ -59,7 +59,7 @@ import com.google.firebase.ktx.Firebase
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun Product(data: HashMap<String, Any?>, context: Context , navController: NavController){
+fun Product(data: HashMap<String, Any?>, context: Context , navController: NavController , storeName:String){
    val currentUser=Firebase.auth.currentUser?.uid.toString()
     val db = Firebase.firestore
     val currentUserId = Firebase.auth.currentUser?.uid.toString()
@@ -323,7 +323,7 @@ Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = if(da
             .align(Alignment.BottomEnd)
             .offset(x = 8.dp, y = (8).dp)){
             IconButton(
-                onClick = { navController.navigate(route="ProductInfoScreen/${data["productId"]}/${data["storeId"]}/${data["category"]}") },
+                onClick = { navController.navigate(route="ProductInfoScreen/${data["productId"]}/${data["storeId"]}/${data["category"]}/${storeName}") },
                 modifier = Modifier
                     .size(30.dp)
                     .clip(CircleShape)

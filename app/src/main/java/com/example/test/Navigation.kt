@@ -188,7 +188,7 @@ fun Navigation(
             FavoriteItemsScreen(navController=navController,storeId = backStackEntry.arguments?.get("storeId").toString() , storeName = backStackEntry.arguments?.get("storeName").toString())
         }
 
-        composable(route="ProductInfoScreen/{productId}/{storeId}/{category}", arguments = listOf(
+        composable(route="ProductInfoScreen/{productId}/{storeId}/{category}/{storeName}", arguments = listOf(
             navArgument(name="productId"){
                 type= NavType.StringType
                 nullable=false
@@ -200,12 +200,19 @@ fun Navigation(
             navArgument(name="category"){
                 type= NavType.StringType
                 nullable=false
-            }
+            },
+            navArgument(name="storeName"){
+                type= NavType.StringType
+                nullable=false
+            },
+
         )){ backStackEntry->
 
             ProductInfoScreen(navController=navController , productId=backStackEntry.arguments?.get("productId").toString(),
                 storeId=backStackEntry.arguments?.get("storeId").toString(),
                 category=backStackEntry.arguments?.get("category").toString(),
+                storeName=backStackEntry.arguments?.get("storeName").toString(),
+
             )
 
 

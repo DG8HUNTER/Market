@@ -452,7 +452,8 @@ Log.d("product per category" , favoritesProductsPerCategory.toString())
                                         Product(
                                             data = product,
                                             context = context,
-                                            navController = navController
+                                            navController = navController,
+                                            storeName=storeName
                                         )
                                     }
                                 }
