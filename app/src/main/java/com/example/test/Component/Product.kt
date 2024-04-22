@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -241,10 +242,9 @@ Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = if(da
                     painter = painter,
                     contentDescription = "product image",
                     modifier = Modifier
-                        .padding(top = 20.dp)
-
-                        .size(60.dp)
-                        .clip(shape = CircleShape)
+                        .padding(top = 25.dp)
+                        .size(55.dp),
+                    contentScale = ContentScale.Fit
                 )
                 Spacer(modifier=Modifier.height(7.dp))
 

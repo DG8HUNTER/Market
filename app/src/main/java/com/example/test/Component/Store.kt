@@ -89,7 +89,7 @@ var status :String by remember {
     val operatingTime = data["OperatingField"] as? HashMap<*, *>
     val todayOperatingTime = operatingTime?.get(dayName) as? HashMap<*, *>
 
-   /* if (todayOperatingTime != null) {
+    if (todayOperatingTime != null) {
         val todayOpeningTimeString = todayOperatingTime["OpeningTime"]
         val todayClosingTimeString = todayOperatingTime["ClosingTime"]
 
@@ -97,40 +97,53 @@ var status :String by remember {
         val todayClosingDateTime = parseTime(todayClosingTimeString.toString())
 
 
-        if ((mainActivityViewModel.currentTime.value.isAfter(todayOpeningDateTime) && mainActivityViewModel.currentTime.value.isBefore(
-                todayClosingDateTime
-            )) || mainActivityViewModel.currentTime.value == todayOpeningDateTime || mainActivityViewModel.currentTime.value == todayClosingDateTime
-        ) {
+    if ((mainActivityViewModel.currentTime.value.isAfter(todayOpeningDateTime) && mainActivityViewModel.currentTime.value.isBefore(
+            todayClosingDateTime
+        )) || mainActivityViewModel.currentTime.value == todayOpeningDateTime || mainActivityViewModel.currentTime.value == todayClosingDateTime
+    ) {
 
-            // if
-            if (status == "Close"){
-                db.collection("Stores").document(data["storeId"].toString())
-                    .update("status", "Open").addOnSuccessListener {
-                        Log.d("Status ", "Status Updated to Open")
-                        status = "Open"
-                    }
-       }
-        } else {
-            //if
-           if(status=="Open") {
-                db.collection("Stores").document(data["storeId"].toString())
-                    .update("status", "Close").addOnSuccessListener {
-                        Log.d("Status ", "Status Updated to Close")
-                        status = "Close"
-                    }
+        // if
+        if (status == "Close"){
+  updateStatus(storeId = data["storeId"].toString(),status="Open")
+            status="Open"
 
-                Log.d("current Timeeee", mainActivityViewModel.currentTime.value.toString())
-            }
+            /*  db.collection("Stores").document(data["storeId"].toString())
+                   .update("status", "Open").addOnSuccessListener {
+                       Log.d("Status ", "Status Updated to Open")
+                       status = "Open"
+                   }*/
         }
+    } else {
+        //if
+        if(status=="Open") {
+            updateStatus(storeId = data["storeId"].toString(),status="Close")
+            status="Close"
+            Log.d("status1" , status)
+            /*  db.collection("Stores").document(data["storeId"].toString())
+                   .update("status", "Close").addOnSuccessListener {
+                       Log.d("Status ", "Status Updated to Close")
+                       status = "Close"
+                   }*/
+
+            Log.d("current Timeeee", mainActivityViewModel.currentTime.value.toString())
+        }
+    }
+
+
+
+
 
     }else {
-        db.collection("Stores").document(data["storeId"].toString())
+
+        Log.d("status1" , status)
+
+     /*   db.collection("Stores").document(data["storeId"].toString())
             .update("status", "Close").addOnSuccessListener {
                 Log.d("Status ", "Status Updated to Close")
                 status = "Close"
 
-            }
-    }*/
+            }*/
+    }
 
 
 
@@ -247,6 +260,16 @@ fun parseTime(timeString: String): LocalTime {
     }
 
 
+
+}
+
+fun updateStatus(storeId:String,status:String){
+val db = Firebase.firestore
+      db.collection("Stores").document(storeId)
+                  .update("status", status).addOnSuccessListener {
+                      Log.d("Status ", "Status Updated to Close")
+
+                  }
 
 }
 
