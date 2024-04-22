@@ -560,17 +560,15 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
                     Box(
 
-                        modifier = Modifier.clickable(
-                            onClick = { navController.navigate(route = "MyShoppingCardScreen")},
-                            interactionSource = interactionSource,
-                            indication = null
-                        )
+                        modifier = Modifier
 
 
                             )
                      {
 
-                        Surface(modifier=Modifier.size(55.dp).clip(shape = CircleShape).border(border = BorderStroke(width = 1.dp , color=Color.LightGray), shape = CircleShape).background(color= Color.White, shape = CircleShape), shadowElevation = 10.dp){
+                        Surface(modifier=Modifier.size(55.dp).clip(shape = CircleShape).clickable(
+                            onClick = { navController.navigate(route = "MyShoppingCardScreen")},
+                        ).border(border = BorderStroke(width = 1.dp , color=Color.LightGray), shape = CircleShape).background(color= Color.White, shape = CircleShape), shadowElevation = 10.dp){
 
                             Row(verticalAlignment = Alignment.CenterVertically, modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
 

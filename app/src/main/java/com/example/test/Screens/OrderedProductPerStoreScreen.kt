@@ -3,16 +3,23 @@ package com.example.test.Screens
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,43 +63,61 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
     var isLoading by remember {
         mutableStateOf(true)
     }
+    var totalAmount  by remember {
+        mutableFloatStateOf(0f)
+    }
+
+    val animateTotal = animateFloatAsState(targetValue = totalAmount , label="" , animationSpec = tween(1500 , easing= FastOutSlowInEasing))
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1= mainActivityViewModel.addToCardProduct.value) {
         val products :MutableList<HashMap<String,Any?>> = mutableListOf()
+        var total=0f
         Log.d("the" , mainActivityViewModel.addToCardProduct.value.toString())
        scope.launch(Dispatchers.Default){
            if(mainActivityViewModel.addToCardProduct.value.size!=0){
-               for(item in mainActivityViewModel.addToCardProduct.value){
+               for(data in mainActivityViewModel.addToCardProduct.value){
 
-                   if(storeId==item["storeId"]){
-                       products.add(item)
+                   if(storeId==data["storeId"]){
+                       products.add(data)
+
+                       if(data["discount"].toString().toInt()==0){
+
+                           total += ((data["price"].toString().toFloat())* data["quantity"].toString().toFloat())
+                           Log.d("quantity1", data["quantity"].toString())
+                           Log.d("price1", total.toString())
+
+                       }
+
+                       else {
+                           Log.d("mmm",data["quantity"].toString())
+
+                           val discountPrice =(((data["price"].toString().toFloat())* data["quantity"].toString().toFloat())) *(data["discount"].toString().toFloat()/100f)
+                           total += (((data["price"].toString().toFloat())* data["quantity"].toString().toFloat())-discountPrice)
+                           Log.d("quantity2", data["quantity"].toString())
+                           Log.d("price2", total.toString())
+                       }
+
+
                    }
 
                }
 
            }
-
+           Log.d("Data", products.toString())
            withContext(Dispatchers.Main){
                orderedProducts=products
+               totalAmount=total
+
                Log.d("main" , orderedProducts.toString())
                delay(1000)
                isLoading=false
            }
        }
 
-
-
-
-
-
-
-
-
-
-
-
     }
+
+    Log.d("Ordered" , orderedProducts.toString())
 
     Column(modifier= Modifier
         .fillMaxSize()
@@ -105,7 +132,7 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
                 }
                 Text(text = "From  " , fontSize = 22.sp , fontWeight = FontWeight.Bold)
 
-                Text(text = storeName , fontSize = 22.sp, fontWeight = FontWeight.Bold, color= customColor )
+                Text(text = if(!isLoading)"$storeName (${orderedProducts.size})" else storeName , fontSize = 22.sp, fontWeight = FontWeight.Bold, color= customColor )
 
 
 
@@ -145,9 +172,14 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
                         )
 
                         item{
+
+
                             OrderedProduct(data = product , onLeftSwipe = delete , index=index)
+
                             if(index!=orderedProducts.size-1){
-                                Row(modifier=Modifier.fillMaxWidth().padding(end=25.dp,bottom=5.dp,top=5.dp) , horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically){
+                                Row(modifier= Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 25.dp, bottom = 5.dp, top = 5.dp) , horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically){
                                     Icon(imageVector =Icons.Filled.Add, contentDescription ="added" , modifier = Modifier.size(20.dp), tint = Color.Gray)
                                 }
                             }
@@ -163,6 +195,20 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                 }
 
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(0.98f).fillMaxHeight()){
+                    Text(text ="Total Amount " , fontWeight = FontWeight.Bold, fontSize = 16.sp , color= Color.Gray)
+
+                    Text(
+                        text = "${String.format("%.2f", animateTotal.value)}$",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Serif,
+                        color = customColor
+                    )
+
+
+                }
+
 
 
 
@@ -170,7 +216,13 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
             }
             else {
 
-                Text(text = "No Product Ordered")
+                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+
+                    Image(painter = painterResource(id = R.drawable.noproductfoundorangetheme), contentDescription ="" , modifier=Modifier.size(200.dp))
+                    Spacer(modifier=Modifier.height(5.dp))
+                    Text(text ="No product ordered yet" , fontWeight = FontWeight.Medium , fontSize = 16.sp)
+
+                }
             }
 
 
@@ -194,4 +246,5 @@ fun deleteProduct(index:Int) {
     mainActivityViewModel.setValue(array,"addToCardProduct")
 
 }
+
 

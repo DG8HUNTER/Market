@@ -505,13 +505,15 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                         }
                         Button(onClick = {
                             scope.launch(Dispatchers.Default) {
+
                                 isAdding = true
+
                                 val newData = HashMap(data)
                                 newData["quantity"] = quantity
 
                                 withContext(Dispatchers.Main) {
+                                    delay(1000)
                                     mainActivityViewModel.addToCardProductFun(newData)
-                                    delay(1500)
                                     isAdding = false
                                     Toast.makeText(
                                         context,
@@ -589,6 +591,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
 
                 }else {
+
 
                  Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()){
 

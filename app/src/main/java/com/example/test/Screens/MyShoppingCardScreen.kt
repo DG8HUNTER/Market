@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -144,10 +145,13 @@ fun MyShoppingCardScreen(navController: NavController) {
 
             else {
 
-                Column(modifier=Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
-                    Image(painter = painterResource(id = R.drawable.noproductfound) , contentDescription ="no store found" , modifier = Modifier.size(220.dp) )
-                }
+                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
 
+                    Image(painter = painterResource(id = R.drawable.noproductfoundorangetheme), contentDescription ="" , modifier=Modifier.size(200.dp))
+                    Spacer(modifier=Modifier.height(5.dp))
+                    Text(text ="No product ordered yet" , fontWeight = FontWeight.Medium , fontSize = 16.sp)
+
+                }
             }
 
 

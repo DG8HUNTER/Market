@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.example.test.addTo
 import java.time.LocalTime
@@ -107,6 +108,10 @@ class MainActivityViewModel {
 
     }
 
+    private val _total : MutableState<Float> = mutableFloatStateOf(0f)
+    val total :State<Float> = _total
+
+
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -130,6 +135,7 @@ class MainActivityViewModel {
             "favorite categories"-> if(newValue!=null) _favoriteCategories.value = newValue as MutableSet<String?>
             "favorite products"-> if(newValue!=null) _favoriteProducts.value= newValue as MutableList<HashMap<String, Any?>>
             "addToCardProduct"-> if(newValue!=null) _addToCardProduct.value=newValue as MutableList<HashMap<String, Any?>>
+            "total"-> if(newValue!=null) _total.value = newValue as Float
         }
     }
 

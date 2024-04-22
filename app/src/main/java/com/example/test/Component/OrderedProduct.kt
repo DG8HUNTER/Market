@@ -80,13 +80,23 @@ fun OrderedProduct(data: HashMap<String, Any?>, onLeftSwipe: SwipeAction , index
         mutableFloatStateOf(0f)
     }
 
+
+
     val scope = rememberCoroutineScope()
 
-    val animateTotalPrice = animateFloatAsState(targetValue = totalPrice, label = "", animationSpec = tween(1000, easing = FastOutSlowInEasing) )
-Log.d("animated" , animateTotalPrice.toString())
-    LaunchedEffect(key1 = quantity) {
+
+
+
+
+
+        Log.d("mm", mainActivityViewModel.addToCardProduct.value.toString())
+
         var price =0f
-        scope.launch(Dispatchers.Default){
+        Log.d("k1",totalPrice.toString())
+
+
+
+
 
             if(data["discount"].toString().toInt()==0){
 
@@ -97,23 +107,34 @@ Log.d("animated" , animateTotalPrice.toString())
             }
 
             else {
+                Log.d("mmm",data["quantity"].toString())
 
                 val discountPrice =(((data["price"].toString().toFloat())* data["quantity"].toString().toFloat())) *(data["discount"].toString().toFloat()/100f)
                 price += (((data["price"].toString().toFloat())* data["quantity"].toString().toFloat())-discountPrice)
-                Log.d("quantity1", data["quantity"].toString())
-                Log.d("price1", price.toString())
+                Log.d("quantity2", data["quantity"].toString())
+                Log.d("price2", price.toString())
             }
-        }
-
-        withContext(Dispatchers.Main){
-            delay(300)
-            totalPrice=price
-        }
 
 
 
 
-    }
+
+
+    val animateTotalPrice = animateFloatAsState(targetValue =price, label = "", animationSpec = tween(1000, easing = FastOutSlowInEasing) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     Log.d("quantity" ,"${data["inventory"].toString()} : ${quantity.toString()}" )
@@ -162,9 +183,10 @@ Log.d("animated" , animateTotalPrice.toString())
                                 modifier = Modifier
                                     .clickable(
                                         enabled = quantity != 1,
-                                        onClick = { quantity -= 1
+                                        onClick = {
 
-                                            updateOrderedQuantity(index , quantity)
+                                            updateOrderedQuantity(index , quantity-1 )
+                                            quantity-=1
 
                                         })
 
@@ -195,7 +217,7 @@ Log.d("animated" , animateTotalPrice.toString())
 
                             ) {
 
-                                TextField(value = if (quantity == 0) "" else quantity.toString(),
+                                TextField(value = if (data["quantity"] == 0) "" else data["quantity"].toString(),
                                     onValueChange = {
 
                                         quantity = if (it.isNotEmpty()) {
@@ -266,8 +288,10 @@ Log.d("animated" , animateTotalPrice.toString())
                                             .toString()
                                             .toInt(),
                                         onClick = {
-                                            quantity += 1
-                                            updateOrderedQuantity(index , quantity)
+
+
+                                            updateOrderedQuantity(index , quantity+1)
+                                            quantity+=1
 
                                         })
                                     .background(
@@ -306,7 +330,7 @@ Log.d("animated" , animateTotalPrice.toString())
                 .fillMaxSize()
                 .background(color = Color.White), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
                 Text(
-                    text = "${String.format("%.2f", animateTotalPrice.value)}$",
+                    text = "${String.format("%.2f",animateTotalPrice.value)}$",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif,
