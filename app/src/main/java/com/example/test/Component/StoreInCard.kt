@@ -66,7 +66,7 @@ import java.util.Locale
 @Composable
 fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
-    Log.d("Storessssssssssssssssssss", data.toString())
+
     val painter = rememberImagePainter(
         data = data["image"],
         builder = {}
@@ -93,9 +93,12 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
     LaunchedEffect(key1 =true , key2= mainActivityViewModel.addToCardProduct.value) {
      scope.launch(Dispatchers.Default){
+
          var count =0
          var price =0f
+         var totalToPayPerStore =0f
          for(product in mainActivityViewModel.addToCardProduct.value){
+
              if(product["storeId"]== data["storeId"]){
                  count+=1
 
@@ -114,12 +117,18 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
 
              }
+
+             totalToPayPerStore=price
+
+
          }
 
          withContext(Dispatchers.Main){
              itemsCount=count
             delay(1000)
              totalPrice=price
+             mainActivityViewModel.updateTotal(totalToPayPerStore)
+             Log.d("total2", mainActivityViewModel.totalToPay.value.toString())
          }
 
 
@@ -219,7 +228,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
                 }
 
-                IconButton(onClick = {  navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}") }) {
+                IconButton(onClick = {   navController.navigate(route = "OrderedProductPerStoreScreen/${data["storeId"]}/${data["name"]}") }) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowRight,
                         contentDescription = "next",

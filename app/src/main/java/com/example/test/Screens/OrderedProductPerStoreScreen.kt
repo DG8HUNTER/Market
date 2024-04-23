@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.test.CLasses.OrderItem
 import com.example.test.Component.OrderedProduct
 import com.example.test.R
 import com.example.test.ui.theme.customColor
@@ -71,8 +73,10 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1= mainActivityViewModel.addToCardProduct.value) {
+        //mainActivityViewModel.setValue(mutableListOf<OrderItem>() , "orderItems")
         val products :MutableList<HashMap<String,Any?>> = mutableListOf()
         var total=0f
+    //  lateinit var orderItem :OrderItem
         Log.d("the" , mainActivityViewModel.addToCardProduct.value.toString())
        scope.launch(Dispatchers.Default){
            if(mainActivityViewModel.addToCardProduct.value.size!=0){
@@ -80,6 +84,7 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                    if(storeId==data["storeId"]){
                        products.add(data)
+
 
                        if(data["discount"].toString().toInt()==0){
 
@@ -98,6 +103,14 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
                            Log.d("price2", total.toString())
                        }
 
+                    /*   orderItem = OrderItem(orderItemId = "" ,
+                           productId = data["productId"].toString() ,
+                           storeId=data["storeId"].toString(),
+                           quantity = data["quantity"].toString().toInt(),
+                           orderId = "",
+                           totalPRice = total
+                           )
+                       mainActivityViewModel.addToOrderItems(data=orderItem)*/
 
                    }
 
@@ -117,7 +130,7 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
     }
 
-    Log.d("Ordered" , orderedProducts.toString())
+
 
     Column(modifier= Modifier
         .fillMaxSize()
@@ -227,6 +240,30 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
 
 
+        }else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    CircularProgressIndicator(
+                        modifier=Modifier.size(16.dp),
+                        color= customColor,
+                        strokeWidth = 2.dp
+
+                    )
+                    Spacer(modifier = Modifier.width(7.dp))
+
+                    Text(
+                        text="Loading products",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+
+
+                }
+            }
         }
 
     }

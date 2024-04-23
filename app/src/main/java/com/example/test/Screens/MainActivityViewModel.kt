@@ -7,6 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import com.example.test.CLasses.OrderItem
 import com.example.test.addTo
 import java.time.LocalTime
 
@@ -108,8 +109,23 @@ class MainActivityViewModel {
 
     }
 
-    private val _total : MutableState<Float> = mutableFloatStateOf(0f)
-    val total :State<Float> = _total
+    private val _totalToPay : MutableState<Float> = mutableFloatStateOf(0f)
+    val totalToPay :State<Float> = _totalToPay
+
+    fun updateTotal(newValue:Float){
+        _totalToPay.value+=newValue
+    }
+
+     private val  _orderItems :MutableState<MutableList<OrderItem>> = mutableStateOf(mutableListOf())
+     val orderItems :State<MutableList<OrderItem>> = _orderItems
+
+    fun addToOrderItems(data:OrderItem){
+        val array = _orderItems.value.toMutableList()
+        array.add(data)
+        _orderItems.value=array
+    }
+
+
 
 
 
@@ -135,7 +151,8 @@ class MainActivityViewModel {
             "favorite categories"-> if(newValue!=null) _favoriteCategories.value = newValue as MutableSet<String?>
             "favorite products"-> if(newValue!=null) _favoriteProducts.value= newValue as MutableList<HashMap<String, Any?>>
             "addToCardProduct"-> if(newValue!=null) _addToCardProduct.value=newValue as MutableList<HashMap<String, Any?>>
-            "total"-> if(newValue!=null) _total.value = newValue as Float
+            "totalToPay"-> if(newValue!=null) _totalToPay.value = newValue as Float
+            "orderItems"-> if(newValue!=null) _orderItems.value=newValue as MutableList<OrderItem>
         }
     }
 

@@ -133,16 +133,6 @@ var status :String by remember {
 
 
 
-    }else {
-
-        Log.d("status1" , status)
-
-     /*   db.collection("Stores").document(data["storeId"].toString())
-            .update("status", "Close").addOnSuccessListener {
-                Log.d("Status ", "Status Updated to Close")
-                status = "Close"
-
-            }*/
     }
 
 
@@ -267,7 +257,7 @@ fun updateStatus(storeId:String,status:String){
 val db = Firebase.firestore
       db.collection("Stores").document(storeId)
                   .update("status", status).addOnSuccessListener {
-                      Log.d("Status ", "Status Updated to Close")
+
 
                   }
 
