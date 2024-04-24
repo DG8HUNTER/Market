@@ -2,6 +2,7 @@ package com.example.test.Screens
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -43,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -76,6 +78,11 @@ fun MyShoppingCardScreen(navController: NavController) {
         mutableStateOf(true)
     }
 
+    var isOrdering by remember{
+        mutableStateOf(false)
+    }
+    val context = LocalContext.current
+
     val scope = rememberCoroutineScope(
 
     )
@@ -103,6 +110,8 @@ Log.d("an" , animateTotalToPay.value.toString())
                 for(product in mainActivityViewModel.addToCardProduct.value){
                     storesId.add(product["storeId"].toString())
                 }
+
+
 
                 for(id in storesId){
                     val data = db.collection("Stores").document(id).get().await()
@@ -159,7 +168,7 @@ Log.d("an" , animateTotalToPay.value.toString())
 
         if(!isLoading){
 
-            if(stores.size!=0){
+            if(mainActivityViewModel.addToCardProduct.value.size!=0){
                 LazyColumn(modifier= Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.92f), contentPadding = PaddingValues(top=10.dp)){
@@ -218,11 +227,16 @@ Log.d("an" , animateTotalToPay.value.toString())
                         .fillMaxWidth()
                         .background(color = customColor, shape = RoundedCornerShape(7.dp))
                         .clip(shape = RoundedCornerShape(7.dp)), onClick = {
+
+                            isOrdering=true
                              val db = Firebase.firestore
+                        var totalPerStore :Float = 0f
                         stores.forEach {store ->
                             var total=0f
                             for(data in mainActivityViewModel.addToCardProduct.value){
                                 if(data["storeId"]==store["storeId"]){
+
+
 
                                     if(data["discount"].toString().toInt()==0){
 
@@ -259,6 +273,29 @@ Log.d("an" , animateTotalToPay.value.toString())
                                 )).addOnSuccessListener { document->
                                     if(document!=null){
                                         db.collection("Orders").document(document.id).update("orderId" , document.id)
+                                        mainActivityViewModel.addToCardProduct.value.forEach { product ->
+
+                                            val data = hashMapOf(
+                                                "orderItemId" to "",
+                                                "productId" to product["productId"],
+                                                "orderId" to document.id,
+                                                "quantity" to product["quantity"],
+                                                "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble()
+
+
+                                            )
+
+                                            db.collection("OrderItem").add(data).addOnSuccessListener { document->
+                                            if(document!=null){
+                                                db.collection("OrderItem").document(document.id).update("orderItemId",document.id)
+
+                                            }
+
+                                            }
+
+
+
+                                        }
                                     }
                             }.addOnFailureListener {it->
                                 Log.d("Failed",it.message.toString())
@@ -267,6 +304,25 @@ Log.d("an" , animateTotalToPay.value.toString())
 
                         }
 
+                      scope.launch(Dispatchers.Default){
+                          delay(1000)
+
+                          withContext(Dispatchers.Main){
+                              mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "addToCardProduct")
+
+                              if(stores.size==1){
+                                  Toast.makeText(context , " Your order has been successfully placed", Toast.LENGTH_SHORT).show()
+                              }
+
+                              else {
+                                  Toast.makeText(context , " Your orders have been successfully placed", Toast.LENGTH_SHORT).show()
+                              }
+
+                          }
+                      }
+
+
+
 
 
 
@@ -274,11 +330,23 @@ Log.d("an" , animateTotalToPay.value.toString())
                     } , shape = RectangleShape ,colors=ButtonDefaults.buttonColors(containerColor = Color.Transparent) ){
 
                         Row(modifier=Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center){
-                           Icon(painter = painterResource(id = R.drawable.checkout), contentDescription ="", modifier=Modifier.size(20.dp), tint = Color.White)
+
+                            if(isOrdering){
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+
+                                )
+                            }else{
+                                Icon(painter = painterResource(id = R.drawable.checkout), contentDescription ="", modifier=Modifier.size(20.dp), tint = Color.White)
+
+                            }
+
 
                             Spacer(modifier =Modifier.width(5.dp))
 
-                            Text(text = "Checkout" , fontSize = 18.sp , fontWeight = FontWeight.Bold, color= Color.White)
+                            Text(text = if(!isOrdering)"Order" else "Ordering" , fontSize = 18.sp , fontWeight = FontWeight.Bold, color= Color.White)
                         }
 
 
@@ -298,7 +366,7 @@ Log.d("an" , animateTotalToPay.value.toString())
 
                     Image(painter = painterResource(id = R.drawable.noproductfoundorangetheme), contentDescription ="" , modifier=Modifier.size(200.dp))
                     Spacer(modifier=Modifier.height(5.dp))
-                    Text(text ="No product ordered yet" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
+                    Text(text ="No product Added yet" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
 
                 }
             }

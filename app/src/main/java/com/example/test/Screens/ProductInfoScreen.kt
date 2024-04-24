@@ -511,6 +511,13 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
                                 val newData = HashMap(data)
                                 newData["quantity"] = quantity
+                                newData["totalPrice"] = if(newData["discount"].toString().toInt()==0){
+                                    newData["price"].toString().toFloat()* newData["quantity"].toString().toFloat()
+                            }else{
+                                    val discountPrice =(((newData["price"].toString().toFloat())* newData["quantity"].toString().toFloat())) *(newData["discount"].toString().toFloat()/100f)
+                                   (((newData["price"].toString().toFloat())* newData["quantity"].toString().toFloat())-discountPrice)
+
+                            }
 
                                 withContext(Dispatchers.Main) {
                                     delay(1000)
