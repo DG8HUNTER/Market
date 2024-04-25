@@ -234,9 +234,10 @@ fun Navigation(
                 nullable=false
             },
 
+
             )){
 
-            OrderedProductPerStore(navController=navController , storeId = it.arguments?.get("storeId").toString() , storeName=it.arguments?.get("storeName").toString() )
+            OrderedProductPerStore(navController=navController , storeId = it.arguments?.get("storeId").toString() , storeName=it.arguments?.get("storeName").toString())
 
         }
 

@@ -47,11 +47,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.CLasses.OrderItem
 import com.example.test.Component.OrderedProduct
+import com.example.test.Functions.SearchForAddedProductIndex
 import com.example.test.R
 import com.example.test.ui.theme.customColor
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import me.saket.swipe.SwipeAction
 
@@ -68,15 +72,28 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
     var totalAmount  by remember {
         mutableFloatStateOf(0f)
     }
+    var deliveryCharge by remember {
+        mutableFloatStateOf(0f)
+    }
+
 
     val animateTotal = animateFloatAsState(targetValue = totalAmount , label="" , animationSpec = tween(1500 , easing= FastOutSlowInEasing))
+    val animateDeliveryCharge = animateFloatAsState(targetValue = deliveryCharge, label="" , animationSpec = tween(1500 , easing= FastOutSlowInEasing))
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(key1 = true) {
+        val db= Firebase.firestore
+      val doc=  db.collection("Stores").document(storeId).get().await()
+        if(doc!=null){
+            deliveryCharge= doc["deliveryCharge"].toString().toFloat()
+            Log.d("charges",deliveryCharge.toString())
+        }
+
+    }
+
     LaunchedEffect(key1= mainActivityViewModel.addToCardProduct.value) {
-        //mainActivityViewModel.setValue(mutableListOf<OrderItem>() , "orderItems")
         val products :MutableList<HashMap<String,Any?>> = mutableListOf()
         var total=0f
-    //  lateinit var orderItem :OrderItem
         Log.d("the" , mainActivityViewModel.addToCardProduct.value.toString())
        scope.launch(Dispatchers.Default){
            if(mainActivityViewModel.addToCardProduct.value.size!=0){
@@ -161,11 +178,13 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                 LazyColumn(modifier= Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.95f)
+                    .fillMaxHeight(0.90f)
                    , contentPadding = PaddingValues(vertical = 10.dp),
                 ){
 
-                    orderedProducts.forEachIndexed { index,product->
+                    orderedProducts.forEachIndexed { i , product->
+
+                       val index= SearchForAddedProductIndex(productId=product["productId"].toString())
 
                         val delete = SwipeAction(
                             onSwipe = {
@@ -189,7 +208,7 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                             OrderedProduct(data = product , onLeftSwipe = delete , index=index)
 
-                            if(index!=orderedProducts.size-1){
+                            if(i!=orderedProducts.size-1){
                                 Row(modifier= Modifier
                                     .fillMaxWidth()
                                     .padding(end = 25.dp, bottom = 5.dp, top = 5.dp) , horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically){
@@ -208,19 +227,61 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                 }
 
-                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(0.98f).fillMaxHeight()){
-                    Text(text ="Total Amount " , fontWeight = FontWeight.Bold, fontSize = 16.sp , color= Color.Gray)
+                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top){
 
-                    Text(
-                        text = "${String.format("%.2f", animateTotal.value)}$",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Serif,
-                        color = customColor
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                        .fillMaxWidth(0.98f)
+                    ){
+                        Text(text ="Items Price TTC:" , fontWeight = FontWeight.Bold, fontSize = 16.sp , color= Color.Gray)
+
+                        Text(
+                            text = "${String.format("%.2f", animateTotal.value)}$",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Serif,
+                            color = customColor
+                        )
 
 
-                }
+
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                        .fillMaxWidth(0.98f)
+                        ){
+                        Text(text ="Delivery Charges" , fontWeight = FontWeight.Bold, fontSize = 16.sp , color= Color.Gray)
+
+                        Text(
+                            text = "${String.format("%.2f", animateDeliveryCharge.value)}$",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Serif,
+                            color = customColor
+                        )
+
+
+
+                    }
+
+
+                    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                        .fillMaxWidth(0.98f)
+                        ){
+                        Text(text ="Total Price :" , fontWeight = FontWeight.Bold, fontSize = 16.sp , color= Color.Gray)
+
+                        Text(
+                            text = "${String.format("%.2f", animateTotal.value+deliveryCharge)}$",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Serif,
+                            color = customColor
+                        )
+
+
+
+                    }
+
+              }
 
 
 
@@ -231,9 +292,9 @@ fun OrderedProductPerStore(navController: NavController , storeId:String , store
 
                 Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
 
-                    Image(painter = painterResource(id = R.drawable.noproductfoundorangetheme), contentDescription ="" , modifier=Modifier.size(200.dp))
+                    Image(painter = painterResource(id = R.drawable.noproductadded), contentDescription ="" , modifier=Modifier.size(170.dp))
                     Spacer(modifier=Modifier.height(5.dp))
-                    Text(text ="No product ordered yet" , fontWeight = FontWeight.Medium , fontSize = 16.sp)
+                    Text(text ="No product Added yet" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
 
                 }
             }

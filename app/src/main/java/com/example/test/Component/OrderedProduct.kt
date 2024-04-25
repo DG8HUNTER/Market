@@ -184,7 +184,7 @@ fun OrderedProduct(data: HashMap<String, Any?>, onLeftSwipe: SwipeAction , index
                                     .clickable(
                                         enabled = quantity != 1,
                                         onClick = {
-
+                                            Log.d("index" , index.toString())
                                             updateOrderedQuantity(index , quantity-1 )
                                             quantity-=1
 
@@ -291,6 +291,7 @@ fun OrderedProduct(data: HashMap<String, Any?>, onLeftSwipe: SwipeAction , index
 
 
                                             updateOrderedQuantity(index , quantity+1)
+                                            Log.d("index" , index.toString())
                                             quantity+=1
 
                                         })

@@ -127,6 +127,9 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
 
 
+
+
+
     }
 
     LaunchedEffect(key1 =categorySelected) {
@@ -136,7 +139,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                 try {
                     // Perform heavy or blocking operation (e.g., searchStore) in the background
                     val result = mutableListOf<HashMap<String, Any>>() // Initialize an empty list of hash maps
-                    val data = db.collection("Products").get().await() // Fetch all documents from the "Products" collection
+                    val data = db.collection("Products").whereEqualTo("storeId",storeId).get().await() // Fetch all documents from the "Products" collection
 
                     for (document in data) { // Iterate over each document in the query snapshot
                          // Get the data of the current document as a map
@@ -148,6 +151,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     // Switch to the main thread to update UI with the result
                     withContext(Dispatchers.Main) {
                         mainActivityViewModel.setValue(result, "products")
+                        Log.d("Results", result.toString())
                     }
                 } catch (e: Exception) {
                     // Handle any exceptions that occur during the coroutine execution
@@ -163,7 +167,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                 try {
                     // Perform heavy or blocking operation (e.g., searchStore) in the background
                     val result = mutableListOf<HashMap<String, Any>>() // Initialize an empty list of hash maps
-                    val data = db.collection("Products").get().await() // Fetch all documents from the "Products" collection
+                    val data = db.collection("Products").whereEqualTo("storeId",storeId).get().await() // Fetch all documents from the "Products" collection
 
                     for (document in data) { // Iterate over each document in the query snapshot
                         // Get the data of the current document as a map
@@ -178,6 +182,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     // Switch to the main thread to update UI with the result
                     withContext(Dispatchers.Main) {
                         mainActivityViewModel.setValue(result, "products")
+                        Log.d("Results", result.toString())
                     }
                 } catch (e: Exception) {
                     // Handle any exceptions that occur during the coroutine execution
@@ -205,7 +210,11 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
             mainActivityViewModel.setValue(mutableListOf<String>("All"), "categories")
 
             for (document in snapshot.documents) {
-                searchCategory(document.data?.get("category").toString())
+
+                if(document.data?.get("storeId").toString() == storeId){
+                    searchCategory(document.data?.get("category").toString())
+                }
+
                 if (categorySelected == "All") {
                     if (document.data?.get("storeId").toString() == storeId) {
 

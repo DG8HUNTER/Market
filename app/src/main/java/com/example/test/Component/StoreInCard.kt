@@ -118,7 +118,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
              }
 
-             totalToPayPerStore=price
+             totalToPayPerStore=price+data["deliveryCharge"].toString().toFloat()
 
 
          }
@@ -126,7 +126,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
          withContext(Dispatchers.Main){
              itemsCount=count
             delay(1000)
-             totalPrice=price
+             totalPrice=price+data["deliveryCharge"].toString().toFloat()
              mainActivityViewModel.updateTotal(totalToPayPerStore)
              Log.d("total2", mainActivityViewModel.totalToPay.value.toString())
          }

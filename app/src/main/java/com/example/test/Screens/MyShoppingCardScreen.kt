@@ -87,6 +87,10 @@ fun MyShoppingCardScreen(navController: NavController) {
 
     )
 
+    var success by remember {
+        mutableStateOf(false)
+    }
+
 
     var totalItems by remember {
         mutableIntStateOf(0)
@@ -310,13 +314,15 @@ Log.d("an" , animateTotalToPay.value.toString())
                           withContext(Dispatchers.Main){
                               mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "addToCardProduct")
 
-                              if(stores.size==1){
+                              success=true
+
+                          /*    if(stores.size==1){
                                   Toast.makeText(context , " Your order has been successfully placed", Toast.LENGTH_SHORT).show()
                               }
 
                               else {
                                   Toast.makeText(context , " Your orders have been successfully placed", Toast.LENGTH_SHORT).show()
-                              }
+                              }*/
 
                           }
                       }
@@ -362,13 +368,30 @@ Log.d("an" , animateTotalToPay.value.toString())
 
             else {
 
-                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+                if(success){
 
-                    Image(painter = painterResource(id = R.drawable.noproductfoundorangetheme), contentDescription ="" , modifier=Modifier.size(200.dp))
-                    Spacer(modifier=Modifier.height(5.dp))
-                    Text(text ="No product Added yet" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
 
+                    Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+
+                        Image(painter = painterResource(id = R.drawable.orderplacedpurchased), contentDescription ="" , modifier=Modifier.size(170.dp))
+                        Spacer(modifier=Modifier.height(5.dp))
+                        Text(text = if(stores.size==1)"order has been successfully placed" else "orders have been successfully placed" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
+
+                    }
+
+                }else {
+
+                    Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+
+                        Image(painter = painterResource(id = R.drawable.noproductadded), contentDescription ="" , modifier=Modifier.size(170.dp))
+                        Spacer(modifier=Modifier.height(5.dp))
+                        Text(text ="No product Added yet" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
+
+                    }
                 }
+
+
+
             }
 
 

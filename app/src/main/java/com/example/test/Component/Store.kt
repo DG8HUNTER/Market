@@ -147,6 +147,7 @@ var status :String by remember {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
+                  //  mainActivityViewModel.setValue(mutableListOf<String>("All"),"categories")
                     navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}")
                 }) {
                 Row(
@@ -207,7 +208,11 @@ var status :String by remember {
 
                     }
 
-                    IconButton(onClick = {  navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}") }) {
+                    IconButton(onClick = {
+
+                  //mainActivityViewModel.setValue(mutableListOf<String>("All"),"categories")
+
+                        navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}") }) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
                             contentDescription = "next",
