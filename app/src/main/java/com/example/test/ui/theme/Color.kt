@@ -19,6 +19,8 @@ val lightGray1 = Color(0xFFF0F0F0)
 val lightGray2 = Color(0xFFFBFBFB)
 val lightGray3 = Color(0xFFe4e7eb)
 val color1 = Color(0xFF292C31)
+val yellow = Color(0xFFFFD700)
+val blue = Color(0xFF4169E1  )
 
 val superLightGray = Color(0xFFededed)
 val navyBlue = Color(0xFF000080)

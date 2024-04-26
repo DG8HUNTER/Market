@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.example.test.CLasses.OrderItem
 import com.example.test.addTo
+import org.checkerframework.checker.units.qual.A
 import java.time.LocalTime
 
 class MainActivityViewModel {
@@ -125,6 +126,13 @@ class MainActivityViewModel {
         _orderItems.value=array
     }
 
+    private val _orders :MutableState<MutableList<HashMap<String,Any>>> = mutableStateOf(
+        mutableListOf()
+    )
+    val orders :State<MutableList<HashMap<String,Any>>> = _orders
+
+
+
 
 
 
@@ -153,6 +161,7 @@ class MainActivityViewModel {
             "addToCardProduct"-> if(newValue!=null) _addToCardProduct.value=newValue as MutableList<HashMap<String, Any?>>
             "totalToPay"-> if(newValue!=null) _totalToPay.value = newValue as Float
             "orderItems"-> if(newValue!=null) _orderItems.value=newValue as MutableList<OrderItem>
+            "orders"-> if(newValue!=null) _orders.value=newValue as MutableList<HashMap<String, Any>>
         }
     }
 

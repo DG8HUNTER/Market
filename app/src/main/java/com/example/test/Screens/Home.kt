@@ -267,6 +267,9 @@ if(search==null)
 
 
 
+Log.d("orders", mainActivityViewModel.orders.value.toString())
+
+
 
 
 

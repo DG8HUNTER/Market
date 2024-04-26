@@ -10,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,10 +37,12 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,12 +54,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.test.Component.Order
 import com.example.test.Component.Store
 import com.example.test.R
 import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -66,44 +73,71 @@ fun OrderScreen(navController: NavController) {
     var index by remember {
         mutableIntStateOf(0)
     }
+    val scope= rememberCoroutineScope()
     val stores = remember { mainActivityViewModel.stores.value }
     val context = LocalContext.current
-
-    /*LaunchedEffect(key1 = true) {
-    if(!mainActivityViewModel.homeLaunchedEffectExecuted.value){
-        val dbRef = Firebase.firestore
-       val documents =  dbRef.collection("Stores").get().await()
-                if(documents!=null){
-                    for(document in documents){
-                        mainActivityViewModel.addToStores(document.data as HashMap<String, Any>)
-                    }
-                }
-            }
-
-        mainActivityViewModel.setValue(true , "homeLaunchedEffectExecuted")
+    val isLoading  by remember {
+        mutableStateOf(true)
     }
 
-*/
-    val dbRef = Firebase.firestore
-    val storesRef = dbRef.collection("Stores")
+    var currentOrder by remember {
+        mutableIntStateOf(0)
+    }
 
-    storesRef.addSnapshotListener { snapshot, e ->
+    var pastOrder by remember {
+        mutableIntStateOf(0)
+    }
+
+
+    val currentUser = Firebase.auth.currentUser?.uid.toString()
+
+    val dbRef = Firebase.firestore
+
+    val ordersRef = dbRef.collection("Orders")
+    ordersRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
             Log.w(ContentValues.TAG, "Listen failed.", e)
             return@addSnapshotListener
         }
 
-        if (snapshot != null && snapshot.documents.isNotEmpty()) {
-            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
-            Log.d("_stores", mainActivityViewModel.stores.value.toString())
-            for (document in snapshot.documents) {
-                mainActivityViewModel.addToStores(document.data as HashMap<String, Any?>)
+        if (snapshot != null) {
+            scope.launch(Dispatchers.Default){
+                var past =0
+                var current =0
+                if (snapshot.documents.size == 0) {
+                    mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "orders")
+                }
+                else {
+
+                    Log.d("snapshotSize" , snapshot.documents.size.toString())
+                    val new :MutableList<HashMap<String,Any>> = mutableListOf()
+
+                    for(document in snapshot.documents){
+                        if(document!=null){
+                            if(document.data!!["userId"].toString()==currentUser){
+                                new.add(document.data as HashMap<String,Any>)
+                                if(document.data!!["status"].toString()=="pending" ||document.data!!["status"].toString()=="processing" ){
+                                    past+=1
+                                }
+                                else{
+                                    current+=1
+                                }
+                            }
+
+
+                        }
+                    }
+                    withContext(Dispatchers.Main){
+                        mainActivityViewModel.setValue(new , "orders")
+                        pastOrder=past
+                        currentOrder = current
+                    }
+                }
+
             }
-            Log.d(" stores from snap", mainActivityViewModel.stores.value.toString())
-            Log.d("var stores from snap", stores.toString())
-            // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
-        } else {
-            Log.d(ContentValues.TAG, "Current data: null")
+
+
+
         }
     }
 
@@ -113,7 +147,13 @@ fun OrderScreen(navController: NavController) {
     }
 
 
-    val currentUser = Firebase.auth.currentUser?.uid.toString()
+
+    /*LaunchedEffect(key1 = mainActivityViewModel.orders.value , optionSelected ) {
+
+
+
+    }*/
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -201,25 +241,41 @@ fun OrderScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Text(text= optionSelected , fontSize = 15.sp)
+            if(mainActivityViewModel.orders.value.size!=0){
 
 
-            Box(
-                modifier = Modifier.border(BorderStroke(1.dp , color=Color.Gray))
+                LazyColumn(modifier=Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 10.dp) , verticalArrangement = Arrangement.spacedBy(10.dp)){
+                    mainActivityViewModel.orders.value.forEach { order ->
+                        if(optionSelected=="Current Orders"){
+                            if(order["status"]=="pending" || order["status"]=="processing"){
 
-            ) {
-                Surface(modifier=Modifier.size(150.dp), shadowElevation = 10.dp){
+                                item {
+                                    Order(orderData=order)
 
-                }
+                                }
+                            }
 
-                Badge(modifier= Modifier
-                    .size(30.dp).offset(x=(20).dp)
-                    .align(Alignment.TopEnd)){
-                    Text("J")
+                      }
+                        else {
+                            if(order["status"]!="pending" && order["status"]!="processing"){
+                                item {
+                                    Order(orderData=order)
+
+                                }
+                            }
+
+
+                        }
+
+                    }
                 }
 
 
             }
+
+
+
+
 
 
         }

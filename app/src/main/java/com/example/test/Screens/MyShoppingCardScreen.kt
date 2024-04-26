@@ -53,6 +53,7 @@ import androidx.navigation.NavController
 import com.example.test.Component.StoreInCard
 import com.example.test.R
 import com.example.test.ui.theme.customColor
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,7 @@ fun MyShoppingCardScreen(navController: NavController) {
     var isLoading by remember {
         mutableStateOf(true)
     }
+    val currentUser = Firebase.auth.currentUser?.uid.toString()
 
     var isOrdering by remember{
         mutableStateOf(false)
@@ -235,12 +237,13 @@ Log.d("an" , animateTotalToPay.value.toString())
                             isOrdering=true
                              val db = Firebase.firestore
                         var totalPerStore :Float = 0f
+                        var items :Int =0
                         stores.forEach {store ->
                             var total=0f
                             for(data in mainActivityViewModel.addToCardProduct.value){
                                 if(data["storeId"]==store["storeId"]){
 
-
+                                 items+=1
 
                                     if(data["discount"].toString().toInt()==0){
 
@@ -268,10 +271,12 @@ Log.d("an" , animateTotalToPay.value.toString())
                             db.collection("Orders").add(
                                 hashMapOf(
                                     "orderId" to "",
+                                    "userId" to currentUser,
                                     "status" to "pending",
                                     "storeId" to store["storeId"],
                                     "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                                     "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
+                                    "totalItems" to items,
                                     "totalPrice" to String.format("%.2f".format(total)).toDouble()
 
                                 )).addOnSuccessListener { document->
