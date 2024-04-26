@@ -1,7 +1,5 @@
 package com.example.test.Component
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +23,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -45,18 +41,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.R
-import com.example.test.Screens.mainActivityViewModel
 import com.example.test.ui.theme.blue
 import com.example.test.ui.theme.customColor
-import com.example.test.ui.theme.lightGray1
-import com.example.test.ui.theme.lightGray3
-import com.example.test.ui.theme.superLightGray
 import com.example.test.ui.theme.yellow
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
@@ -65,33 +55,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.checkerframework.checker.units.qual.A
 import java.text.SimpleDateFormat
-import java.util.Date
 
 @Composable
 
-fun Order(orderData:HashMap<String,Any>){
+fun Order(orderData: HashMap<String, Any>, storeName: String , storeImage:String){
     val createdAtTimestamp = orderData["createdAt"] as Timestamp
     val createdAtDate = createdAtTimestamp.toDate()
     val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a")
     val formattedDate = sdf.format(createdAtDate)
 
-    val scope = rememberCoroutineScope()
-   var storeData:HashMap<String,Any> by remember {mutableStateOf(hashMapOf()) }
-    LaunchedEffect(key1 = true) {
-        val db = Firebase.firestore
-        scope.launch(Dispatchers.Default){
-            val store = db.collection("Stores").document(orderData["storeId"].toString()).get().await()
-            withContext(Dispatchers.Main){
-                storeData=store.data as HashMap<String, Any>
-            }
 
-
-        }
-
-
-    }
     Box(modifier= Modifier
         .fillMaxWidth()
         .shadow(elevation = 10.dp)
@@ -101,7 +75,7 @@ fun Order(orderData:HashMap<String,Any>){
             color = Color.White, shape = RoundedCornerShape(7.dp)
 
         )){
-        val painter = rememberImagePainter(data =storeData["image"]
+        val painter = rememberImagePainter(data =storeImage
         )
 Column(modifier=Modifier.fillMaxSize()){
 
@@ -139,7 +113,7 @@ Column(modifier=Modifier.fillMaxSize()){
                             color = Color.Gray
                         )
                         Text(
-                            text = storeData["name"].toString(),
+                            text = storeName,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )

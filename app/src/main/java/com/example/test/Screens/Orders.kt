@@ -4,40 +4,31 @@ import android.content.ContentValues
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Badge
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,19 +40,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.test.Component.Order
-import com.example.test.Component.Store
-import com.example.test.R
 import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -69,14 +60,14 @@ import kotlinx.coroutines.withContext
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun OrderScreen(navController: NavController) {
+  fun OrderScreen(navController: NavController) {
     var index by remember {
         mutableIntStateOf(0)
     }
     val scope= rememberCoroutineScope()
     val stores = remember { mainActivityViewModel.stores.value }
     val context = LocalContext.current
-    val isLoading  by remember {
+    var isLoading  by remember {
         mutableStateOf(true)
     }
 
@@ -93,7 +84,7 @@ fun OrderScreen(navController: NavController) {
 
     val dbRef = Firebase.firestore
 
-    val ordersRef = dbRef.collection("Orders")
+    val ordersRef = dbRef.collection("Orders").orderBy("createdAt",Query.Direction.DESCENDING)
     ordersRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
             Log.w(ContentValues.TAG, "Listen failed.", e)
@@ -117,10 +108,10 @@ fun OrderScreen(navController: NavController) {
                             if(document.data!!["userId"].toString()==currentUser){
                                 new.add(document.data as HashMap<String,Any>)
                                 if(document.data!!["status"].toString()=="pending" ||document.data!!["status"].toString()=="processing" ){
-                                    past+=1
+                                    current+=1
                                 }
                                 else{
-                                    current+=1
+                                    past+=1
                                 }
                             }
 
@@ -128,9 +119,13 @@ fun OrderScreen(navController: NavController) {
                         }
                     }
                     withContext(Dispatchers.Main){
+
                         mainActivityViewModel.setValue(new , "orders")
                         pastOrder=past
                         currentOrder = current
+                        delay(1000)
+                        isLoading=false
+
                     }
                 }
 
@@ -235,56 +230,147 @@ fun OrderScreen(navController: NavController) {
 
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
 
-            if(mainActivityViewModel.orders.value.size!=0){
+        if(!isLoading){
 
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                LazyColumn(modifier=Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 10.dp) , verticalArrangement = Arrangement.spacedBy(10.dp)){
-                    mainActivityViewModel.orders.value.forEach { order ->
-                        if(optionSelected=="Current Orders"){
-                            if(order["status"]=="pending" || order["status"]=="processing"){
+                if(mainActivityViewModel.orders.value.size!=0){
 
-                                item {
-                                    Order(orderData=order)
+                    if(optionSelected=="Current Orders"){
 
-                                }
+                        if(currentOrder==0){
+
+                            Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+
+                                Text(text = "No $optionSelected yet", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
                             }
+                        }else {
 
-                      }
-                        else {
-                            if(order["status"]!="pending" && order["status"]!="processing"){
-                                item {
-                                    Order(orderData=order)
+
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(vertical = 10.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                mainActivityViewModel.orders.value.forEach { order ->
+                                    val storeData = getStore(order["storeId"].toString())
+
+                                        if (order["status"] == "pending" || order["status"] == "processing") {
+                                            item {
+                                                Order(orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+
+                                            }
+                                        }
+
+
 
                                 }
+
+                            }
+                        }}else{
+                            if(pastOrder==0){
+                                Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+
+                                    Text(text = "No $optionSelected yet", fontSize = 18.sp , fontWeight = FontWeight.Bold)
+
+                                }
+                            }else {
+                                LazyColumn(modifier=Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 10.dp) , verticalArrangement = Arrangement.spacedBy(10.dp)){
+                                    mainActivityViewModel.orders.value.forEach { order ->
+                                        val storeData = getStore(order["storeId"].toString())
+
+                                            if(order["status"]!="pending" && order["status"]!="processing"){
+                                                item {
+                                                    Order(orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+
+
+
+                                                }
+                                            }
+
+
+
+
+
+                                        }
+
+
+                                    }
+
+
                             }
 
 
                         }
 
+
+
+
+
+                }else{
+
+                    Column(modifier=Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+
+                        Text(text="No $optionSelected yet" , fontSize = 18.sp , fontWeight = FontWeight.Bold)
+
                     }
                 }
 
 
+
+
+
+
             }
-
-
-
-
-
-
         }
+        else {
+
+            Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    CircularProgressIndicator(
+                        modifier=Modifier.size(16.dp),
+                        color= customColor,
+                        strokeWidth = 2.dp
+
+                    )
+                    Spacer(modifier = Modifier.width(7.dp))
+
+                    Text(
+                        text="Loading your Orders",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+
+
+                }
+
+            }
+        }
+
+
 
 
     }
 }
 
+fun getStore(storeId:String): HashMap<String, Any?> {
+    for (doc in mainActivityViewModel.stores.value) {
+        if (doc["storeId"] == storeId) {
+            return doc
+        }
+    }
+
+        return hashMapOf<String,Any?>()
 
 
+
+}
 
 
