@@ -283,24 +283,27 @@ Log.d("an" , animateTotalToPay.value.toString())
                                     if(document!=null){
                                         db.collection("Orders").document(document.id).update("orderId" , document.id)
                                         mainActivityViewModel.addToCardProduct.value.forEach { product ->
+                                          if(product["storeId".toString()]==store["storeId"]){
 
-                                            val data = hashMapOf(
-                                                "orderItemId" to "",
-                                                "productId" to product["productId"],
-                                                "orderId" to document.id,
-                                                "quantity" to product["quantity"],
-                                                "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble()
+                                              val data = hashMapOf(
+                                                  "orderItemId" to "",
+                                                  "productId" to product["productId"],
+                                                  "orderId" to document.id,
+                                                  "quantity" to product["quantity"],
+                                                  "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble()
 
 
-                                            )
+                                              )
 
-                                            db.collection("OrderItem").add(data).addOnSuccessListener { document->
-                                            if(document!=null){
-                                                db.collection("OrderItem").document(document.id).update("orderItemId",document.id)
+                                              db.collection("OrderItems").add(data).addOnSuccessListener { document->
+                                                  if(document!=null){
+                                                      db.collection("OrderItems").document(document.id).update("orderItemId",document.id)
 
-                                            }
+                                                  }
 
-                                            }
+                                              }
+                                          }
+
 
 
 

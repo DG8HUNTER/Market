@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.R
 import com.example.test.ui.theme.blue
@@ -59,7 +60,7 @@ import java.text.SimpleDateFormat
 
 @Composable
 
-fun Order(orderData: HashMap<String, Any>, storeName: String , storeImage:String){
+fun Order(navController: NavController,orderData: HashMap<String, Any>, storeName: String , storeImage:String){
     val createdAtTimestamp = orderData["createdAt"] as Timestamp
     val createdAtDate = createdAtTimestamp.toDate()
     val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a")
@@ -119,7 +120,7 @@ Column(modifier=Modifier.fillMaxSize()){
                         )
                     }
 
-                    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(25.dp)) {
+                    IconButton(onClick = {navController.navigate(route = "OrderInfoScreen/${orderData["orderId"]}") }, modifier = Modifier.size(25.dp)) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
                             contentDescription = "arrow right",

@@ -21,8 +21,9 @@ import com.example.test.Screens.FavoriteItemsScreen
 import com.example.test.Screens.Home
 import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.MyShoppingCardScreen
-import com.example.test.Screens.OrderScreen
+import com.example.test.Screens.OrderInfo
 import com.example.test.Screens.OrderedProductPerStore
+import com.example.test.Screens.OrdersPerStore
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ProductInfoScreen
 import com.example.test.Screens.ResetPassword
@@ -76,39 +77,6 @@ fun Navigation(
 
 
         }
-     /*   composable(route = "ResetPassword") {
-            ResetPassword(navController = navController)
-        }
-        composable(route = "UserCredentials/{userUID}", arguments = listOf(
-            navArgument(name = "userUID") {
-                type = NavType.StringType
-                nullable = false
-            }
-        )) {
-
-                backStackEntry ->
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                Text(text = backStackEntry.arguments?.get("userUID").toString())
-                Button(onClick = {
-                    Firebase.auth.signOut()
-                    navController.navigate(route = "WelcomeScreen") {
-                        popUpTo(0)
-
-
-                    }
-                }) {
-                    Text(text = "Sign Out")
-
-
-                }
-            }
-
-
-        }*/
 
         composable(route = "PersonalInfo/{screen}" , arguments=listOf(
             navArgument(name="screen"){
@@ -135,8 +103,24 @@ fun Navigation(
 
         }
 
-        composable(route="Orders"){
-            OrderScreen(navController = navController)
+        composable(route="OrdersPerStore/{storeId}", arguments =
+        listOf(navArgument(name="storeId"){
+            type= NavType.StringType
+            nullable=false
+        })){it->
+            OrdersPerStore(navController = navController , storeId=it.arguments?.get("storeId").toString())
+        }
+
+        composable(route="OrderInfoScreen/{orderId}", arguments = listOf(
+            navArgument(name="orderId"){
+                type= NavType.StringType
+                nullable=false
+            }
+        )){
+            OrderInfo(navController=navController,orderId=it.arguments?.get("orderId").toString())
+
+
+
         }
 
         composable(route="ChangePasswordSecurityScreen"){

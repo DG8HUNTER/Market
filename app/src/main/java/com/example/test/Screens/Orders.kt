@@ -60,7 +60,7 @@ import kotlinx.coroutines.withContext
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-  fun OrderScreen(navController: NavController) {
+  fun OrdersPerStore(navController: NavController, storeId: String) {
     var index by remember {
         mutableIntStateOf(0)
     }
@@ -105,7 +105,7 @@ import kotlinx.coroutines.withContext
 
                     for(document in snapshot.documents){
                         if(document!=null){
-                            if(document.data!!["userId"].toString()==currentUser){
+                            if(document.data!!["userId"].toString()==currentUser && document.data!!["storeId"].toString()==storeId){
                                 new.add(document.data as HashMap<String,Any>)
                                 if(document.data!!["status"].toString()=="pending" ||document.data!!["status"].toString()=="processing" ){
                                     current+=1
@@ -263,7 +263,7 @@ import kotlinx.coroutines.withContext
 
                                         if (order["status"] == "pending" || order["status"] == "processing") {
                                             item {
-                                                Order(orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+                                                Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
 
                                             }
                                         }
@@ -287,7 +287,7 @@ import kotlinx.coroutines.withContext
 
                                             if(order["status"]!="pending" && order["status"]!="processing"){
                                                 item {
-                                                    Order(orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+                                                    Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
 
 
 

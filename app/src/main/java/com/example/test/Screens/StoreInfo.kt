@@ -479,6 +479,8 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                                                 ?.toString()
                                         }"
                                     )
+                                }else {
+                                    navController.navigate("OrdersPerStore/${storeData!!["storeId"].toString()}")
                                 }
                             }
                             .fillMaxWidth()

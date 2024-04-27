@@ -175,45 +175,8 @@ fun Home(
     var search :String? by remember{
         mutableStateOf(null)
     }
-/*
-    var isCoroutineRunning by remember { mutableStateOf(false) }
-        val storesRef = dbRef.collection("Stores")
 
-        storesRef.addSnapshotListener(MetadataChanges.EXCLUDE){ snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
 
-            if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                if (!isCoroutineRunning) { // Check if coroutine is already running
-                    isCoroutineRunning = true //
-                   // Set flag to indicate coroutine is running
-                    scope.launch(Dispatchers.Default) {
-                        try {
-                            // Perform heavy or blocking operation (e.g., searchStore) in the background
-                            focus.clearFocus()
-                            Log.d("Launcheddd", "yessss")
-                            val result = searchStore(search)
-
-                            // Switch to the main thread to update UI with the result
-                            withContext(Dispatchers.Default) {
-                                mainActivityViewModel.setValue(result, "stores")
-                            }
-                        } catch (e: Exception) {
-                            // Handle any exceptions that occur during the coroutine execution
-                            Log.e("CoroutineError", "An error occurred: ${e.message}", e)
-                        } finally {
-                            // Reset the flag to indicate that the coroutine has completed
-                            isCoroutineRunning = false
-                        }
-                    }
-                }} else {
-                Log.d(TAG, "Current data: null")
-            }
-      //  }
-
-    }*/
     val stores: MutableList<HashMap<String, Any>> by remember {
         mutableStateOf(mutableListOf(hashMapOf()))
     }
@@ -458,9 +421,7 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
                         label = { Text(text = "Orders") },
                         selected = false,
                         onClick = {
-                            navController.navigate(route = "Orders") {
 
-                            }
                         },
                         modifier = Modifier
                             .height(50.dp)
