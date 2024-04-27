@@ -90,6 +90,7 @@ import com.example.test.ui.theme.lightGray2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.checkerframework.checker.units.qual.A
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -282,6 +283,40 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    val ordersRef = dbRef.collection("Orders")
+
+    ordersRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null ) {
+
+            if(snapshot.documents.size==0){
+                mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "orders")
+            }
+
+            else {
+                val list :MutableList<HashMap<String,Any>> = mutableListOf()
+             scope.launch(Dispatchers.Default){
+                 for(doc in snapshot.documents){
+                     list.add(doc.data as HashMap<String ,Any>)
+
+                 }
+
+                 withContext(Dispatchers.Main){
+                     mainActivityViewModel.setValue(list,"orders")
+                 }
+             }
+
+            }
+
+        }
+
+    }
+
+
 
 
     ModalNavigationDrawer(
@@ -421,7 +456,7 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
                         label = { Text(text = "Orders") },
                         selected = false,
                         onClick = {
-
+navController.navigate(route="Orders")
                         },
                         modifier = Modifier
                             .height(50.dp)

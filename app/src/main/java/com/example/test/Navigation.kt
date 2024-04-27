@@ -23,6 +23,7 @@ import com.example.test.Screens.LocationScreen
 import com.example.test.Screens.MyShoppingCardScreen
 import com.example.test.Screens.OrderInfo
 import com.example.test.Screens.OrderedProductPerStore
+import com.example.test.Screens.Orders
 import com.example.test.Screens.OrdersPerStore
 import com.example.test.Screens.PersonalInfo
 import com.example.test.Screens.ProductInfoScreen
@@ -122,7 +123,9 @@ fun Navigation(
 
 
         }
-
+    composable(route="Orders"){
+        Orders(navController=navController)
+    }
         composable(route="ChangePasswordSecurityScreen"){
             ChangePasswordSecurityScreen(navController=navController)
 
