@@ -1,5 +1,6 @@
 package com.example.test.Component
 
+import android.util.Log
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.test.Screens.mainActivityViewModel
 import com.example.test.ui.theme.customColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,17 +73,30 @@ fun StoreInOrders(navController: NavController, data: HashMap<String, Any>) {
     }
     val animateCurrentOrders = animateFloatAsState(targetValue = currentOrders.toString().toFloat() , label="" , animationSpec = tween(1000,
         easing = FastOutLinearInEasing))
-    LaunchedEffect(key1 =true) {
+
+
+
+
+    LaunchedEffect(key1 = mainActivityViewModel.orders.value) {
         scope.launch(Dispatchers.Default){
+            val totalO = data["totalOrders"].toString().toInt()
+            val pastO=data["pastOrders"].toString().toInt()
+            val currentO =data["currentOrders"].toString().toInt()
 
             withContext(Dispatchers.Main){
-                totalOrders=data["totalOrders"].toString().toInt()
-                pastOrders=data["pastOrders"].toString().toInt()
-                currentOrders=data["currentOrders"].toString().toInt()
+                totalOrders=totalO
+                pastOrders=pastO
+                currentOrders=currentO
             }
         }
 
+
+
+
     }
+
+    Log.d("animatedPast",animatePastOrders.value.toString())
+    Log.d("animatedCurrent",animateCurrentOrders.value.toString())
 
     Box(
         modifier = Modifier

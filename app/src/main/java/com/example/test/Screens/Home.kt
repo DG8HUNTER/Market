@@ -219,7 +219,7 @@ if(search==null)
                 if (snapshot != null && snapshot.documents.isNotEmpty()) {
                     if(search==null){
                     mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
-                    Log.d("_stores", mainActivityViewModel.stores.value.toString())
+                  //  Log.d("_stores", mainActivityViewModel.stores.value.toString())
                     for (document in snapshot.documents) {
                         mainActivityViewModel.addToStores(document.data as HashMap<String, Any?>)
                     }
@@ -293,24 +293,18 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
 
         if (snapshot != null ) {
 
-            if(snapshot.documents.size==0){
-                mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "orders")
-            }
 
-            else {
                 val list :MutableList<HashMap<String,Any>> = mutableListOf()
-             scope.launch(Dispatchers.Default){
+
                  for(doc in snapshot.documents){
                      list.add(doc.data as HashMap<String ,Any>)
 
                  }
 
-                 withContext(Dispatchers.Main){
-                     mainActivityViewModel.setValue(list,"orders")
-                 }
-             }
 
-            }
+                     mainActivityViewModel.setValue(list.toMutableList(),"orders")
+
+            Log.d("or", mainActivityViewModel.orders.value.toString())
 
         }
 

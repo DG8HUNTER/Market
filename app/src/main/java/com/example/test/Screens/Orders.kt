@@ -1,6 +1,8 @@
 package com.example.test.Screens
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +48,7 @@ import kotlinx.coroutines.withContext
 import org.checkerframework.checker.units.qual.A
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Orders(navController: NavController){
    // var storesId :MutableSet<String> = mutableSetOf()
@@ -60,39 +63,38 @@ fun Orders(navController: NavController){
         mutableStateOf(true)
     }
 
-    Log.d("orders",mainActivityViewModel.orders.value.toString())
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(key1 =true, mainActivityViewModel.orders.value) {
 
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1= mainActivityViewModel.orders.value) {
+        Log.d("order",mainActivityViewModel.orders.value.toString())
         scope.launch(Dispatchers.Default){
             val sData :MutableList<HashMap<String,Any>> = mutableListOf()
-            var storesId :MutableSet<String> = mutableSetOf()
-            if(mainActivityViewModel.orders.value.size==0){
-                storesId= mutableSetOf()
-            }else {
-                for(doc in mainActivityViewModel.orders.value){
+            val storesId :MutableSet<String> = mutableSetOf()
+            if(mainActivityViewModel.orders.value.size!=0) {
+
+                for (doc in mainActivityViewModel.orders.value) {
                     storesId.add(doc["storeId"].toString())
 
                 }
 
 
-                Log.d("id",storesId.toString())
-                for(doc in storesId){
-
+                Log.d("id", storesId.toString())
+                for (doc in storesId) {
 
                     val store = db.collection("Stores").document(doc).get().await()
-                    if(store!=null){
-                        sData.add(store.data as HashMap<String,Any>)
+                    if (store != null) {
+                        sData.add(store.data as HashMap<String, Any>)
                     }
 
                 }
-
 
 
             }
 
             withContext(Dispatchers.Main){
                 storesData=sData
+
                 Log.d("storesData" , storesData.toString())
                 delay(1000)
                 isLoading=false
@@ -121,53 +123,67 @@ fun Orders(navController: NavController){
         }
 
         if(!isLoading){
-            if(storesData.size!=0){
+            if(storesData.size!=0) {
 
-                LazyColumn(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(15.dp), contentPadding = PaddingValues(vertical = 10.dp)){
-                    for(store in storesData){
-                        var totalOrders = 0
-                        var currentOrders=0
-                        var pastOrders=0
-                        var data :HashMap<String,Any> = hashMapOf()
+                if (mainActivityViewModel.orders.value.size != 0){
 
-                        for(order in mainActivityViewModel.orders.value){
-                            if(order["storeId"].toString()==store["storeId"].toString()){
-                                totalOrders+=1
-                                if(order["status"].toString()=="pending" || order["status"].toString()=="processing"){
-                                    currentOrders+=1
+                    Log.d("urgent", mainActivityViewModel.orders.value.toString())
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(vertical = 10.dp)
+                    ) {
+                        for (store in storesData) {
+
+                            var data: HashMap<String, Any> = hashMapOf()
+                            var totalOrders = 0
+                            var currentOrders = 0
+                            var pastOrders = 0
+                             mainActivityViewModel.orders.value.forEach {order->
+
+                                if (order["storeId"].toString() == store["storeId"].toString()) {
+                                    totalOrders += 1
+                                    if (order["status"].toString() == "pending" || order["status"].toString() == "processing") {
+                                        currentOrders += 1
+                                    } else {
+                                        pastOrders += 1
+                                    }
                                 }
-                                else {
-                                    pastOrders+=1
-                                }
+
+
                             }
 
+                            data = hashMapOf(
+                                "storeId" to store["storeId"].toString(),
+                                "image" to store["image"].toString(),
+                                "name" to store["name"].toString(),
+                                "location" to store["location"].toString(),
+                                "totalOrders" to totalOrders,
+                                "currentOrders" to currentOrders,
+                                "pastOrders" to pastOrders
+
+                            )
+
+
+                            item {
+                                Log.d("data",data.toString())
+                                StoreInOrders(navController = navController, data = data)
+                            }
+
+
+
+
+
+
+
+
+
                         }
-
-                        data = hashMapOf(
-                            "storeId"  to store["storeId"].toString(),
-                            "image"  to store["image"].toString(),
-                            "name"  to store["name"].toString(),
-                            "location" to store["location"].toString(),
-                            "totalOrders"  to totalOrders,
-                            "currentOrders"  to currentOrders,
-                            "pastOrders"  to pastOrders
-
-                        )
-
-
-                        item {
-                            StoreInOrders(navController=navController,data=data)
-                        }
-
-
-
-
-
-
 
                     }
 
-                }
+            }
 
 
 
