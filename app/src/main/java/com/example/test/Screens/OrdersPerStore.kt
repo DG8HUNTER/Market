@@ -79,6 +79,10 @@ import kotlinx.coroutines.withContext
         mutableIntStateOf(0)
     }
 
+    var storeOrders :MutableList<HashMap<String,Any>> by remember {
+        mutableStateOf(mutableListOf())
+    }
+
 
     val currentUser = Firebase.auth.currentUser?.uid.toString()
 
@@ -120,7 +124,8 @@ import kotlinx.coroutines.withContext
                     }
                     withContext(Dispatchers.Main){
 
-                        mainActivityViewModel.setValue(new , "orders")
+                       // mainActivityViewModel.setValue(new , "orders")
+                        storeOrders=new
                         pastOrder=past
                         currentOrder = current
                         delay(1000)
@@ -239,7 +244,7 @@ import kotlinx.coroutines.withContext
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                if(mainActivityViewModel.orders.value.size!=0){
+                if(storeOrders.size!=0){
 
                     if(optionSelected=="Current Orders"){
 
@@ -258,7 +263,7 @@ import kotlinx.coroutines.withContext
                                 contentPadding = PaddingValues(vertical = 10.dp),
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                mainActivityViewModel.orders.value.forEach { order ->
+                               storeOrders.forEach { order ->
                                     val storeData = getStore(order["storeId"].toString())
 
                                         if (order["status"] == "pending" || order["status"] == "processing") {
@@ -282,7 +287,7 @@ import kotlinx.coroutines.withContext
                                 }
                             }else {
                                 LazyColumn(modifier=Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 10.dp) , verticalArrangement = Arrangement.spacedBy(10.dp)){
-                                    mainActivityViewModel.orders.value.forEach { order ->
+                                   storeOrders.forEach { order ->
                                         val storeData = getStore(order["storeId"].toString())
 
                                             if(order["status"]!="pending" && order["status"]!="processing"){

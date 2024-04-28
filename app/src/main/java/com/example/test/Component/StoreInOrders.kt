@@ -100,7 +100,7 @@ fun StoreInOrders(navController: NavController, data: HashMap<String, Any>) {
 
     Box(
         modifier = Modifier
-            .shadow(elevation = 10.dp)
+            .shadow(elevation = 10.dp, shape =RoundedCornerShape(10.dp) )
             .clip(shape = RoundedCornerShape(10.dp))
             .fillMaxWidth()
             .height(130.dp)

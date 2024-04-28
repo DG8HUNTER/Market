@@ -69,7 +69,7 @@ fun Order(navController: NavController,orderData: HashMap<String, Any>, storeNam
 
     Box(modifier= Modifier
         .fillMaxWidth()
-        .shadow(elevation = 10.dp)
+        .shadow(elevation = 10.dp, shape =RoundedCornerShape(12.dp) )
         .height(230.dp)
         .clip(RoundedCornerShape(12.dp))
         .background(
