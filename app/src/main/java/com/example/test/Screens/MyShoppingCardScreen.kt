@@ -283,6 +283,7 @@ Log.d("an" , animateTotalToPay.value.toString())
                                     if(document!=null){
                                         db.collection("Orders").document(document.id).update("orderId" , document.id)
                                         mainActivityViewModel.addToCardProduct.value.forEach { product ->
+                                            Log.d("Product", product.toString())
                                           if(product["storeId".toString()]==store["storeId"]){
 
                                               val data = hashMapOf(

@@ -12,7 +12,16 @@ import com.example.test.Screens.mainActivityViewModel
         val productList = mainActivityViewModel.addToCardProduct.value.toMutableList()
 
 
-    val existingHashMap = productList[index]
+
+
+    val totalPrice =if(productList[index]["discount"].toString().toInt()==0){
+        productList[index]["price"].toString().toFloat()* quantity.toString().toFloat()
+    }else{
+        val discountPrice =(((productList[index]["price"].toString().toFloat())* quantity.toString().toFloat())) *(productList[index]["discount"].toString().toFloat()/100f)
+        (((productList[index]["price"].toString().toFloat())* quantity.toString().toFloat())-discountPrice)
+
+    }
+
 
 // Create a new HashMap using the existing HashMap's contents
     val newHashMap= hashMapOf(
@@ -22,6 +31,7 @@ import com.example.test.Screens.mainActivityViewModel
         "price" to productList[index]["price"],
         "discount"  to productList[index]["discount"],
         "quantity" to quantity,
+        "totalPrice" to totalPrice,
         "image"  to productList[index]["image"],
         "storeId" to productList[index]["storeId"],
         "description" to productList[index]["description"]

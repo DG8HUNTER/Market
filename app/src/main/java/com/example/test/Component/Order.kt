@@ -1,7 +1,9 @@
 package com.example.test.Component
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -32,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.R
+import com.example.test.Screens.mainActivityViewModel
 import com.example.test.ui.theme.blue
 import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.yellow
@@ -63,14 +65,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.checkerframework.checker.units.qual.A
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun Order(navController: NavController,orderData: HashMap<String, Any>, storeName: String , storeImage:String){
+fun Order(
+    navController: NavController,
+    orderData: HashMap<String, Any>,
+    storeName: String,
+    storeImage: String,
+    context: Context
+){
     val createdAtTimestamp = orderData["createdAt"] as Timestamp
     val createdAtDate = createdAtTimestamp.toDate()
     val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a")
@@ -89,6 +96,11 @@ fun Order(navController: NavController,orderData: HashMap<String, Any>, storeNam
     var isReordering by remember {
         mutableStateOf(false)
     }
+
+    var isAdding by remember {
+        mutableStateOf(false)
+    }
+
 
     var reordered by remember {
         mutableStateOf(false)
@@ -266,7 +278,110 @@ Column(modifier=Modifier.fillMaxSize()){
 
         }
 
-        Row(modifier=Modifier.fillMaxSize() , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End  ){
+        Row(modifier=Modifier.fillMaxSize() , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
+
+            Button(modifier= Modifier
+                .width(140.dp)
+                .clip(RoundedCornerShape(7.dp))
+                .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(8.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+
+                onClick = {
+
+                    isAdding=true
+scope.launch(Dispatchers.Default){
+    val addToBasket :MutableList <HashMap<String,Any?>> = mutableListOf()
+    var data : HashMap<String,Any?> = hashMapOf()
+    for(order in orderedProduct){
+        var totalPerItem =0f
+        val quantity = order["quantity"]
+
+
+        val productData = db.collection("Products").document(order["productId"].toString()).get().await()
+
+        if(productData!=null){
+            totalPerItem =  if(productData["discount"].toString().toInt()==0){
+                productData["price"].toString().toFloat()* quantity.toString().toFloat()
+            }else{
+
+                val discountPrice =(((productData["price"].toString().toFloat())* quantity.toString().toFloat())) *(productData["discount"].toString().toFloat()/100f)
+                (((productData["price"].toString().toFloat())* quantity.toString().toFloat())-discountPrice)
+
+            }
+
+        }
+
+        data = productData.data as HashMap<String,Any?>
+        data["quantity"]=quantity
+        data["totalPrice"] =totalPerItem
+
+        addToBasket.add(data)
+
+    }
+
+    withContext(Dispatchers.Main){
+        delay(1000)
+        mainActivityViewModel.setValue(addToBasket , "addToCardProduct")
+        isAdding=false
+        Toast.makeText(context , "All  product added successfully !" , Toast.LENGTH_SHORT).show()
+
+    }
+
+}
+
+
+
+
+                }){
+
+                if (!isAdding) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.addtoshoppingcard),
+                            contentDescription = "Cart button icon",
+                            modifier = Modifier.size(20.dp)
+                        )
+
+                        Text(
+                            text = "Add to cart",
+                            Modifier.padding(start = 10.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = customColor,
+                            strokeWidth = 2.dp
+
+                        )
+
+                        Text(
+                            text = "Adding",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.width(7.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+
+                        )
+
+
+                    }
+
+
+                }
+
+            }
             Button(onClick = {
                 isReordering = true
 
@@ -370,9 +485,9 @@ Column(modifier=Modifier.fillMaxSize()){
 
 
             } , modifier= Modifier
-                .width(110.dp)
+                .width(140.dp)
                 .clip(RoundedCornerShape(7.dp))
-                .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(0.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)){
+                .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(8.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)){
 Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
     if(isReordering){
         CircularProgressIndicator(

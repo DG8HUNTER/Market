@@ -84,6 +84,8 @@ import kotlinx.coroutines.withContext
     }
 
 
+
+
     val currentUser = Firebase.auth.currentUser?.uid.toString()
 
     val dbRef = Firebase.firestore
@@ -260,15 +262,15 @@ import kotlinx.coroutines.withContext
 
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(vertical = 10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                                contentPadding = PaddingValues(vertical = 15.dp),
+                                verticalArrangement = Arrangement.spacedBy(15.dp)
                             ) {
                                storeOrders.forEach { order ->
                                     val storeData = getStore(order["storeId"].toString())
 
                                         if (order["status"] == "pending" || order["status"] == "processing") {
                                             item {
-                                                Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+                                                Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString(),context=context)
 
                                             }
                                         }
@@ -292,7 +294,13 @@ import kotlinx.coroutines.withContext
 
                                             if(order["status"]!="pending" && order["status"]!="processing"){
                                                 item {
-                                                    Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString())
+                                                    Order(
+                                                        navController = navController,
+                                                        orderData = order,
+                                                        storeName=storeData["name"].toString(),
+                                                        storeImage = storeData["image"].toString(),
+                                                        context = context
+                                                    )
 
 
 
