@@ -1,5 +1,8 @@
 package com.example.test.Component
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,11 +26,13 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,14 +55,19 @@ import com.example.test.ui.theme.blue
 import com.example.test.ui.theme.customColor
 import com.example.test.ui.theme.yellow
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.checkerframework.checker.units.qual.A
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
 fun Order(navController: NavController,orderData: HashMap<String, Any>, storeName: String , storeImage:String){
@@ -65,11 +75,52 @@ fun Order(navController: NavController,orderData: HashMap<String, Any>, storeNam
     val createdAtDate = createdAtTimestamp.toDate()
     val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a")
     val formattedDate = sdf.format(createdAtDate)
+    val scope = rememberCoroutineScope()
+    var orderedProduct :MutableList <HashMap<String,Any?>> by remember{
+        mutableStateOf(mutableListOf())
+    }
 
+    var reOrderedProduct :MutableList<HashMap<String,Any>> by remember {
+        mutableStateOf(mutableListOf())
+    }
+
+    val currentUser = Firebase.auth.currentUser?.uid.toString()
+
+    var isReordering by remember {
+        mutableStateOf(false)
+    }
+
+    var reordered by remember {
+        mutableStateOf(false)
+    }
+
+
+
+
+    val db=Firebase.firestore
+
+
+    LaunchedEffect(key1 =true) {
+        scope.launch(Dispatchers.Default){
+            val docs = db.collection("OrderItems").whereEqualTo("orderId",orderData["orderId"]).get().await()
+            val ordersItemData :MutableList<HashMap<String,Any?>> = mutableListOf()
+            if(docs!=null){
+                for(doc in docs){
+                       ordersItemData.add(doc.data as HashMap<String, Any?>)
+
+                }
+                    withContext(Dispatchers.Main){
+                        Log.d("Ordered1" , ordersItemData.toString())
+                        orderedProduct=ordersItemData
+                    }
+            }
+        }
+
+    }
 
     Box(modifier= Modifier
         .fillMaxWidth()
-        .shadow(elevation = 10.dp, shape =RoundedCornerShape(12.dp) )
+        .shadow(elevation = 10.dp, shape = RoundedCornerShape(12.dp))
         .height(230.dp)
         .clip(RoundedCornerShape(12.dp))
         .background(
@@ -216,15 +267,127 @@ Column(modifier=Modifier.fillMaxSize()){
         }
 
         Row(modifier=Modifier.fillMaxSize() , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End  ){
-            Button(onClick = {} , modifier= Modifier
+            Button(onClick = {
+                isReordering = true
+
+                scope.launch(Dispatchers.Default){
+                    val reorderedProduct :MutableList<HashMap<String,Any>>  = mutableListOf()
+                    delay(1000)
+                    var orders :MutableList<HashMap<String,Any>> = mutableListOf()
+                    var data :HashMap<String,Any> = hashMapOf()
+                    var totalPerItem =0f
+                    var total = 0f
+                    var items = 0
+                    var productData :HashMap<String,Any?> = hashMapOf()
+                    Log.d("Ordered2" , orderedProduct.toString())
+                    for (orderItem in orderedProduct){
+
+                        Log.d("like" , orderItem.toString())
+                        items+=1
+                        val product = db.collection("Products").document(orderItem["productId"].toString()).get().await()
+                        if(product!=null){
+                             productData = product.data as HashMap<String,Any?>
+                            productData["quantity"] = orderItem["quantity"].toString().toInt()
+                            totalPerItem =  if(productData["discount"].toString().toInt()==0){
+                                productData["price"].toString().toFloat()* productData["quantity"].toString().toFloat()
+                            }else{
+
+                                val discountPrice =(((productData["price"].toString().toFloat())* productData["quantity"].toString().toFloat())) *(productData["discount"].toString().toFloat()/100f)
+                                (((productData["price"].toString().toFloat())* productData["quantity"].toString().toFloat())-discountPrice)
+
+                            }
+                            total+=totalPerItem
+
+                        }
+
+                        data = hashMapOf(
+                            "productId" to productData["productId"].toString(),
+                            "quantity" to orderItem["quantity"].toString().toInt(),
+                            "totalPrice" to totalPerItem
+                        )
+
+                        reorderedProduct.add(data)
+
+
+
+                    }
+
+                    Log.d("reordered" , reorderedProduct.toString())
+                    val currentDateTime = LocalDateTime.now()
+                    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+                    db.collection("Orders").add(
+                        hashMapOf(
+                            "orderId" to "",
+                            "userId" to currentUser,
+                            "status" to "pending",
+                            "storeId" to orderData["storeId"],
+                            "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
+                            "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
+                            "totalItems" to items,
+                            "totalPrice" to String.format("%.2f".format(total)).toDouble()
+                        )
+                    ).addOnSuccessListener { document ->
+
+                        db.collection("Orders").document(document.id).update("orderId", document.id)
+
+                        for (order in reorderedProduct){
+                            Log.d("reordered4",order.toString())
+                            val toOrder :HashMap<String,Any> = order
+                            toOrder["orderId"] =  document.id
+                            toOrder["orderItemId"] = ""
+                            Log.d("toOrder",toOrder.toString())
+
+                            db.collection("OrderItems").add(toOrder).addOnSuccessListener { doc ->
+                                db.collection("OrderItems").document(doc.id).update("orderItemId", doc.id)
+                            }
+                        }
+
+
+
+                    }
+
+                    withContext(Dispatchers.Main){
+                        isReordering=false
+                    }
+
+
+
+
+
+
+
+
+                }
+
+
+
+
+
+
+
+
+
+
+            } , modifier= Modifier
                 .width(110.dp)
                 .clip(RoundedCornerShape(7.dp))
                 .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(0.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)){
 Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
+    if(isReordering){
+        CircularProgressIndicator(
+            color = Color.White,
+            strokeWidth = 3.dp,
+            modifier = Modifier.size(16.dp)
+        )
 
-    Icon(imageVector= Icons.Filled.Refresh, contentDescription ="" , tint=Color.White , modifier=Modifier.size(20.dp))
+    }
+    else {
+        Icon(imageVector= Icons.Filled.Refresh, contentDescription ="" , tint=Color.White , modifier=Modifier.size(20.dp))
+    }
+
     Spacer(modifier = Modifier.width(5.dp))
-    Text("Re-order" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
+    Text(if (isReordering)"Reordering" else "Reorder" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
 }
 
 
