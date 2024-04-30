@@ -82,6 +82,7 @@ fun OrderInfo(navController: NavController,orderId:String){
                        "quantity" to  doc.data["quantity"].toString(),
                        "image" to productData.data?.get("image").toString(),
                        "totalPrice" to doc.data["totalPrice"].toString(),
+                       "discount" to productData.data?.get("discount").toString().toInt(),
                        "price"   to productData.data?.get("price").toString()
                        )
                    oItems.add(data)

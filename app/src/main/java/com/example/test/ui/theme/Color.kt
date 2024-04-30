@@ -11,6 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 val customColor = Color(0xFF2FF5722)
 val lightCustomColor = Color(0xFFFFCCBC)
+val redDiscount = Color(0xFFFF0000)
 
 val mediumGray =Color(0xFF6F797B)
 val onSurface= Color(0xFF3F484A)

@@ -177,7 +177,7 @@ Log.d("an" , animateTotalToPay.value.toString())
             if(mainActivityViewModel.addToCardProduct.value.size!=0){
                 LazyColumn(modifier= Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.92f), contentPadding = PaddingValues(top=10.dp)){
+                    .fillMaxHeight(0.92f), contentPadding = PaddingValues(top=10.dp), verticalArrangement = Arrangement.spacedBy(15.dp)){
 
                     stores.forEach { store ->
                         item{

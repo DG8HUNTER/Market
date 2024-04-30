@@ -18,12 +18,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Badge
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -57,12 +61,14 @@ import com.example.test.Functions.updateOrderedQuantity
 import com.example.test.R
 import com.example.test.Screens.mainActivityViewModel
 import com.example.test.ui.theme.customColor
+import com.example.test.ui.theme.redDiscount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.saket.swipe.SwipeableActionsBox
+import androidx.compose.material3.Badge
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable()
 
@@ -97,73 +103,92 @@ fun OrderItem(data:HashMap<String,Any>){
 
     Log.d("quantity" ,"${data["inventory"].toString()} : ${quantity.toString()}" )
 
-    Box(modifier = Modifier
-        .shadow(elevation = 10.dp, shape = RoundedCornerShape(5.dp))
-        .clip(shape = RoundedCornerShape(5.dp))
-        .fillMaxWidth()
-        .background(color = Color.Transparent, shape = RoundedCornerShape(5.dp))
-        .height(110.dp),
+    Box(
     ){
-        Row(modifier= Modifier
+
+        Box(modifier= Modifier.fillMaxSize()
+            .shadow(elevation = 10.dp, shape = RoundedCornerShape(5.dp))
+            .clip(shape = RoundedCornerShape(5.dp))
             .fillMaxWidth()
-            .background(color = Color.White)){
+            .background(color = Color.Transparent, shape = RoundedCornerShape(5.dp))
+            .height(110.dp)){
+
             Row(modifier= Modifier
-                .clip(shape = RoundedCornerShape(5.dp))
-                .background(color = Color(0xFFe7e7e7), shape = RoundedCornerShape(5.dp))
-                .fillMaxWidth(0.8f)
-            ){
-                Column(modifier= Modifier
-                    .clip(RoundedCornerShape(5.dp))
-                    .fillMaxHeight()
-                    .width(100.dp)
-                    .background(color = Color.White, shape = RoundedCornerShape(5.dp))
-                    .padding(7.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .background(color = Color.White)){
+                Row(modifier= Modifier
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .background(color = Color(0xFFe7e7e7), shape = RoundedCornerShape(5.dp))
+                    .fillMaxWidth(0.8f)
                 ){
+                    Column(modifier= Modifier
+                        .clip(RoundedCornerShape(5.dp))
+                        .fillMaxHeight()
+                        .width(100.dp)
+                        .background(color = Color.White, shape = RoundedCornerShape(5.dp))
+                        .padding(7.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
 
-                    Image(painter = painter, contentDescription ="${data["name"]} image" , contentScale = ContentScale.Fit )
+                        Image(painter = painter, contentDescription ="${data["name"]} image" , contentScale = ContentScale.Fit )
 
 
 
-                }
-                Column(modifier= Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(5.dp))
-                    .fillMaxHeight()
-                ){
-                    Column(modifier= Modifier.padding(top = 10.dp , start = 10.dp) ){
-                        Text(text =data["name"].toString() , fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text="${data["price"].toString()}$ / item" , fontWeight = FontWeight.Medium , fontSize = 14.sp , color= Color.Gray)
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text="Quantity :${data["quantity"].toString()}" , fontWeight = FontWeight.Medium , fontSize = 14.sp , color= Color.Gray)
+                    }
+                    Column(modifier= Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(5.dp))
+                        .fillMaxHeight()
+                    ){
+                        Column(modifier= Modifier.padding(top = 10.dp , start = 10.dp) ){
+                            Text(text =data["name"].toString() , fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(text="${data["price"].toString()}$ / item" , fontWeight = FontWeight.Medium , fontSize = 14.sp , color= Color.Gray)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(text="Quantity :${data["quantity"].toString()}" , fontWeight = FontWeight.Medium , fontSize = 14.sp , color= Color.Gray)
+
+                        }
+
+
 
                     }
 
-
-
                 }
-
+                Column(modifier= Modifier
+                    .fillMaxSize()
+                    .background(color = Color.White), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+                    Text(
+                        text = "${String.format("%.2f",animateTotalPrice.value)}$",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Serif,
+                        color = customColor
+                    )
+                }
             }
-            Column(modifier= Modifier
-                .fillMaxSize()
-                .background(color = Color.White), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-                Text(
-                    text = "${String.format("%.2f",animateTotalPrice.value)}$",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Serif,
-                    color = customColor
-                )
+
+
+        }
+
+        if(data["discount"].toString().toInt()!=0){
+            Badge(modifier = Modifier
+
+                .align(Alignment.TopStart)
+                .offset(x = (-10).dp, y = (-10).dp)
+                .size(35.dp)
+                .clip(CircleShape),
+                containerColor = redDiscount
+            ){
+
+                Text(text ="${data["discount"].toString()}%", fontWeight = FontWeight.Bold,color=Color.White, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
 
-
-
-
-
     }
+
+
+
 
 
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -88,6 +90,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 
 import com.example.test.ui.theme.lightGray2
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.checkerframework.checker.units.qual.A
@@ -155,6 +158,10 @@ fun Home(
 
     )
 
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
+
 
     val auth = Firebase.auth
 
@@ -163,7 +170,7 @@ fun Home(
         .addOnSuccessListener { document ->
 
             userInfo = document.data!! as MutableMap<String, Any>
-            Log.d("user", document.data!!.toString())
+
         }
 
 
@@ -178,34 +185,10 @@ fun Home(
     }
 
 
-    val stores: MutableList<HashMap<String, Any>> by remember {
-        mutableStateOf(mutableListOf(hashMapOf()))
+
+    var stores: MutableList<HashMap<String, Any?>> by remember {
+       mutableStateOf(mutableListOf())
     }
-    LaunchedEffect(true,search) {
-if(search==null)
-        scope.launch(Dispatchers.Default) {
-            try {
-                // Perform heavy or blocking operation (e.g., searchStore) in the background
-                focus.clearFocus()
-                Log.d("Launcheddd", "yessss")
-                val result = searchStore(search)
-
-                // Switch to the main thread to update UI with the result
-                withContext(Dispatchers.Main) {
-                    mainActivityViewModel.setValue(result, "stores")
-                }
-            } catch (e: Exception) {
-                // Handle any exceptions that occur during the coroutine execution
-                Log.e("CoroutineError", "An error occurred: ${e.message}", e)
-            } finally {
-                // Reset the flag to indicate that the coroutine has completed
-
-            }
-        }
-
-
-    }
-
 
 
             val storesRef = dbRef.collection("Stores")
@@ -216,22 +199,60 @@ if(search==null)
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                    if(search==null){
-                    mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "stores")
-                  //  Log.d("_stores", mainActivityViewModel.stores.value.toString())
-                    for (document in snapshot.documents) {
-                        mainActivityViewModel.addToStores(document.data as HashMap<String, Any?>)
-                    }
-                    // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
-                } }else {
-                    Log.d(TAG, "Current data: null")
+                if (snapshot != null) {
+                   if(snapshot.documents.size!=0){
+                       scope.launch(Dispatchers.Default){
+                           val result :MutableList<HashMap<String,Any>> = mutableListOf()
+                           if(snapshot.documents.size!=0){
+                               for(doc in snapshot.documents){
+                                   result.add(doc.data as HashMap<String,Any>)
+                               }
+                           }
+
+                           withContext(Dispatchers.Main){
+                               mainActivityViewModel.setValue(result,"stores")
+
+                               delay(1000)
+                               isLoading=false
+                           }
+
+
+
+
+
+
+                       }
+                  } else {
+                       mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(),"stores")
+                   }
                 }
             }
 
 
+    LaunchedEffect(key1 = mainActivityViewModel.stores.value) {
+        scope.launch(Dispatchers.Default){
+            var array :MutableList<HashMap<String,Any?>> = mutableListOf()
+            if(search==null){
+                if(mainActivityViewModel.stores.value.size!=0){
+                    for(store in mainActivityViewModel.stores.value){
+                        array.add(store)
+                    }
+                }
 
-Log.d("orders", mainActivityViewModel.orders.value.toString())
+            }else{
+
+                array= searchStore(search)
+            }
+
+            withContext(Dispatchers.Main){
+                stores=array
+                Log.d("stores" , stores.toString())
+            }
+
+        }
+
+    }
+
 
 
 
@@ -242,43 +263,8 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
 
 
     var clearIcon = animateColorAsState(targetValue =if(search!=null)Color.Black else Color.Transparent , label="" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
-  /*  val buffer = 1
-    val listState = rememberLazyListState()
 
 
-    val reachedBottom: Boolean by remember {
-        derivedStateOf {
-            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-            lastVisibleItem?.index != 0 && lastVisibleItem?.index == listState.layoutInfo.totalItemsCount - buffer
-        }
-    }
-
-    Log.d("reached ?" , reachedBottom.toString())
- LaunchedEffect(reachedBottom) {
-        if (reachedBottom) {
-            dbRef.collection("Stores").orderBy("name").startAfter(lastVisible).limit(7).get()
-                .addOnSuccessListener { documentSnapshots ->
-                    if (!documentSnapshots.isEmpty) {
-                        lastVisible = documentSnapshots.documents[documentSnapshots.size() - 1]
-                    }
-                }
-                .addOnSuccessListener { documents ->
-                    if(documents != null) {
-                        for (document in documents) {
-
-                            mainActivityViewModel.addToStores(newValue = document.data as HashMap<String, Any>)
-                        }
-                    }
-                    else {
-                    Toast.makeText(context, "No more stores", Toast.LENGTH_SHORT).show()
-
-                }
-                }
-        }
-    }
-
-
-*/
 
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -304,7 +290,7 @@ Log.d("orders", mainActivityViewModel.orders.value.toString())
 
                      mainActivityViewModel.setValue(list.toMutableList(),"orders")
 
-            Log.d("or", mainActivityViewModel.orders.value.toString())
+
 
         }
 
@@ -640,13 +626,21 @@ navController.navigate(route="Orders")
                     onSearch ={
 
                     scope.launch(Dispatchers.Default){
+
                             focus.clearFocus()
-                            Log.d("Launcheddd","yessss")
-                            val result = searchStore(search)
+                      val result = if(search!=null){
+                            searchStore(search)
+                        } else {
+                            mainActivityViewModel.stores.value
+                        }
+
+
                             // Process the result
                             // Note: You can handle UI updates here based on the result if needed
                         withContext(Dispatchers.Main) {
-                            mainActivityViewModel.setValue(result, "stores")
+                            //mainActivityViewModel.setValue(result, "stores")
+                            stores=result
+                            Log.d("stores" , stores.toString())
                         }
 
                         }
@@ -677,9 +671,9 @@ navController.navigate(route="Orders")
                     },
                     trailingIcon = {
                         IconButton(onClick = { search=null
-                            scope.launch {
-                                searchStore(search=search)
-                            }
+
+                                stores= mainActivityViewModel.stores.value
+
                         }) {
                             Icon(imageVector = Icons.Filled.Clear, contentDescription = "" , tint=clearIcon.value)
 
@@ -713,22 +707,49 @@ navController.navigate(route="Orders")
 
 
 
+                if(!isLoading){
+                    if(stores.size>0){
 
-                if(mainActivityViewModel.stores.value.size>0){
+                        LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(15.dp) ,contentPadding = PaddingValues(vertical = 5.dp)){
+                            items(items= stores){
+                                    item->
+                                Store(data =item, navController = navController)
+                            }
 
-                    LazyColumn(modifier = Modifier.fillMaxSize()){
-                        items(items= mainActivityViewModel.stores.value){
-                                item->
-                            Store(data=item, navController = navController)
+                        }}
+                    else{
+                        Column(modifier=Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
+                            Image(painter = painterResource(id = R.drawable.nostorefound) , contentDescription ="no store found" , modifier = Modifier.size(220.dp) )
                         }
 
-                    }}
-                else{
-                    Column(modifier=Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally){
-                        Image(painter = painterResource(id = R.drawable.nostorefound) , contentDescription ="no store found" , modifier = Modifier.size(220.dp) )
                     }
+                }else {
 
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically){
+                            CircularProgressIndicator(
+                                modifier=Modifier.size(16.dp),
+                                color= customColor,
+                                strokeWidth = 2.dp
+
+                            )
+                            Spacer(modifier = Modifier.width(7.dp))
+
+                            Text(
+                                text="Loading stores",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+
+
+                        }
+                    }
                 }
+
 
 
             }
@@ -769,10 +790,11 @@ navController.navigate(route="Orders")
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun searchStore(search:String?): MutableList<HashMap<String, Any>> {
+suspend fun
+        searchStore(search:String?): MutableList<HashMap<String, Any?>> {
 
     val docRef = Firebase.firestore
-    val storesList = mutableListOf<HashMap<String, Any>>()
+    val storesList = mutableListOf<HashMap<String, Any?>>()
 
     if (search != null) {
         Log.d("inside1" , "1")
@@ -781,7 +803,8 @@ suspend fun searchStore(search:String?): MutableList<HashMap<String, Any>> {
 
         if (!data.isEmpty) {
             for(document in data){
-                storesList.add(document.data as HashMap<String, Any>)
+                Log.d("res" , document.data.toString())
+                storesList.add(document.data as HashMap<String, Any?>)
             }
         }
     } else {
@@ -790,12 +813,12 @@ suspend fun searchStore(search:String?): MutableList<HashMap<String, Any>> {
         Log.d("data", data.toString())
 
         for(document in data){
-            storesList.add(document.data as HashMap<String, Any>)
+            storesList.add(document.data as HashMap<String, Any?>)
         }
     }
 
  //   mainActivityViewModel.setValue(storesList, "stores")
 
-
+Log.d("storeList", storesList.toString())
     return storesList
 }

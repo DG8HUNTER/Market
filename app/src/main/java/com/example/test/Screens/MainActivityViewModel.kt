@@ -51,7 +51,7 @@ class MainActivityViewModel {
     @SuppressLint("MutableCollectionMutableState")
     private val _stores :MutableState<MutableList<HashMap<String , Any?>>> = mutableStateOf(mutableListOf())
 
-    val stores : MutableState<MutableList<HashMap<String, Any?>>> = _stores
+    val stores : State<MutableList<HashMap<String, Any?>>> = _stores
 
     fun addToStores(newValue :HashMap<String , Any?>){
         _stores.value= addTo(_stores, document =newValue)

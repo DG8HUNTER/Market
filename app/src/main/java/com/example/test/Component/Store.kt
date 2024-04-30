@@ -3,8 +3,6 @@ package com.example.test.Component
 
 
 import android.os.Build
-import android.os.Bundle
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -28,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,14 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,7 +46,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.test.R
 import com.example.test.Screens.mainActivityViewModel
-import com.example.test.ui.theme.mediumGray
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
@@ -64,9 +57,9 @@ import java.time.format.TextStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Store(data: HashMap<String, Any? >, navController: NavController) {
+fun Store(data: HashMap<String, Any?>, navController: NavController) {
 
-    Log.d("Storessssssssssssssssssss", data.toString())
+
     val painter = rememberImagePainter(
         data = data["image"],
         builder = {}
@@ -79,12 +72,12 @@ fun Store(data: HashMap<String, Any? >, navController: NavController) {
     val today = LocalDate.now()
     val dayName = today.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
-    Log.d("dayName", dayName)
+
 
 var status :String by remember {
     mutableStateOf(data["status"].toString())
 }
-    Log.d("status var" , status.toString())
+
 
     val operatingTime = data["OperatingField"] as? HashMap<*, *>
     val todayOperatingTime = operatingTime?.get(dayName) as? HashMap<*, *>
@@ -118,14 +111,14 @@ var status :String by remember {
         if(status=="Open") {
             updateStatus(storeId = data["storeId"].toString(),status="Close")
             status="Close"
-            Log.d("status1" , status)
+
             /*  db.collection("Stores").document(data["storeId"].toString())
                    .update("status", "Close").addOnSuccessListener {
                        Log.d("Status ", "Status Updated to Close")
                        status = "Close"
                    }*/
 
-            Log.d("current Timeeee", mainActivityViewModel.currentTime.value.toString())
+
         }
     }
 
@@ -139,19 +132,26 @@ var status :String by remember {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
+                    .shadow(elevation = 10.dp, shape =RoundedCornerShape(10.dp) )
+            .clip(shape = RoundedCornerShape(10.dp))
+            .fillMaxWidth()
+            .height(100.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(10.dp),
+
+                )
+            .clickable {
+                    //  mainActivityViewModel.setValue(mutableListOf<String>("All"),"categories")
+                    navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}")
+                },
+            contentAlignment = Alignment.Center
 
 
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                  //  mainActivityViewModel.setValue(mutableListOf<String>("All"),"categories")
-                    navController.navigate(route = "StoreInfoScreen/${data["storeId"]}/${data["name"]}")
-                }) {
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -224,18 +224,8 @@ var status :String by remember {
 
 
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(5.dp)
-                        )
-                        .clip(shape = RoundedCornerShape(5.dp))
-                )
-            }
+
+
         }
 
 

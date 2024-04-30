@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -141,18 +143,24 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
     Box(
         modifier = Modifier
+            .shadow(elevation = 10.dp, shape =RoundedCornerShape(10.dp) )
+            .clip(shape = RoundedCornerShape(10.dp))
             .fillMaxWidth()
             .height(100.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(10.dp),
+
+                )
+            .clickable {   navController.navigate(route = "OrderedProductPerStoreScreen/${data["storeId"]}/${data["name"]}") },
+
+        contentAlignment = Alignment.Center
 
 
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate(route = "OrderedProductPerStoreScreen/${data["storeId"]}/${data["name"]}")
-            }) {
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -175,7 +183,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(1.dp),
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
+                        .fillMaxWidth(0.88f)
 
                 ) {
                     Text(
@@ -240,18 +248,8 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
 
 
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(5.dp)
-                    )
-                    .clip(shape = RoundedCornerShape(5.dp))
-            )
-        }
+
+
     }
 
 
