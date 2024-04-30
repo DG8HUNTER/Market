@@ -5,6 +5,9 @@ import android.content.ContentValues
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Indication
@@ -35,11 +38,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomSheetScaffold
@@ -51,13 +58,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
@@ -75,9 +86,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,6 +100,7 @@ import com.example.test.Component.Product
 import com.example.test.Functions.searchCategory
 import com.example.test.R
 import com.example.test.ui.theme.customColor
+import com.example.test.ui.theme.lightGray2
 import com.example.test.ui.theme.navyBlue
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -117,6 +132,14 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
     var categorySelected by remember {
         mutableStateOf("All")
     }
+    var search :String? by remember {
+        mutableStateOf(null)
+    }
+    val focus = LocalFocusManager.current
+
+    var clearIcon = animateColorAsState(targetValue =if(search!=null)Color.Black else Color.Transparent , label="" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
+
+
     val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(key1 = true) {
@@ -479,7 +502,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                                                 ?.toString()
                                         }"
                                     )
-                                }else {
+                                } else {
                                     navController.navigate("OrdersPerStore/${storeData!!["storeId"].toString()}")
                                 }
                             }
@@ -527,6 +550,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
         ) {
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween , modifier = Modifier.fillMaxWidth()) {
+
 
                 Row(verticalAlignment = Alignment.CenterVertically){
                     IconButton(onClick = {
@@ -577,9 +601,17 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                             )
                      {
 
-                        Surface(modifier=Modifier.size(55.dp).clip(shape = CircleShape).clickable(
-                            onClick = { navController.navigate(route = "MyShoppingCardScreen")},
-                        ).border(border = BorderStroke(width = 1.dp , color=Color.LightGray), shape = CircleShape).background(color= Color.White, shape = CircleShape), shadowElevation = 10.dp){
+                        Surface(modifier= Modifier
+                            .size(55.dp)
+                            .clip(shape = CircleShape)
+                            .clickable(
+                                onClick = { navController.navigate(route = "MyShoppingCardScreen") },
+                            )
+                            .border(
+                                border = BorderStroke(width = 1.dp, color = Color.LightGray),
+                                shape = CircleShape
+                            )
+                            .background(color = Color.White, shape = CircleShape), shadowElevation = 10.dp){
 
                             Row(verticalAlignment = Alignment.CenterVertically, modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
 
@@ -590,7 +622,9 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
 
                          Badge(modifier= Modifier
-                             .offset(x=(5).dp).clip(CircleShape).background(color= Color.Red, shape = CircleShape)
+                             .offset(x = (5).dp)
+                             .clip(CircleShape)
+                             .background(color = Color.Red, shape = CircleShape)
                              .align(Alignment.TopEnd) , contentColor = Color.White, containerColor = Color.Red){
                              Text(if(mainActivityViewModel.addToCardProduct.value.size <100)mainActivityViewModel.addToCardProduct.value.size.toString() else "+99", modifier =Modifier.padding(vertical = 2.dp))
                          }
@@ -601,6 +635,66 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                 }
 
             }
+            Spacer(modifier =Modifier.height(10.dp))
+            Box(modifier= Modifier
+                .fillMaxWidth()
+                .height(45.dp)
+                .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp))
+                .background(color = Color.White, shape = RoundedCornerShape(7.dp))
+                .clip(shape = RoundedCornerShape(7.dp))){
+
+                Row(modifier= Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 10.dp),verticalAlignment = Alignment.CenterVertically){
+
+
+
+                    OutlinedTextField(value = if(search!=null)search.toString() else "", onValueChange ={search=
+                        it.ifEmpty { null }
+                    }, modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(color = Color.White, shape = RoundedCornerShape(7.dp))
+                        .shadow(elevation = 7.dp, shape = RoundedCornerShape(7.dp)), colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        cursorColor = customColor,
+                        focusedIndicatorColor = Color.Transparent,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        unfocusedPlaceholderColor = Color.LightGray
+                    ), leadingIcon = {  Icon(imageVector =Icons.Filled.Search, contentDescription ="Search Icon" , modifier = Modifier.size(25.dp), tint = Color.Gray )},
+                        trailingIcon = {
+                            if(search!=null){
+                                IconButton(onClick = { search=null }) {
+                                    Icon(imageVector =Icons.Filled.Clear, contentDescription ="Search Icon" , modifier = Modifier.size(20.dp), tint = clearIcon.value )
+                                }
+
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                focus.clearFocus()
+
+                                //run the query
+                            }
+                        )
+
+                        )
+
+                }
+
+
+
+
+            }
+            Spacer(modifier =Modifier.height(5.dp))
+
+
             ScrollableTabRow(selectedTabIndex =if(categoryIndex>= mainActivityViewModel.categories.value.size) categoryIndex-1 else categoryIndex , modifier = Modifier.fillMaxWidth(), contentColor = customColor,   indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     modifier = Modifier
