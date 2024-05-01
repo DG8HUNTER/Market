@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
@@ -46,6 +48,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -65,6 +68,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -87,6 +91,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 
 import com.example.test.ui.theme.lightGray2
 import kotlinx.coroutines.Dispatchers
@@ -613,77 +619,91 @@ navController.navigate(route="Orders")
                 .padding(innerPadding)
                 .padding(start = 20.dp, end = 20.dp) ){
 
-                // Text(text= optionSelected , fontSize = 15.sp)
-                SearchBar(
-                    query = if(search!=null) search.toString() else "",
-                    onQueryChange = {
-                        search = if(it.isNotEmpty()){
-                            it
-                        } else {
-                            null
-                        }
-                    },
-                    onSearch ={
+                Box(modifier= Modifier
+                    .fillMaxWidth()
+                    .height(53.dp)
+                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp))
+                    .background(color = Color.White, shape = RoundedCornerShape(7.dp))
+                    .clip(shape = RoundedCornerShape(7.dp))){
 
-                    scope.launch(Dispatchers.Default){
-
-                            focus.clearFocus()
-                      val result = if(search!=null){
-                            searchStore(search)
-                        } else {
-                            mainActivityViewModel.stores.value
-                        }
+                    Row(modifier= Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp),verticalAlignment = Alignment.CenterVertically){
 
 
-                            // Process the result
-                            // Note: You can handle UI updates here based on the result if needed
-                        withContext(Dispatchers.Main) {
-                            //mainActivityViewModel.setValue(result, "stores")
-                            stores=result
-                            Log.d("stores" , stores.toString())
-                        }
 
-                        }
+                        OutlinedTextField(value = if(search!=null)search.toString() else "", onValueChange ={search=
+                            it.ifEmpty { null }
 
 
-                    } ,
-                    active = true,
-                    onActiveChange = {},
-                    modifier= Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp)
-                        .height(69.dp)
-                        .clip(shape = RoundedCornerShape(7.dp)),
-                    placeholder = { Text(text = "Search For any Store or Restaurant", fontSize = 14.sp , modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(), color = Color.Black)},
-                    colors=SearchBarDefaults.colors(
-                        containerColor = lightGray2,
-                        inputFieldColors = TextFieldDefaults.colors(
-                            cursorColor = customColor,
+                        } , modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(color = Color.White, shape = RoundedCornerShape(7.dp))
+                            .shadow(elevation = 7.dp, shape = RoundedCornerShape(7.dp)), colors = TextFieldDefaults.colors(
                             focusedTextColor = Color.Black,
+                            cursorColor = customColor,
+                            focusedIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            unfocusedPlaceholderColor = Color.LightGray
+                        ), leadingIcon = {  Icon(imageVector =Icons.Filled.Search, contentDescription ="Search Icon" , modifier = Modifier.size(25.dp), tint = Color.Gray )},
+                            trailingIcon = {
+                                if(search!=null){
+                                    IconButton(onClick = {
+                                        search=null
+                                        stores= mainActivityViewModel.stores.value.toMutableList()
+
+                                    }) {
+                                        Icon(imageVector =Icons.Filled.Clear, contentDescription ="Search Icon" , modifier = Modifier.size(20.dp), tint = clearIcon.value )
+                                    }
+
+                                }
+                            },
+
+                            placeholder = {Text(text="Search for any Store or Restaurant" , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Gray)},
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Search
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    focus.clearFocus()
+                                    scope.launch(Dispatchers.Default){
+
+                                        focus.clearFocus()
+                                        val result = if(search!=null){
+                                            searchStore(search)
+                                        } else {
+                                            mainActivityViewModel.stores.value
+                                        }
+
+
+                                        // Process the result
+                                        // Note: You can handle UI updates here based on the result if needed
+                                        withContext(Dispatchers.Main) {
+                                            //mainActivityViewModel.setValue(result, "stores")
+                                            stores=result
+                                            Log.d("stores" , stores.toString())
+                                        }
+
+                                    }
+
+
+                                    //run the query
+                                }
+                            )
 
                         )
 
-                    ),
-                    leadingIcon = {
-                        Icon(imageVector =Icons.Filled.Search, contentDescription ="" , tint = Color.Gray)
-                    },
-                    trailingIcon = {
-                        IconButton(onClick = { search=null
-
-                                stores= mainActivityViewModel.stores.value
-
-                        }) {
-                            Icon(imageVector = Icons.Filled.Clear, contentDescription = "" , tint=clearIcon.value)
-
-                        }
                     }
 
 
-                ) {
+
 
                 }
+
                 Spacer(modifier=Modifier.height(15.dp))
 
                 Box(modifier= Modifier

@@ -109,6 +109,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.checkerframework.checker.units.qual.A
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -135,6 +136,14 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
     var search :String? by remember {
         mutableStateOf(null)
     }
+
+    var toSearch :String? by remember {
+        mutableStateOf(null)
+    }
+
+    var products : MutableList <HashMap<String,Any?>>by remember {
+        mutableStateOf(mutableListOf())
+    }
     val focus = LocalFocusManager.current
 
     var clearIcon = animateColorAsState(targetValue =if(search!=null)Color.Black else Color.Transparent , label="" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
@@ -155,7 +164,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
     }
 
-    LaunchedEffect(key1 =categorySelected) {
+   /* LaunchedEffect(key1 =categorySelected) {
 
         if(categorySelected=="All"){
             scope.launch(Dispatchers.Default) {
@@ -165,7 +174,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     val data = db.collection("Products").whereEqualTo("storeId",storeId).get().await() // Fetch all documents from the "Products" collection
 
                     for (document in data) { // Iterate over each document in the query snapshot
-                         // Get the data of the current document as a map
+                        // Get the data of the current document as a map
                         if (document != null) { // Check if the data is not null
                             result.add(HashMap(document.data)) // Add a copy of the data to the result list
                         }
@@ -218,9 +227,9 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
         }
 
-    }
+    }*/
 
- val productRef= db.collection("Products")
+    val productRef= db.collection("Products")
     productRef.addSnapshotListener { snapshot, e ->
         if (e != null) {
             Log.w(ContentValues.TAG, "Listen failed.", e)
@@ -229,36 +238,73 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
         if (snapshot != null && snapshot.documents.isNotEmpty()) {
 
-            mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
+           // mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "products")
             mainActivityViewModel.setValue(mutableListOf<String>("All"), "categories")
 
-            for (document in snapshot.documents) {
+            scope.launch(Dispatchers.Default){
+                val result :MutableList<HashMap<String,Any?>> = mutableListOf()
+                for (document in snapshot.documents) {
 
-                if(document.data?.get("storeId").toString() == storeId){
-                    searchCategory(document.data?.get("category").toString())
-                }
-
-                if (categorySelected == "All") {
-                    if (document.data?.get("storeId").toString() == storeId) {
-
-                        mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)
-                    }
-                } else {
-
-                    if (document.data?.get("storeId").toString() == storeId && document.data?.get("category") == categorySelected
-                    ) {
-
-                        mainActivityViewModel.addToProducts(document.data as HashMap<String, Any?>)
+                    if(document.data?.get("storeId")==storeId){
+                        searchCategory(document.data?.get("category").toString())
+                        result.add(document.data as HashMap<String,Any?>)
                     }
 
 
                 }
+
+                withContext(Dispatchers.Main){
+                    mainActivityViewModel.setValue(result , "products")
+                }
             }
-                // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
-            }else {
-                Log.d(ContentValues.TAG, "Current data: null")
-            }
+
+
+
+
+
+            // Toast.makeText(context, "Stores Updated", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    LaunchedEffect(key1 = mainActivityViewModel.products.value ,key2= categorySelected ,key3= toSearch) {
+        scope.launch(Dispatchers.Default){
+            val new :MutableList<HashMap<String,Any?>> = mutableListOf()
+            for(product in mainActivityViewModel.products.value){
+                if(categorySelected=="All"){
+                    if(toSearch==null){
+                        new.add(product)
+                    }else {
+                        if(product["name"]==toSearch){
+                            new.add(product)
+                        }
+                    }
+
+                }else {
+                    if(product["category"].toString()==categorySelected){
+                        if(toSearch==null){
+                            new.add(product)
+                        }else {
+                            if(product["name"]==toSearch){
+                                new.add(product)
+                            }
+                        }
+
+                    }
+                }
+
+
+            }
+
+            withContext(Dispatchers.Main){
+                products= new
+            }
+
+        }
+
+
+
+
+    }
 
     val favoritesRef = db.collection("Favorites")
 
@@ -598,8 +644,8 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                         modifier = Modifier
 
 
-                            )
-                     {
+                    )
+                    {
 
                         Surface(modifier= Modifier
                             .size(55.dp)
@@ -621,13 +667,13 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                         }
 
 
-                         Badge(modifier= Modifier
-                             .offset(x = (5).dp)
-                             .clip(CircleShape)
-                             .background(color = Color.Red, shape = CircleShape)
-                             .align(Alignment.TopEnd) , contentColor = Color.White, containerColor = Color.Red){
-                             Text(if(mainActivityViewModel.addToCardProduct.value.size <100)mainActivityViewModel.addToCardProduct.value.size.toString() else "+99", modifier =Modifier.padding(vertical = 2.dp))
-                         }
+                        Badge(modifier= Modifier
+                            .offset(x = (5).dp)
+                            .clip(CircleShape)
+                            .background(color = Color.Red, shape = CircleShape)
+                            .align(Alignment.TopEnd) , contentColor = Color.White, containerColor = Color.Red){
+                            Text(if(mainActivityViewModel.addToCardProduct.value.size <100)mainActivityViewModel.addToCardProduct.value.size.toString() else "+99", modifier =Modifier.padding(vertical = 2.dp))
+                        }
 
 
                     }
@@ -638,7 +684,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
             Spacer(modifier =Modifier.height(10.dp))
             Box(modifier= Modifier
                 .fillMaxWidth()
-                .height(45.dp)
+                .height(53.dp)
                 .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp))
                 .background(color = Color.White, shape = RoundedCornerShape(7.dp))
                 .clip(shape = RoundedCornerShape(7.dp))){
@@ -651,7 +697,11 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
                     OutlinedTextField(value = if(search!=null)search.toString() else "", onValueChange ={search=
                         it.ifEmpty { null }
-                    }, modifier = Modifier
+
+                        if(it.isEmpty()){
+                            toSearch=null
+                        }
+                    } , modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(7.dp))
                         .background(color = Color.White, shape = RoundedCornerShape(7.dp))
@@ -666,12 +716,17 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     ), leadingIcon = {  Icon(imageVector =Icons.Filled.Search, contentDescription ="Search Icon" , modifier = Modifier.size(25.dp), tint = Color.Gray )},
                         trailingIcon = {
                             if(search!=null){
-                                IconButton(onClick = { search=null }) {
+                                IconButton(onClick = {
+                                    search=null
+                                    toSearch=null
+                                }) {
                                     Icon(imageVector =Icons.Filled.Clear, contentDescription ="Search Icon" , modifier = Modifier.size(20.dp), tint = clearIcon.value )
                                 }
 
                             }
                         },
+
+                        placeholder = {Text(text="Search for any product here" , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Gray)},
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Search
@@ -679,12 +734,13 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                         keyboardActions = KeyboardActions(
                             onSearch = {
                                 focus.clearFocus()
+                                toSearch=search
 
                                 //run the query
                             }
                         )
 
-                        )
+                    )
 
                 }
 
@@ -732,7 +788,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
             }*/
 
 
-            if (mainActivityViewModel.products.value.size != 0){
+            if (products.size != 0){
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxWidth(),
@@ -740,13 +796,13 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                     horizontalArrangement = Arrangement.spacedBy(15.dp),
 
-                ) {
-                   mainActivityViewModel.products.value.forEach { product ->
-                       item{Product(product  , context=context , navController = navController , storeName=storeName)}
-                   }
+                    ) {
+                    products.forEach { product ->
+                        item{Product(product  , context=context , navController = navController , storeName=storeName)}
+                    }
                 }
 
-        }
+            }
             else {
                 Column(modifier=Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text ="No product Available" , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Black)
@@ -756,7 +812,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
             }
 
-            
+
         }
 
 
@@ -768,14 +824,14 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
 
 
- /*@Composable
-     fun bottomSheetContent(){
-     Column {
-         Text("Bottom Sheet Content")
-         Button(onClick = {scope.launch{ bottomSheetState.hide()} }) {
-             Text("Close Bottom Sheet")
-         }
-     }
-     }
+/*@Composable
+    fun bottomSheetContent(){
+    Column {
+        Text("Bottom Sheet Content")
+        Button(onClick = {scope.launch{ bottomSheetState.hide()} }) {
+            Text("Close Bottom Sheet")
+        }
+    }
+    }
 
 */
