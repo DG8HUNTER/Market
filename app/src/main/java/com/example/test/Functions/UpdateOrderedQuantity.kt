@@ -22,6 +22,21 @@ import com.example.test.Screens.mainActivityViewModel
 
     }
 
+    val tProfit :Float =quantity.toString().toFloat() *  productList[index]["profitPerItem"].toString().toFloat()
+
+    val totalProfit =if(productList[index]["discount"].toString().toInt()==0){
+        tProfit
+    }else{
+        val discountPrice =tProfit * productList[index]["discount"].toString().toFloat()/100f
+        (tProfit-discountPrice)
+
+    }
+
+
+
+
+    Log.d("Card",productList.toString())
+
 
 // Create a new HashMap using the existing HashMap's contents
     val newHashMap= hashMapOf(
@@ -34,7 +49,8 @@ import com.example.test.Screens.mainActivityViewModel
         "totalPrice" to totalPrice,
         "image"  to productList[index]["image"],
         "storeId" to productList[index]["storeId"],
-        "description" to productList[index]["description"]
+        "description" to productList[index]["description"],
+        "totalProfit" to totalProfit
 
 
 

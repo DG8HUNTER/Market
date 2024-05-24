@@ -137,6 +137,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
           }
           withContext(Dispatchers.Main){
               data=productData
+              Log.d("data",data.toString())
               isLoading=false
 
           }
@@ -504,12 +505,27 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
 
                         }
+
+                        Log.d("NewProductToday",data.toString())
                         Button(onClick = {
                             scope.launch(Dispatchers.Default) {
 
                                 isAdding = true
 
                                 val newData = HashMap(data)
+
+
+                               val totalProfit = quantity.toString().toFloat()*newData["profitPerItem"].toString().toFloat()
+
+                                newData["quantity"]=quantity
+                                newData["totalProfit"] = if(newData["discount"].toString().toInt()==0){
+                                    totalProfit
+                                }else{
+                                    val discountPrice =totalProfit  *newData["discount"].toString().toFloat()/100f
+                                    (totalProfit-discountPrice)
+
+                                }
+
                                 newData["quantity"] = quantity
                                 newData["totalPrice"] = if(newData["discount"].toString().toInt()==0){
                                     newData["price"].toString().toFloat()* newData["quantity"].toString().toFloat()

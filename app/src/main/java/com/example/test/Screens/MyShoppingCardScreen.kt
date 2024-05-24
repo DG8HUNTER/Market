@@ -238,11 +238,12 @@ Log.d("an" , animateTotalToPay.value.toString())
                              val db = Firebase.firestore
                         var totalPerStore :Float = 0f
                         var items :Int =0
+                        var totalProfitPerStore :Float =0f
                         stores.forEach {store ->
                             var total=0f
                             for(data in mainActivityViewModel.addToCardProduct.value){
                                 if(data["storeId"]==store["storeId"]){
-
+                                 totalProfitPerStore+=data["totalProfit"].toString().toFloat()
                                  items+=1
 
                                     if(data["discount"].toString().toInt()==0){
@@ -277,7 +278,8 @@ Log.d("an" , animateTotalToPay.value.toString())
                                     "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                                     "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                                     "totalItems" to items,
-                                    "totalPrice" to String.format("%.2f".format(total)).toDouble()
+                                    "totalPrice" to String.format("%.2f".format(total)).toDouble(),
+                                    "totalProfit" to String.format("%.2f".format(totalProfitPerStore)).toDouble()
 
                                 )).addOnSuccessListener { document->
                                     if(document!=null){
@@ -291,7 +293,8 @@ Log.d("an" , animateTotalToPay.value.toString())
                                                   "productId" to product["productId"],
                                                   "orderId" to document.id,
                                                   "quantity" to product["quantity"],
-                                                  "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble()
+                                                  "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble(),
+                                                  "totalProfit" to String.format("%.2f".format(product["totalProfit"])).toDouble(),
 
 
                                               )

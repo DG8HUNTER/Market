@@ -1,6 +1,8 @@
 package com.example.test.Screens
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -51,6 +53,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 val mainActivityViewModel= MainActivityViewModel()
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PersonalInfo(navController: NavController ,screen:String){
 val userUid = Firebase.auth.currentUser?.uid.toString()
