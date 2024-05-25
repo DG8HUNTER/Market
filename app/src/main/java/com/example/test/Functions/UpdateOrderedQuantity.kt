@@ -14,6 +14,8 @@ import com.example.test.Screens.mainActivityViewModel
 
 
 
+
+
     val totalPrice =if(productList[index]["discount"].toString().toInt()==0){
         productList[index]["price"].toString().toFloat()* quantity.toString().toFloat()
     }else{
@@ -22,7 +24,7 @@ import com.example.test.Screens.mainActivityViewModel
 
     }
 
-    val tProfit :Float =quantity.toString().toFloat() *  productList[index]["profitPerItem"].toString().toFloat()
+    val tProfit :Float =quantity.toString().toFloat() *productList[index]["profitPerItem"].toString().toFloat()
 
     val totalProfit =if(productList[index]["discount"].toString().toInt()==0){
         tProfit
@@ -42,6 +44,7 @@ import com.example.test.Screens.mainActivityViewModel
     val newHashMap= hashMapOf(
         "productId" to productList[index]["productId"],
         "name" to productList[index]["name"],
+        "profitPerItem" to productList[index]["profitPerItem"],
         "inventory" to productList[index]["inventory"],
         "price" to productList[index]["price"],
         "discount"  to productList[index]["discount"],
