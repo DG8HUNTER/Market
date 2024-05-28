@@ -98,6 +98,31 @@ fun MyShoppingCardScreen(navController: NavController) {
         mutableIntStateOf(0)
     }
 
+    var location :String by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(key1 =true) {
+        var  loc  :String=""
+        scope.launch(Dispatchers.Default){
+            val userRef = Firebase.firestore.collection("Users").document(currentUser).get().await()
+             loc  = userRef.data?.get("Location").toString()
+
+            Log.d("Loc", loc)
+
+            withContext(Dispatchers.Main){
+                location=loc
+            }
+        }
+
+
+
+    }
+
+
+
+
+
 
 
  val animateTotalToPay = animateFloatAsState(targetValue = mainActivityViewModel.totalToPay.value , label = "" , animationSpec = tween(1000, easing = FastOutSlowInEasing))
@@ -279,7 +304,8 @@ Log.d("an" , animateTotalToPay.value.toString())
                                     "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                                     "totalItems" to items,
                                     "totalPrice" to String.format("%.2f".format(total)).toDouble(),
-                                    "totalProfit" to String.format("%.2f".format(totalProfitPerStore)).toDouble()
+                                    "totalProfit" to String.format("%.2f".format(totalProfitPerStore)).toDouble(),
+                                    "location" to location
 
                                 )).addOnSuccessListener { document->
                                     if(document!=null){
