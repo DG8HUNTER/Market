@@ -97,12 +97,13 @@ import kotlinx.coroutines.withContext
             return@addSnapshotListener
         }
 
-        if (snapshot != null) {
+        if (snapshot != null ) {
             scope.launch(Dispatchers.Default){
                 var past =0
                 var current =0
                 if (snapshot.documents.size == 0) {
                     mainActivityViewModel.setValue(mutableListOf<HashMap<String, Any>>(), "orders")
+                    isLoading=false
                 }
                 else {
 
@@ -113,7 +114,7 @@ import kotlinx.coroutines.withContext
                         if(document!=null){
                             if(document.data!!["userId"].toString()==currentUser && document.data!!["storeId"].toString()==storeId){
                                 new.add(document.data as HashMap<String,Any>)
-                                if(document.data!!["status"].toString()=="pending" ||document.data!!["status"].toString()=="processing" ){
+                                if(document.data!!["status"].toString()=="pending" ||document.data!!["status"].toString()=="processing" || document.data!!["status"].toString()=="shipped" ){
                                     current+=1
                                 }
                                 else{
@@ -246,6 +247,8 @@ import kotlinx.coroutines.withContext
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+
+
                 if(storeOrders.size!=0){
 
                     if(optionSelected=="Current Orders"){
@@ -268,7 +271,7 @@ import kotlinx.coroutines.withContext
                                storeOrders.forEach { order ->
                                     val storeData = getStore(order["storeId"].toString())
 
-                                        if (order["status"] == "pending" || order["status"] == "processing") {
+                                        if (order["status"] != "delivered" && order["status"] != "cancelled") {
                                             item {
                                                 Order(navController = navController, orderData = order, storeName=storeData["name"].toString() , storeImage = storeData["image"].toString(),context=context)
 
@@ -292,7 +295,7 @@ import kotlinx.coroutines.withContext
                                    storeOrders.forEach { order ->
                                         val storeData = getStore(order["storeId"].toString())
 
-                                            if(order["status"]!="pending" && order["status"]!="processing"){
+                                            if(order["status"]=="delivered" || order["status"]=="cancelled"){
                                                 item {
                                                     Order(
                                                         navController = navController,

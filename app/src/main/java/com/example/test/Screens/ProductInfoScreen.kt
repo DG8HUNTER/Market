@@ -518,13 +518,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                val totalProfit = quantity.toString().toFloat()*newData["profitPerItem"].toString().toFloat()
 
                                 newData["quantity"]=quantity
-                                newData["totalProfit"] = if(newData["discount"].toString().toInt()==0){
-                                    totalProfit
-                                }else{
-                                    val discountPrice =totalProfit  *newData["discount"].toString().toFloat()/100f
-                                    (totalProfit-discountPrice)
-
-                                }
+                                newData["totalProfit"] = newData["quantity"].toString().toFloat()* data["profitPerItem"].toString().toFloat()
 
                                 newData["quantity"] = quantity
                                 newData["totalPrice"] = if(newData["discount"].toString().toInt()==0){

@@ -323,6 +323,7 @@ Log.d("an" , animateTotalToPay.value.toString())
                                                   "totalProfit" to String.format("%.2f".format(product["totalProfit"])).toDouble(),
 
 
+
                                               )
 
                                               db.collection("OrderItems").add(data).addOnSuccessListener { document->

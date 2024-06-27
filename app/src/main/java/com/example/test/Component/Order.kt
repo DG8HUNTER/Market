@@ -263,11 +263,11 @@ Column(modifier=Modifier.fillMaxSize()){
             Row(verticalAlignment = Alignment.CenterVertically){
 
                 when(orderData["status"].toString()){
-                    "pending"-> Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= yellow )
-                    "processing"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= customColor )
-                    "shipped"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= blue )
+                     "pending"-> Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= yellow )
+                     "processing"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= customColor )
+                     "shipped"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= blue )
                      "cancelled"-> Icon(painter = painterResource(id =R.drawable.cancelled), contentDescription ="cancelled", modifier=Modifier.size(13.dp) , tint=Color.Red )
-                      "delivered" ->  Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint=Color.Green )
+                     "delivered" ->  Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint=Color.Green )
                 }
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(text=orderData["status"].toString(), fontSize = 14.sp,
@@ -393,6 +393,7 @@ scope.launch(Dispatchers.Default){
                     var totalPerItem =0f
                     var total = 0f
                     var items = 0
+                    var totalProfit=0f
                     var productData :HashMap<String,Any?> = hashMapOf()
                     Log.d("Ordered2" , orderedProduct.toString())
                     for (orderItem in orderedProduct){
@@ -411,6 +412,9 @@ scope.launch(Dispatchers.Default){
                                 (((productData["price"].toString().toFloat())* productData["quantity"].toString().toFloat())-discountPrice)
 
                             }
+
+                            totalProfit +=  productData["quantity"].toString().toFloat()*productData["profitPerItem"].toString().toFloat()
+
                             total+=totalPerItem
 
                         }
@@ -418,9 +422,8 @@ scope.launch(Dispatchers.Default){
                         data = hashMapOf(
                             "productId" to productData["productId"].toString(),
                             "quantity" to orderItem["quantity"].toString().toInt(),
-                            "totalPrice" to totalPerItem
-                        )
-
+                            "totalPrice" to String.format("%.2f".format(totalPerItem)).toDouble(),
+                            "totalProfit" to String.format("%.2f".format(productData["quantity"].toString().toFloat()*productData["profitPerItem"].toString().toFloat())).toDouble())
                         reorderedProduct.add(data)
 
 
@@ -440,7 +443,10 @@ scope.launch(Dispatchers.Default){
                             "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                             "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
                             "totalItems" to items,
-                            "totalPrice" to String.format("%.2f".format(total)).toDouble()
+                            "totalPrice" to String.format("%.2f".format(total)).toDouble(),
+                            "totalProfit" to String.format("%.2f".format(totalProfit)).toDouble(),
+                            "location"  to orderData["location"]
+
                         )
                     ).addOnSuccessListener { document ->
 

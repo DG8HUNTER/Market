@@ -165,9 +165,16 @@ var status :String by remember {
                                 BorderStroke(1.dp, Color.Gray),
                                 shape = CircleShape
                             ),
-                        contentScale = ContentScale.FillBounds,
+
+
+                        contentScale = ContentScale.Crop
+
 
                         )
+
+
+
+
                     Spacer(modifier = Modifier.width(10.dp))
 
                     Column(
@@ -203,6 +210,8 @@ var status :String by remember {
                                 color = Color.Gray,
                                 fontWeight = FontWeight.Medium
                             )
+
+
                         }
 
 
