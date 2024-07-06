@@ -79,7 +79,7 @@ var status :String by remember {
 }
 
 
-    val operatingTime = data["OperatingField"] as? HashMap<*, *>
+   /* val operatingTime = data["OperatingField"] as? HashMap<*, *>
     val todayOperatingTime = operatingTime?.get(dayName) as? HashMap<*, *>
 
     if (todayOperatingTime != null) {
@@ -128,7 +128,7 @@ var status :String by remember {
 
     }
 
-
+*/
 
         Box(
             modifier = Modifier
@@ -199,13 +199,13 @@ var status :String by remember {
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                painter = painterResource(id = if (status == "Open") R.drawable.open else R.drawable.close),
+                                painter = painterResource(id = if (data["status"].toString() == "Open") R.drawable.open else R.drawable.close),
                                 contentDescription = "Status Icon",
                                 modifier = Modifier.size(10.dp)
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = status,
+                                text = data["status"].toString(),
                                 fontSize = 14.sp,
                                 color = Color.Gray,
                                 fontWeight = FontWeight.Medium

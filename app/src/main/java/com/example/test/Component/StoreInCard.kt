@@ -174,7 +174,7 @@ fun StoreInCard(data: HashMap<String, Any? >, navController: NavController) {
                          BorderStroke(1.dp, Color.Gray),
                          shape = CircleShape
                      ),
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
 
                     )
                 Spacer(modifier = Modifier.width(10.dp))

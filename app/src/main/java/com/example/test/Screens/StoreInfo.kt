@@ -2,6 +2,7 @@ package com.example.test.Screens
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -151,17 +152,19 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    LaunchedEffect(key1 = true) {
-        db.collection("Stores").document(storeId).get()
-            .addOnSuccessListener { document ->
-                storeData = document.data as HashMap<String, Any?>
-            }
 
+    val docRef = db.collection("Stores").document(storeId)
+    docRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
 
-
-
-
-
+        if (snapshot != null && snapshot.exists()) {
+            storeData = snapshot.data as HashMap<String, Any?>
+        } else {
+            Log.d(TAG, "Current data: null")
+        }
     }
 
    /* LaunchedEffect(key1 =categorySelected) {

@@ -41,14 +41,17 @@ class MainActivity : ComponentActivity() {
                 val auth =Firebase.auth
                 val currentUser = auth.currentUser
                 val navController = rememberNavController()
-                val timeThread = Thread {
+
+
+
+               /* val timeThread = Thread {
                     while (true) {
                         mainActivityViewModel.setValue(LocalTime.now() , "currentTime")
 
                         Thread.sleep(1000) // Sleep for 1 second
                     }
                 }
-                timeThread.start()
+                timeThread.start()*/
 
                 if(currentUser!=null){
                     Navigation(

@@ -86,6 +86,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun ProductInfoScreen(navController: NavController , productId:String ,storeId:String , category:String, storeName:String){
   val context = LocalContext.current
+    val db = Firebase.firestore
+    var storeData: HashMap<String, Any?>? by remember {
+        mutableStateOf(null)
+    }
     var isFavorites  by remember {
         mutableStateOf(false )
     }
@@ -98,7 +102,20 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
     }
 
 
-    if(mainActivityViewModel.favorites.value.size!=0){
+    val docRef = db.collection("Stores").document(storeId)
+    docRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(ContentValues.TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null && snapshot.exists()) {
+            storeData = snapshot.data as HashMap<String, Any?>
+        } else {
+            Log.d(ContentValues.TAG, "Current data: null")
+        }
+    }
+        if(mainActivityViewModel.favorites.value.size!=0){
         isFavorites = searchElement(mainActivityViewModel.favorites.value , key ="productId" , value =productId)
     }
     else {
@@ -544,7 +561,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                             //  mainActivityViewModel.addToCardProduct(hashMapOf(data as HashMap<String,Any?> , "quantity" to 1))
 
                         },
-                            enabled = quantity != 0,
+                            enabled = quantity != 0  &&  storeData!!["status"]=="Open" ,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = customColor,
                                 disabledContainerColor = lightCustomColor,
@@ -632,7 +649,10 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                              .clip(RoundedCornerShape(7.dp))
                              .shadow(elevation = 10.dp, shape = RoundedCornerShape(7.dp)),
                          contentPadding = PaddingValues(vertical = 12.dp),
-                         shape = RectangleShape) {
+                         shape = RectangleShape ,
+
+
+                     ) {
 
 
                              Row(
