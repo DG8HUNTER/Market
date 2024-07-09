@@ -231,7 +231,8 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
                         "FirstName" to mainActivityViewModel.firstName.value,
                         "LastName" to mainActivityViewModel.lastName.value,
                         "Location" to "",
-                        "PhoneNumber" to mainActivityViewModel.phoneNumber.value
+                        "PhoneNumber" to mainActivityViewModel.phoneNumber.value,
+                        "role" to "User"
                     )
 
                     db.collection("Users").document(userUid)

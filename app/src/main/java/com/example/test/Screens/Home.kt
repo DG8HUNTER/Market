@@ -211,7 +211,8 @@ fun Home(
                            val result :MutableList<HashMap<String,Any>> = mutableListOf()
                            if(snapshot.documents.size!=0){
                                for(doc in snapshot.documents){
-                                   result.add(doc.data as HashMap<String,Any>)
+                                   if(doc.data?.get("isAuthorized")==true){
+                                   result.add(doc.data as HashMap<String,Any>)}
                                }
                            }
 
