@@ -319,7 +319,7 @@ fun OrderedProduct(data: HashMap<String, Any?>, onLeftSwipe: SwipeAction , index
                                     modifier = Modifier
                                         .clickable(
                                             enabled = quantity < data["inventory"]
-                                                .toString()
+                                                .toString().toFloat()
                                                 .toInt(),
                                             onClick = {
 

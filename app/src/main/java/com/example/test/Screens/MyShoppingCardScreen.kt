@@ -54,6 +54,7 @@ import com.example.test.Component.StoreInCard
 import com.example.test.R
 import com.example.test.ui.theme.customColor
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -333,6 +334,9 @@ Log.d("an" , animateTotalToPay.value.toString())
                                                   }
 
                                               }
+                                              val quantity = -product["quantity"].toString().toInt().toDouble()
+                                              db.collection("Products").document(product["productId"].toString()).update("inventory",
+                                                  FieldValue.increment(quantity))
                                           }
 
 

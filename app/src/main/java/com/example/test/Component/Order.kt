@@ -1,5 +1,6 @@
 package com.example.test.Component
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,9 +57,13 @@ import com.example.test.R
 import com.example.test.Screens.mainActivityViewModel
 import com.example.test.ui.theme.blue
 import com.example.test.ui.theme.customColor
+import com.example.test.ui.theme.disabled
+import com.example.test.ui.theme.lightCustomColor
+import com.example.test.ui.theme.lightGray1
 import com.example.test.ui.theme.yellow
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -65,8 +71,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import kotlin.math.pow
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -77,17 +86,52 @@ fun Order(
     storeName: String,
     storeImage: String,
     context: Context
-){
+) {
+
+    var isLoading by remember {
+
+        mutableStateOf(true)
+    }
+
+    val db = Firebase.firestore
+    var storeData: HashMap<String, Any?>? by remember {
+        mutableStateOf(null)
+    }
+    val scope = rememberCoroutineScope()
+
+    val docRef = db.collection("Stores").document(orderData["storeId"].toString())
+    docRef.addSnapshotListener { snapshot, e ->
+        if (e != null) {
+            Log.w(TAG, "Listen failed.", e)
+            return@addSnapshotListener
+        }
+
+        if (snapshot != null && snapshot.exists()) {
+            scope.launch(Dispatchers.Default) {
+                val data = snapshot.data as HashMap<String, Any?>
+                withContext(Dispatchers.Main) {
+                    storeData = data
+                    isLoading = false
+
+                }
+
+            }
+
+
+        } else {
+            Log.d(TAG, "Current data: null")
+        }
+    }
     val createdAtTimestamp = orderData["createdAt"] as Timestamp
     val createdAtDate = createdAtTimestamp.toDate()
     val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a")
     val formattedDate = sdf.format(createdAtDate)
-    val scope = rememberCoroutineScope()
-    var orderedProduct :MutableList <HashMap<String,Any?>> by remember{
+
+    var orderedProduct: MutableList<HashMap<String, Any?>> by remember {
         mutableStateOf(mutableListOf())
     }
 
-    var reOrderedProduct :MutableList<HashMap<String,Any>> by remember {
+    var reOrderedProduct: MutableList<HashMap<String, Any>> by remember {
         mutableStateOf(mutableListOf())
     }
 
@@ -109,431 +153,556 @@ fun Order(
 
 
 
-    val db=Firebase.firestore
 
 
-    LaunchedEffect(key1 =true) {
-        scope.launch(Dispatchers.Default){
-            val docs = db.collection("OrderItems").whereEqualTo("orderId",orderData["orderId"]).get().await()
-            val ordersItemData :MutableList<HashMap<String,Any?>> = mutableListOf()
-            if(docs!=null){
-                for(doc in docs){
-                       ordersItemData.add(doc.data as HashMap<String, Any?>)
+    LaunchedEffect(key1 = true) {
+        scope.launch(Dispatchers.Default) {
+            val docs =
+                db.collection("OrderItems").whereEqualTo("orderId", orderData["orderId"]).get()
+                    .await()
+            val ordersItemData: MutableList<HashMap<String, Any?>> = mutableListOf()
+            if (docs != null) {
+                for (doc in docs) {
+                    ordersItemData.add(doc.data as HashMap<String, Any?>)
 
                 }
-                    withContext(Dispatchers.Main){
-                        Log.d("Ordered1" , ordersItemData.toString())
-                        orderedProduct=ordersItemData
-                    }
+                withContext(Dispatchers.Main) {
+                    Log.d("Ordered1", ordersItemData.toString())
+                    orderedProduct = ordersItemData
+
+                }
             }
         }
 
     }
 
-    Box(modifier= Modifier
-        .fillMaxWidth()
-        .shadow(elevation = 10.dp, shape = RoundedCornerShape(12.dp))
-        .height(230.dp)
-        .clip(RoundedCornerShape(12.dp))
-        .background(
-            color = Color.White, shape = RoundedCornerShape(7.dp)
-
-        )){
-        val painter = rememberImagePainter(data =storeImage
-        )
-Column(modifier=Modifier.fillMaxSize()){
 
 
-        Row(modifier= Modifier
-            .fillMaxWidth()
-            .height(90.dp)
-            .padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painter, contentDescription = "store image",
-                modifier = Modifier
-                    .size(60.dp)
-                    .border(BorderStroke(width = 1.dp, color = Color.Gray), shape = CircleShape)
-                    .clip(
-                        CircleShape
-                    ),
 
-                contentScale = ContentScale.Fit,
+    if (isLoading == false) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 10.dp, shape = RoundedCornerShape(12.dp))
+                .height(230.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    color = Color.White, shape = RoundedCornerShape(7.dp)
+
+                )
+        ) {
+            val painter = rememberImagePainter(
+                data = storeImage
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 5.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .padding(10.dp), verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painter, contentDescription = "store image",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .border(
+                                BorderStroke(width = 1.dp, color = Color.Gray),
+                                shape = CircleShape
+                            )
+                            .clip(
+                                CircleShape
+                            ),
+
+                        contentScale = ContentScale.Fit,
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 5.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Order From : ",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Gray
+                                )
+                                Text(
+                                    text = storeName,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { navController.navigate(route = "OrderInfoScreen/${orderData["orderId"]}") },
+                                modifier = Modifier.size(25.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.KeyboardArrowRight,
+                                    contentDescription = "arrow right",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = customColor
+                                )
+
+
+                            }
+
+
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            Text(
+                                "Order Id : ",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = orderData["orderId"].toString(),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            Text(
+                                "Order In : ",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = formattedDate.toString(),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                        }
+
+                    }
+
+
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp), verticalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = "Order From : ",
-                            fontSize = 14.sp,
+                            text = "Items : (${orderData["totalItems"]} items)", fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Gray
                         )
                         Text(
-                            text = storeName,
-                            fontSize = 14.sp,
+                            text = "${orderData["totalPrice"].toString()} $", fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
-                    }
-
-                    IconButton(onClick = {navController.navigate(route = "OrderInfoScreen/${orderData["orderId"]}") }, modifier = Modifier.size(25.dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowRight,
-                            contentDescription = "arrow right",
-                            modifier = Modifier.size(18.dp),
-                            tint = customColor
-                        )
-
 
                     }
 
-
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-
-                    Text(
-                        "Order Id : ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = orderData["orderId"].toString(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(color = Color.LightGray)
+                            .clip(shape = RoundedCornerShape(5.dp))
                     )
 
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-
-                    Text(
-                        "Order In : ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text =formattedDate.toString(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-
-                }
-
-            }
-
-
-        }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp)
-        , verticalArrangement = Arrangement.spacedBy(7.dp)
-    ) {
-        Row(modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween){
-            Text(text ="Items : (${orderData["totalItems"]} items)",   fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray)
-            Text(text="${orderData["totalPrice"].toString()} $", fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-        }
-
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(color = Color.LightGray)
-            .clip(shape = RoundedCornerShape(5.dp)))
-
-       Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
-
-            Text(text ="Status :",fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray)
-            Row(verticalAlignment = Alignment.CenterVertically){
-
-                when(orderData["status"].toString()){
-                     "pending"-> Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= yellow )
-                     "processing"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= customColor )
-                     "shipped"->Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint= blue )
-                     "cancelled"-> Icon(painter = painterResource(id =R.drawable.cancelled), contentDescription ="cancelled", modifier=Modifier.size(13.dp) , tint=Color.Red )
-                     "delivered" ->  Icon(painter = painterResource(id = R.drawable.circle), contentDescription ="pending",modifier=Modifier.size(13.dp),tint=Color.Green )
-                }
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(text=orderData["status"].toString(), fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-            }
-
-        }
-
-        Row(modifier=Modifier.fillMaxSize() , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
-
-            Button(modifier= Modifier
-                .width(140.dp)
-                .clip(RoundedCornerShape(7.dp))
-                .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(8.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-
-                onClick = {
-
-                    isAdding=true
-scope.launch(Dispatchers.Default){
-    val addToBasket :MutableList <HashMap<String,Any?>> = mutableListOf()
-    var data : HashMap<String,Any?> = hashMapOf()
-    for(order in orderedProduct){
-        var totalPerItem =0f
-        val quantity = order["quantity"]
-
-
-        val productData = db.collection("Products").document(order["productId"].toString()).get().await()
-
-        if(productData!=null){
-            totalPerItem =  if(productData["discount"].toString().toInt()==0){
-                productData["price"].toString().toFloat()* quantity.toString().toFloat()
-            }else{
-
-                val discountPrice =(((productData["price"].toString().toFloat())* quantity.toString().toFloat())) *(productData["discount"].toString().toFloat()/100f)
-                (((productData["price"].toString().toFloat())* quantity.toString().toFloat())-discountPrice)
-
-            }
-
-        }
-
-        data = productData.data as HashMap<String,Any?>
-        data["quantity"]=quantity
-        data["totalPrice"] =totalPerItem
-
-        addToBasket.add(data)
-
-    }
-
-    withContext(Dispatchers.Main){
-        delay(1000)
-        mainActivityViewModel.setValue(addToBasket , "addToCardProduct")
-        isAdding=false
-        Toast.makeText(context , "All  product added successfully !" , Toast.LENGTH_SHORT).show()
-
-    }
-
-}
-
-
-
-
-                }){
-
-                if (!isAdding) {
                     Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Icon(
-                            painterResource(id = R.drawable.addtoshoppingcard),
-                            contentDescription = "Cart button icon",
-                            modifier = Modifier.size(20.dp)
-                        )
 
                         Text(
-                            text = "Add to cart",
-                            Modifier.padding(start = 10.dp),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            text = "Status :", fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Gray
                         )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            when (orderData["status"].toString()) {
+                                "pending" -> Icon(
+                                    painter = painterResource(id = R.drawable.circle),
+                                    contentDescription = "pending",
+                                    modifier = Modifier.size(13.dp),
+                                    tint = yellow
+                                )
+
+                                "processing" -> Icon(
+                                    painter = painterResource(id = R.drawable.circle),
+                                    contentDescription = "pending",
+                                    modifier = Modifier.size(13.dp),
+                                    tint = customColor
+                                )
+
+                                "shipped" -> Icon(
+                                    painter = painterResource(id = R.drawable.circle),
+                                    contentDescription = "pending",
+                                    modifier = Modifier.size(13.dp),
+                                    tint = blue
+                                )
+
+                                "cancelled" -> Icon(
+                                    painter = painterResource(id = R.drawable.cancelled),
+                                    contentDescription = "cancelled",
+                                    modifier = Modifier.size(13.dp),
+                                    tint = Color.Red
+                                )
+
+                                "delivered" -> Icon(
+                                    painter = painterResource(id = R.drawable.circle),
+                                    contentDescription = "pending",
+                                    modifier = Modifier.size(13.dp),
+                                    tint = Color.Green
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                text = orderData["status"].toString(), fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                        }
+
                     }
-                } else {
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = customColor,
-                            strokeWidth = 2.dp
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                        )
+                        Button(modifier = Modifier.width(140.dp),
+                            contentPadding = PaddingValues(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = customColor,
+                                disabledContainerColor = lightCustomColor,
+                                disabledContentColor = Color.White
+                            ),
+                            enabled = if (storeData != null) storeData!!["isAuthorized"] as Boolean else true,
 
-                        Text(
-                            text = "Adding",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                        Spacer(modifier = Modifier.width(7.dp))
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
+                            onClick = {
 
-                        )
+                                isAdding = true
+                                scope.launch(Dispatchers.Default) {
+                                    val addToBasket: MutableList<HashMap<String, Any?>> =
+                                        mutableListOf()
+                                    var data: HashMap<String, Any?> = hashMapOf()
+                                    for (order in orderedProduct) {
+                                        var totalPerItem = 0f
+                                        val quantity = order["quantity"]
 
+
+                                        val productData = db.collection("Products")
+                                            .document(order["productId"].toString()).get().await()
+
+                                        if (productData != null) {
+                                            totalPerItem = if (productData["discount"].toString()
+                                                    .toInt() == 0
+                                            ) {
+                                                productData["price"].toString()
+                                                    .toFloat() * quantity.toString().toFloat()
+                                            } else {
+
+                                                val discountPrice =
+                                                    (((productData["price"].toString()
+                                                        .toFloat()) * quantity.toString()
+                                                        .toFloat())) * (productData["discount"].toString()
+                                                        .toFloat() / 100f)
+                                                (((productData["price"].toString()
+                                                    .toFloat()) * quantity.toString()
+                                                    .toFloat()) - discountPrice)
+
+                                            }
+
+                                        }
+
+                                        data = productData.data as HashMap<String, Any?>
+                                        data["quantity"] = quantity
+                                        data["totalPrice"] = totalPerItem
+
+                                        addToBasket.add(data)
+
+                                    }
+
+                                    withContext(Dispatchers.Main) {
+                                        delay(1000)
+                                        mainActivityViewModel.setValue(
+                                            addToBasket,
+                                            "addToCardProduct"
+                                        )
+                                        isAdding = false
+                                        Toast.makeText(
+                                            context,
+                                            "All  product added successfully !",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+
+                                    }
+
+                                }
+
+
+                            }) {
+
+                            if (!isAdding) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center,
+
+                                    ) {
+                                    Icon(
+                                        painterResource(id = R.drawable.addtoshoppingcard),
+                                        contentDescription = "Cart button icon",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = Color.White
+                                    )
+
+                                    Text(
+                                        text = "Add to cart",
+                                        Modifier.padding(start = 10.dp),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
+                                }
+                            } else {
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = customColor,
+                                        strokeWidth = 2.dp
+
+                                    )
+
+                                    Text(
+                                        text = "Adding",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(7.dp))
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+
+                                    )
+
+
+                                }
+
+
+                            }
+
+                        }
+                        Button(
+                            onClick = {
+                                isReordering = true
+
+                                scope.launch(Dispatchers.Default) {
+                                    val reorderedProduct: MutableList<HashMap<String, Any>> =
+                                        mutableListOf()
+                                    delay(1000)
+                                    var orders: MutableList<HashMap<String, Any>> = mutableListOf()
+                                    var data: HashMap<String, Any> = hashMapOf()
+                                    var totalPerItem = 0f
+                                    var total = 0f
+                                    var items = 0
+                                    var totalProfit = 0f
+                                    val decimalPlaces = 2
+                                    val multiplier =
+                                        Math.pow(10.0, decimalPlaces.toDouble()).toFloat()
+
+                                    var productData: HashMap<String, Any?> = hashMapOf()
+                                    Log.d("Ordered2", orderedProduct.toString())
+                                    for (orderItem in orderedProduct) {
+
+                                        Log.d("like", orderItem.toString())
+                                        items += 1
+                                        val product = db.collection("Products")
+                                            .document(orderItem["productId"].toString()).get()
+                                            .await()
+                                        if (product != null) {
+                                            productData = product.data as HashMap<String, Any?>
+                                            productData["quantity"] =
+                                                orderItem["quantity"].toString().toInt()
+                                            totalPerItem = if (productData["discount"].toString()
+                                                    .toInt() == 0
+                                            ) {
+                                                productData["price"].toString()
+                                                    .toFloat() * productData["quantity"].toString()
+                                                    .toFloat()
+                                            } else {
+
+                                                val discountPrice =
+                                                    (((productData["price"].toString()
+                                                        .toFloat()) * productData["quantity"].toString()
+                                                        .toFloat())) * (productData["discount"].toString()
+                                                        .toFloat() / 100f)
+                                                (((productData["price"].toString()
+                                                    .toFloat()) * productData["quantity"].toString()
+                                                    .toFloat()) - discountPrice)
+
+                                            }
+
+                                            totalProfit += productData["quantity"].toString()
+                                                .toFloat() * productData["profitPerItem"].toString()
+                                                .toFloat()
+
+                                            total += totalPerItem
+
+                                        }
+
+                                        data = hashMapOf(
+                                            "productId" to productData["productId"].toString(),
+                                            "quantity" to orderItem["quantity"].toString().toInt(),
+                                            "totalPrice" to String.format("%.2f".format(totalPerItem))
+                                                .toDouble(),
+                                            "totalProfit" to String.format(
+                                                "%.2f".format(
+                                                    productData["quantity"].toString()
+                                                        .toFloat() * productData["profitPerItem"].toString()
+                                                        .toFloat()
+                                                )
+                                            ).toDouble()
+                                        )
+                                        reorderedProduct.add(data)
+
+
+                                    }
+
+                                    Log.d("reordered", reorderedProduct.toString())
+                                    val currentDateTime = LocalDateTime.now()
+                                    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+                                    db.collection("Orders").add(
+                                        hashMapOf(
+                                            "orderId" to "",
+                                            "userId" to currentUser,
+                                            "status" to "pending",
+                                            "storeId" to orderData["storeId"],
+                                            "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
+                                            "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
+                                            "totalItems" to items,
+                                            "totalPrice" to String.format("%.2f".format(total)).toDouble(),
+                                            "totalProfit" to String.format("%.2f".format(totalProfit)).toDouble(),
+                                            "location" to orderData["location"]
+
+                                        )
+                                    ).addOnSuccessListener { document ->
+
+                                        db.collection("Orders").document(document.id)
+                                            .update("orderId", document.id)
+
+                                        for (order in reorderedProduct) {
+                                            Log.d("reordered4", order.toString())
+                                            val toOrder: HashMap<String, Any> = order
+                                            toOrder["orderId"] = document.id
+                                            toOrder["orderItemId"] = ""
+                                            Log.d("toOrder", toOrder.toString())
+
+                                            db.collection("OrderItems").add(toOrder)
+                                                .addOnSuccessListener { doc ->
+                                                    db.collection("OrderItems").document(doc.id)
+                                                        .update("orderItemId", doc.id)
+                                                }
+
+                                            val quantity = -order["quantity"].toString().toInt().toDouble()
+                                            db.collection("Products").document(order["productId"].toString()).update("inventory",
+                                                FieldValue.increment(quantity))
+
+                                        }
+
+
+
+
+                                    }
+
+                                    withContext(Dispatchers.Main) {
+                                        isReordering = false
+                                    }
+
+
+                                }
+
+
+                            },
+
+                            modifier = Modifier.width(140.dp),
+                            contentPadding = PaddingValues(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = customColor,
+                                disabledContainerColor = lightCustomColor,
+                                disabledContentColor = Color.White
+                            ),
+                            enabled = if (storeData != null) storeData!!["isAuthorized"] as Boolean else true,
+
+                            ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                if (isReordering) {
+                                    CircularProgressIndicator(
+                                        color = Color.White,
+                                        strokeWidth = 3.dp,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Filled.Refresh,
+                                        contentDescription = "",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    if (isReordering) "Reordering" else "Reorder",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+
+
+                        }
 
                     }
 
 
                 }
-
             }
-            Button(onClick = {
-                isReordering = true
 
-                scope.launch(Dispatchers.Default){
-                    val reorderedProduct :MutableList<HashMap<String,Any>>  = mutableListOf()
-                    delay(1000)
-                    var orders :MutableList<HashMap<String,Any>> = mutableListOf()
-                    var data :HashMap<String,Any> = hashMapOf()
-                    var totalPerItem =0f
-                    var total = 0f
-                    var items = 0
-                    var totalProfit=0f
-                    var productData :HashMap<String,Any?> = hashMapOf()
-                    Log.d("Ordered2" , orderedProduct.toString())
-                    for (orderItem in orderedProduct){
-
-                        Log.d("like" , orderItem.toString())
-                        items+=1
-                        val product = db.collection("Products").document(orderItem["productId"].toString()).get().await()
-                        if(product!=null){
-                             productData = product.data as HashMap<String,Any?>
-                            productData["quantity"] = orderItem["quantity"].toString().toInt()
-                            totalPerItem =  if(productData["discount"].toString().toInt()==0){
-                                productData["price"].toString().toFloat()* productData["quantity"].toString().toFloat()
-                            }else{
-
-                                val discountPrice =(((productData["price"].toString().toFloat())* productData["quantity"].toString().toFloat())) *(productData["discount"].toString().toFloat()/100f)
-                                (((productData["price"].toString().toFloat())* productData["quantity"].toString().toFloat())-discountPrice)
-
-                            }
-
-                            totalProfit +=  productData["quantity"].toString().toFloat()*productData["profitPerItem"].toString().toFloat()
-
-                            total+=totalPerItem
-
-                        }
-
-                        data = hashMapOf(
-                            "productId" to productData["productId"].toString(),
-                            "quantity" to orderItem["quantity"].toString().toInt(),
-                            "totalPrice" to String.format("%.2f".format(totalPerItem)).toDouble(),
-                            "totalProfit" to String.format("%.2f".format(productData["quantity"].toString().toFloat()*productData["profitPerItem"].toString().toFloat())).toDouble())
-                        reorderedProduct.add(data)
-
-
-
-                    }
-
-                    Log.d("reordered" , reorderedProduct.toString())
-                    val currentDateTime = LocalDateTime.now()
-                    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-
-                    db.collection("Orders").add(
-                        hashMapOf(
-                            "orderId" to "",
-                            "userId" to currentUser,
-                            "status" to "pending",
-                            "storeId" to orderData["storeId"],
-                            "createdAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
-                            "updatedAt" to dateFormat.parse("${currentDateTime.dayOfMonth}-${currentDateTime.monthValue}-${currentDateTime.year} ${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}"),
-                            "totalItems" to items,
-                            "totalPrice" to String.format("%.2f".format(total)).toDouble(),
-                            "totalProfit" to String.format("%.2f".format(totalProfit)).toDouble(),
-                            "location"  to orderData["location"]
-
-                        )
-                    ).addOnSuccessListener { document ->
-
-                        db.collection("Orders").document(document.id).update("orderId", document.id)
-
-                        for (order in reorderedProduct){
-                            Log.d("reordered4",order.toString())
-                            val toOrder :HashMap<String,Any> = order
-                            toOrder["orderId"] =  document.id
-                            toOrder["orderItemId"] = ""
-                            Log.d("toOrder",toOrder.toString())
-
-                            db.collection("OrderItems").add(toOrder).addOnSuccessListener { doc ->
-                                db.collection("OrderItems").document(doc.id).update("orderItemId", doc.id)
-                            }
-                        }
-
-
-
-                    }
-
-                    withContext(Dispatchers.Main){
-                        isReordering=false
-                    }
-
-
-
-
-
-
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-            } , modifier= Modifier
-                .width(140.dp)
-                .clip(RoundedCornerShape(7.dp))
-                .background(color = customColor, shape = RoundedCornerShape(7.dp)), contentPadding = PaddingValues(8.dp) , colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)){
-Row(modifier=Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center){
-    if(isReordering){
-        CircularProgressIndicator(
-            color = Color.White,
-            strokeWidth = 3.dp,
-            modifier = Modifier.size(16.dp)
-        )
-
-    }
-    else {
-        Icon(imageVector= Icons.Filled.Refresh, contentDescription ="" , tint=Color.White , modifier=Modifier.size(20.dp))
-    }
-
-    Spacer(modifier = Modifier.width(5.dp))
-    Text(if (isReordering)"Reordering" else "Reorder" , fontWeight = FontWeight.Bold , fontSize = 16.sp)
-}
-
-
-
-            }
 
         }
 
 
-
     }
-        }
-
-
-
-
-
-
-
-    }
-
-
-
 }
-
+fun roundToTwoDecimalPlaces(number: Float): Float {
+    return BigDecimal(number.toDouble())
+        .setScale(2, RoundingMode.HALF_EVEN)
+        .toFloat()
+}
 
 /*
 @Preview

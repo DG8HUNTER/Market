@@ -211,9 +211,9 @@ fun Home(
                            val result :MutableList<HashMap<String,Any>> = mutableListOf()
                            if(snapshot.documents.size!=0){
                                for(doc in snapshot.documents){
-                                   if(doc.data?.get("isAuthorized")==true){
+
                                    result.add(doc.data as HashMap<String,Any>)}
-                               }
+
                            }
 
                            withContext(Dispatchers.Main){
@@ -285,19 +285,23 @@ fun Home(
         }
 
         if (snapshot != null ) {
+            if(snapshot.documents.size>0) {
 
 
-                val list :MutableList<HashMap<String,Any>> = mutableListOf()
+                val list: MutableList<HashMap<String, Any>> = mutableListOf()
 
-                 for(doc in snapshot.documents){
-                     list.add(doc.data as HashMap<String ,Any>)
+                for (doc in snapshot.documents) {
+                    list.add(doc.data as HashMap<String, Any>)
 
-                 }
-
-
-                     mainActivityViewModel.setValue(list.toMutableList(),"orders")
+                }
 
 
+                mainActivityViewModel.setValue(list.toMutableList(), "orders")
+
+            }else {
+
+                mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(),"orders")
+            }
 
         }
 
@@ -734,7 +738,8 @@ navController.navigate(route="Orders")
                         LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(15.dp) ,contentPadding = PaddingValues(vertical = 5.dp)){
                             items(items= stores){
                                     item->
-                                Store(data =item, navController = navController)
+                                if(item["isAuthorized"]==true){
+                                Store(data =item, navController = navController)}
                             }
 
                         }}
