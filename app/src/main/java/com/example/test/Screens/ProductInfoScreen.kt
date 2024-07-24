@@ -172,7 +172,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
         LaunchedEffect(key1 =quantity) {
 
-            if(quantity > data["inventory"].toString().toInt()){
+            if(quantity > data["inventory"].toString().toDouble()){
                 quantity=data["inventory"].toString().toInt()
 
             }
@@ -212,10 +212,10 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = if (data["inventory"].toString()
-                                .toInt() > 0
+                                .toDouble() > 0
                         ) "In Stock" else "Out of Stock",
                         color = if (data["inventory"].toString()
-                                .toInt() > 0
+                                .toDouble() > 0
                         ) Color(0xFF008000) else Color.Red,
                         fontWeight = FontWeight.Normal
                     )
@@ -368,7 +368,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
             }
 
-            if (data["inventory"].toString().toInt() > 0){
+            if (data["inventory"].toString().toDouble() > 0){
 
                 if(!SearchForOrderedProduct(data["productId"].toString())) {
 
@@ -497,7 +497,7 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                     .clickable(
                                         enabled = quantity <= data["inventory"]
                                             .toString()
-                                            .toInt(),
+                                            .toDouble(),
                                         onClick = { quantity += 1 })
                                     .background(
                                         color = customColor,
@@ -533,6 +533,8 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
 
 
                                val totalProfit = quantity.toString().toFloat()*newData["profitPerItem"].toString().toFloat()
+
+                                newData["totalProfit"]=totalProfit
 
                                 newData["quantity"]=quantity
                                 newData["totalProfit"] = newData["quantity"].toString().toFloat()* data["profitPerItem"].toString().toFloat()

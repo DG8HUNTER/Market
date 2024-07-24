@@ -142,6 +142,8 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
         mutableStateOf(null)
     }
 
+    Log.d("ToSearch" , toSearch.toString())
+
     var products : MutableList <HashMap<String,Any?>>by remember {
         mutableStateOf(mutableListOf())
     }
@@ -277,7 +279,9 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                     if(toSearch==null){
                         new.add(product)
                     }else {
+                        Log.d("productName" , (product["name"].toString()==toSearch).toString())
                         if(product["name"]==toSearch){
+                            Log.d("productName" , product["name"].toString())
                             new.add(product)
                         }
                     }
@@ -288,6 +292,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
                             new.add(product)
                         }else {
                             if(product["name"]==toSearch){
+                                Log.d("productName" , product["name"].toString())
                                 new.add(product)
                             }
                         }
@@ -300,6 +305,7 @@ fun StoreInfo(navController: NavController, storeId:String , storeName:String) {
 
             withContext(Dispatchers.Main){
                 products= new
+                Log.d("products" , products.toString())
             }
 
         }

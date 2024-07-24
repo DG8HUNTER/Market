@@ -24,15 +24,9 @@ import com.example.test.Screens.mainActivityViewModel
 
     }
 
-    val tProfit :Float =quantity.toString().toFloat() *productList[index]["profitPerItem"].toString().toFloat()
+    val totalProfit :Float =quantity.toString().toFloat() *productList[index]["profitPerItem"].toString().toFloat()
 
-    val totalProfit =if(productList[index]["discount"].toString().toInt()==0){
-        tProfit
-    }else{
-        val discountPrice =tProfit * productList[index]["discount"].toString().toFloat()/100f
-        (tProfit-discountPrice)
 
-    }
 
 
 

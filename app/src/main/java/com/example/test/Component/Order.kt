@@ -432,10 +432,12 @@ fun Order(
                                             }
 
                                         }
+                                        val totalProfit = quantity.toString().toFloat()*productData["profitPerItem"].toString().toFloat()
 
                                         data = productData.data as HashMap<String, Any?>
                                         data["quantity"] = quantity
                                         data["totalPrice"] = totalPerItem
+                                        data["totalProfit"]=totalProfit
 
                                         addToBasket.add(data)
 

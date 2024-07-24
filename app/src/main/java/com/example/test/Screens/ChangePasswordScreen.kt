@@ -162,7 +162,7 @@ fun ChangePasswordScreen(navController: NavController){
 
                 }
                 Text(
-                    text = "Password Reset" ,
+                    text = "Password Change" ,
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -472,7 +472,7 @@ fun ChangePasswordScreen(navController: NavController){
                 ) {
                     Row {
                         Text(
-                            text = if(resettingState) "Resetting" else "Reset Password",
+                            text = if(resettingState) "Changing" else "Change Password",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White

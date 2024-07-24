@@ -72,6 +72,11 @@ fun Navigation(
 
 
         }
+        composable(route = "ResetPassword") {
+            ResetPassword(navController = navController)
+
+
+        }
 
         composable(route = "SignInScreen") {
             SignInScreen(navController = navController)

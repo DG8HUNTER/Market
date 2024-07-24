@@ -139,13 +139,13 @@ val userUid = Firebase.auth.currentUser?.uid.toString()
 
     ){
         Row(modifier=Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.spacedBy(5.dp) , verticalAlignment = Alignment.CenterVertically){
-           if(screen!="SignUp") {IconButton(onClick = { navController.popBackStack()
+           IconButton(onClick = { navController.popBackStack()
 
            }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription ="Arrow Back" )}
 
                 Text(text="Personal Info" , fontSize = 25.sp , fontWeight = FontWeight.Bold)
-            }
+
         }
 
 

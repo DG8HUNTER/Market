@@ -60,6 +60,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -125,8 +126,13 @@ fun Home(
         )
     }
 
+
+
     var location by remember {
         mutableStateOf(userInfo["Location"])
+    }
+    var authorizedStores by remember {
+        mutableIntStateOf(0)
     }
     val db = Firebase.firestore
 
@@ -207,17 +213,24 @@ fun Home(
 
                 if (snapshot != null) {
                    if(snapshot.documents.size!=0){
+                       var authorized =0
                        scope.launch(Dispatchers.Default){
                            val result :MutableList<HashMap<String,Any>> = mutableListOf()
                            if(snapshot.documents.size!=0){
                                for(doc in snapshot.documents){
 
-                                   result.add(doc.data as HashMap<String,Any>)}
+                                   result.add(doc.data as HashMap<String,Any>)
+                                   if((doc.data as HashMap<String, Any>)["isAuthorized"] ==true){
+                                       authorized+=1
+                                   }
+                               }
+
 
                            }
 
                            withContext(Dispatchers.Main){
                                mainActivityViewModel.setValue(result,"stores")
+                               authorizedStores=authorized
 
                                delay(1000)
                                isLoading=false
@@ -297,10 +310,8 @@ fun Home(
 
 
                 mainActivityViewModel.setValue(list.toMutableList(), "orders")
+                Log.d("orders11" , mainActivityViewModel.orders.value.toString())
 
-            }else {
-
-                mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>(),"orders")
             }
 
         }
@@ -733,7 +744,7 @@ navController.navigate(route="Orders")
 
 
                 if(!isLoading){
-                    if(stores.size>0){
+                    if(authorizedStores>0){
 
                         LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(15.dp) ,contentPadding = PaddingValues(vertical = 5.dp)){
                             items(items= stores){
