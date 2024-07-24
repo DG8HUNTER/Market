@@ -3,6 +3,7 @@ package com.example.test.Functions
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+
 import com.example.test.Screens.mainActivityViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -10,6 +11,7 @@ import com.example.test.Screens.mainActivityViewModel
 
     fun updateOrderedQuantity(index: Int, quantity: Int) {
         val productList = mainActivityViewModel.addToCardProduct.value.toMutableList()
+    val product = productList[index]
 
 
 
@@ -24,7 +26,15 @@ import com.example.test.Screens.mainActivityViewModel
 
     }
 
-    val totalProfit :Float =quantity.toString().toFloat() *productList[index]["profitPerItem"].toString().toFloat()
+    val totalProfit =  if(product["discount"].toString().toInt()==0){
+        quantity.toString().toFloat()*product["profitPerItem"].toString().toFloat()
+    }else {
+        val unitPrice = product["price"].toString().toFloat()- product["profitPerItem"].toString().toFloat()
+        val priceAfterDiscount= product["price"].toString().toFloat()-(product["price"].toString().toFloat()* (product["discount"].toString().toFloat()/100f))
+        Log.d("unitPrice", unitPrice.toString())
+        Log.d("priceAfterDiscount", priceAfterDiscount.toString())
+        (priceAfterDiscount-unitPrice)*quantity.toString().toFloat()
+    }
 
 
 

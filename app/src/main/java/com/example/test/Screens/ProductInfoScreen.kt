@@ -532,13 +532,23 @@ fun ProductInfoScreen(navController: NavController , productId:String ,storeId:S
                                 val newData = HashMap(data)
 
 
-                               val totalProfit = quantity.toString().toFloat()*newData["profitPerItem"].toString().toFloat()
+                               val totalProfit =  if(newData["discount"].toString().toInt()==0){
+                                   quantity.toString().toFloat()*newData["profitPerItem"].toString().toFloat()
+                               }else {
+                                   val unitPrice = newData["price"].toString().toFloat()-data["profitPerItem"].toString().toFloat()
+                                   val priceAfterDiscount= newData["price"].toString().toFloat()-(newData["price"].toString().toFloat()* (newData["discount"].toString().toFloat()/100f))
+                                   Log.d("unitPrice", unitPrice.toString())
+                                   Log.d("priceAfterDiscount", priceAfterDiscount.toString())
+                                   (priceAfterDiscount-unitPrice)*quantity.toString().toFloat()
+                               }
+
+                                Log.d("totalProfit" , totalProfit.toString())
+
 
                                 newData["totalProfit"]=totalProfit
 
                                 newData["quantity"]=quantity
-                                newData["totalProfit"] = newData["quantity"].toString().toFloat()* data["profitPerItem"].toString().toFloat()
-
+                                
                                 newData["quantity"] = quantity
                                 newData["totalPrice"] = if(newData["discount"].toString().toInt()==0){
                                     newData["price"].toString().toFloat()* newData["quantity"].toString().toFloat()
