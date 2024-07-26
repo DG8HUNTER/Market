@@ -626,7 +626,7 @@ fun SignInScreen(navController: NavController){
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
                                     modifier = Modifier.size(16.dp),
-                                    color = Green
+                                    color = customColor
                                 )
                             }
                         }

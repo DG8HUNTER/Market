@@ -678,7 +678,7 @@ navController.navigate(route="Orders")
                                 }
                             },
 
-                            placeholder = {Text(text="Search for any Store or Restaurant" , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Gray)},
+                            placeholder = {Text(text="Search for any Store " , fontSize = 16.sp , fontWeight = FontWeight.Medium , color=Color.Gray)},
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Search

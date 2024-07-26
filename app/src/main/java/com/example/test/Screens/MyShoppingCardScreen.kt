@@ -310,37 +310,81 @@ Log.d("an" , animateTotalToPay.value.toString())
 
                                 )).addOnSuccessListener { document->
                                     if(document!=null){
-                                        db.collection("Orders").document(document.id).update("orderId" , document.id)
-                                        mainActivityViewModel.addToCardProduct.value.forEach { product ->
-                                            Log.d("Product", product.toString())
-                                          if(product["storeId".toString()]==store["storeId"]){
+                                        db.collection("Orders").document(document.id).update("orderId" , document.id).addOnSuccessListener {
+                                            Log.d("addToCartProduct" , mainActivityViewModel.addToCardProduct.value.toString())
+                                                Log.d("stores" , stores.toString())
+                                            scope.launch(Dispatchers.Default){
+                                                mainActivityViewModel.addToCardProduct.value.forEach { product ->
+                                                    Log.d("Product", product.toString())
+                                                    if (product["storeId"] == store["storeId"]) {
 
-                                              val data = hashMapOf(
-                                                  "orderItemId" to "",
-                                                  "productId" to product["productId"],
-                                                  "orderId" to document.id,
-                                                  "quantity" to product["quantity"],
-                                                  "totalPrice" to String.format("%.2f".format(product["totalPrice"])).toDouble(),
-                                                  "totalProfit" to String.format("%.2f".format(product["totalProfit"])).toDouble(),
-
-
-
-                                              )
-
-                                              db.collection("OrderItems").add(data).addOnSuccessListener { document->
-                                                  if(document!=null){
-                                                      db.collection("OrderItems").document(document.id).update("orderItemId",document.id)
-
-                                                  }
-
-                                              }
-                                              val quantity = -product["quantity"].toString().toInt().toDouble()
-                                              db.collection("Products").document(product["productId"].toString()).update("inventory",
-                                                  FieldValue.increment(quantity))
-                                          }
+                                                        val data = hashMapOf(
+                                                            "orderItemId" to "",
+                                                            "productId" to product["productId"],
+                                                            "orderId" to document.id,
+                                                            "quantity" to product["quantity"],
+                                                            "totalPrice" to String.format(
+                                                                "%.2f".format(
+                                                                    product["totalPrice"]
+                                                                )
+                                                            ).toDouble(),
+                                                            "totalProfit" to String.format(
+                                                                "%.2f".format(
+                                                                    product["totalProfit"]
+                                                                )
+                                                            ).toDouble(),
 
 
+                                                            )
+                                                        Log.d("data" , data.toString())
 
+                                                        val orderItem = db.collection("OrderItems").add(data).await()
+
+
+                                                                    if (orderItem != null) {
+                                                                        db.collection("OrderItems")
+                                                                            .document(orderItem.id)
+                                                                            .update(
+                                                                                "orderItemId",
+                                                                               orderItem.id
+                                                                            )
+
+                                                                    }
+
+
+                                                        val quantity =
+                                                            -product["quantity"].toString().toInt()
+                                                                .toDouble()
+                                                        db.collection("Products")
+                                                            .document(product["productId"].toString())
+                                                            .update(
+                                                                "inventory",
+                                                                FieldValue.increment(quantity)
+                                                            )
+                                                    }
+
+
+                                                }
+
+                                                withContext(Dispatchers.Main){
+                                                    delay(1000)
+                                                    mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "addToCardProduct")
+
+                                                    success=true
+
+                                                    /*    if(stores.size==1){
+                                                            Toast.makeText(context , " Your order has been successfully placed", Toast.LENGTH_SHORT).show()
+                                                        }
+
+                                                        else {
+                                                            Toast.makeText(context , " Your orders have been successfully placed", Toast.LENGTH_SHORT).show()
+                                                        }*/
+
+                                                }
+
+
+
+                                            }
 
                                         }
                                     }
@@ -351,24 +395,6 @@ Log.d("an" , animateTotalToPay.value.toString())
 
                         }
 
-                      scope.launch(Dispatchers.Default){
-                          delay(1000)
-
-                          withContext(Dispatchers.Main){
-                              mainActivityViewModel.setValue(mutableListOf<HashMap<String,Any>>() , "addToCardProduct")
-
-                              success=true
-
-                          /*    if(stores.size==1){
-                                  Toast.makeText(context , " Your order has been successfully placed", Toast.LENGTH_SHORT).show()
-                              }
-
-                              else {
-                                  Toast.makeText(context , " Your orders have been successfully placed", Toast.LENGTH_SHORT).show()
-                              }*/
-
-                          }
-                      }
 
 
 

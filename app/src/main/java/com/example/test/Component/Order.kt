@@ -395,7 +395,7 @@ fun Order(
                                 disabledContainerColor = lightCustomColor,
                                 disabledContentColor = Color.White
                             ),
-                            enabled = if (storeData != null) storeData!!["isAuthorized"] as Boolean else true,
+                            enabled =  (storeData!!["isAuthorized"] as Boolean && (storeData!!["status"]=="Open")) ,
 
                             onClick = {
 
@@ -653,8 +653,7 @@ fun Order(
                                 disabledContainerColor = lightCustomColor,
                                 disabledContentColor = Color.White
                             ),
-                            enabled = if (storeData != null) storeData!!["isAuthorized"] as Boolean else true,
-
+                            enabled = (storeData!!["isAuthorized"] as Boolean && (storeData!!["status"]=="Open"))
                             ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
