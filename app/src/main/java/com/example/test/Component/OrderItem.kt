@@ -131,7 +131,7 @@ fun OrderItem(data:HashMap<String,Any>){
                         verticalArrangement = Arrangement.Center
                     ){
 
-                        Image(painter = painter, contentDescription ="${data["name"]} image" , contentScale = ContentScale.Fit )
+                        Image(painter = painter, contentDescription ="${data["name"]} image" , contentScale = ContentScale.Crop )
 
 
 

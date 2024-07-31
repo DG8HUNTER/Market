@@ -267,7 +267,10 @@ Log.d("an" , animateTotalToPay.value.toString())
                         var totalProfitPerStore :Float =0f
                         stores.forEach {store ->
                             var total=0f
+                            items=0
+                            totalProfitPerStore  =0f
                             for(data in mainActivityViewModel.addToCardProduct.value){
+
                                 if(data["storeId"]==store["storeId"]){
                                  totalProfitPerStore+=data["totalProfit"].toString().toFloat()
                                  items+=1
